@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Вход в систему | NFS Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="utils.js"></script>
+  <style>
+    :root {
+      --nfs-yellow: #f1c40f;
+      --nfs-dark: #0a0a0a;
+      --nfs-border: #333;
+    }
+
+    body {
+      background: url('https://images7.alphacoders.com/517/thumb-1920-517466.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .auth-box {
+      background: rgba(0,0,0,0.9);
+      padding: 40px;
+      border-left: 5px solid var(--nfs-yellow);
+      width: 350px;
+      box-shadow: 20px 20px 0px rgba(0,0,0,0.5);
+    }
+
+    h2 {
+      text-transform: uppercase;
+      font-style: italic;
+      border-bottom: 2px solid var(--nfs-border);
+      padding-bottom: 10px;
+      margin-top: 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      background: #1a1a1a;
+      border: 1px solid var(--nfs-border);
+      color: #fff;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+    }
+
+    input:focus { border-color: var(--nfs-yellow); outline: none; }
+
+    /* ОБЫЧНАЯ ПРЯМОУГОЛЬНАЯ КНОПКА */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--nfs-yellow);
+      color: #000;
+      margin-top: 15px;
+    }
+    .btn-primary:hover { background: #fff; }
+
+    .btn-secondary {
+      background: none;
+      color: #888;
+      font-size: 0.75rem;
+      margin-top: 20px;
+      border: 1px solid transparent;
+    }
+    .btn-secondary:hover { color: var(--nfs-yellow); text-decoration: underline; }
+
+    .error {
+      color: #ff4d4d;
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+      display: none;
+      font-weight: bold;
+      background: rgba(255, 77, 77, 0.1);
+      padding: 8px;
+      border-left: 3px solid #ff4d4d;
+    }
+  </style>
+</head>
+<body>
+
+<div class="auth-box">
+  <h2 id="formTitle">Войти в игру</h2>
+  <div id="errorMsg" class="error"></div>
+
+  <div id="authFields">
+    <input type="email" id="email" placeholder="E-mail">
+    <input type="text" id="username" placeholder="Твой Никнейм" style="display: none;">
+    <input type="password" id="password" placeholder="Пароль">
+  </div>
+
+  <button class="btn btn-primary" id="mainBtn" onclick="handleAuth()">Войти</button>
+
+  <div style="text-align: center;">
+    <button class="btn btn-secondary" id="toggleBtn" onclick="toggleForm()">
+      Нет аккаунта? Зарегистрироваться
+    </button>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let isLogin = true;
+
+  function toggleForm() {
+    isLogin = !isLogin;
+    const errorEl = document.getElementById('errorMsg');
+    errorEl.style.display = 'none';
+
+    document.getElementById('formTitle').innerText = isLogin ? "Войти в игру" : "Регистрация гонщика";
+    document.getElementById('username').style.display = isLogin ? "none" : "block";
+    document.getElementById('mainBtn').innerText = isLogin ? "Войти" : "Создать профиль";
+    document.getElementById('toggleBtn').innerText = isLogin ?
+      "Нет аккаунта? Зарегистрироваться" : "Уже есть профиль? Войти в систему";
+  }
+
+  async function handleAuth() {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const username = document.getElementById('username').value.trim();
+
+    if (!email || !password || (!isLogin && !username)) {
+      showError("Заполни все поля, гонщик!");
+      return;
+    }
+
+    if (isLogin) {
+      // ЛОГИН
+      const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+      if (error) showError(error.message);
+      else window.location.href = 'index.html'; // После входа лучше на главную
+    } else {
+      // РЕГИСТРАЦИЯ
+      const { data, error } = await _supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { username: username },
+          emailRedirectTo: window.location.origin + '/index.html'
+        }
+      });
+
+      if (error) {
+        showError(error.message);
+      } else {
+        Swal.fire({
+          title: "ГОТОВО!",
+          text: "Проверь почту для подтверждения или попробуй войти.",
+          icon: "success",
+          background: "#111",
+          color: "#fff",
+          confirmButtonColor: "#f1c40f"
+        });
+      }
+    }
+  }
+
+  function showError(text) {
+    const errorEl = document.getElementById('errorMsg');
+    errorEl.innerText = ">> " + text;
+    errorEl.style.display = 'block';
+  }
+</script>
+</body>
+</html>

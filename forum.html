@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Форум Рокпорта | NFS Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root { --nfs-yellow: #f1c40f; --nfs-dark: #0a0a0a; }
+
+    body {
+      margin: 0; background: url('https://cdn.wallpapersafari.com/61/10/ixlZPs.jpg') no-repeat center center fixed;
+      background-size: cover; color: #fff; font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+      padding-bottom: 60px;
+    }
+
+    .top-navbar {
+      height: 70px; position: fixed; top: 0; width: 100%; z-index: 1100;
+      display: flex; justify-content: space-between; align-items: center; padding: 0 40px; box-sizing: border-box;
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+      repeating-linear-gradient(-45deg, #0a0a0a, #0a0a0a 40px, rgba(241, 196, 15, 0.4) 40px, rgba(241, 196, 15, 0.4) 80px);
+      border-bottom: 2px solid var(--nfs-yellow); box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+    }
+
+    .title-container { font-size: 1.5rem; font-weight: 900; font-style: italic; color: #fff; text-transform: uppercase; letter-spacing: 1px; text-shadow: 2px 2px 5px #000; }
+    #myNickContainer { display: flex; align-items: center; gap: 15px; }
+
+    .sidebar { width: 280px; background: rgba(0,0,0,0.95); height: calc(100vh - 70px); position: fixed; top: 70px; border-right: 2px solid #333; z-index: 1000; }
+    .nav-item { display: block; padding: 20px 30px; color: #bbb; text-decoration: none; text-transform: uppercase; font-size: 0.9rem; transition: 0.3s; }
+    .nav-item:hover, .nav-item.active { color: #fff; border-left: 5px solid var(--nfs-yellow); background: rgba(241,196,15,0.1); }
+
+    /* СТИЛЬ ДЛЯ БЕЙДЖА СООБЩЕНИЙ */
+    #msgBadge {
+      background: var(--nfs-yellow); color: #000; padding: 2px 6px;
+      font-size: 0.7rem; font-weight: 900; border-radius: 2px;
+      margin-left: 8px; box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+      display: none; /* Скрыт по умолчанию */
+    }
+
+    .container { margin-left: 280px; padding: 120px 50px 50px 50px; }
+    h1 { font-style: italic; text-transform: uppercase; border-bottom: 3px solid var(--nfs-yellow); display: inline-block; margin-bottom: 30px; }
+    .create-topic-box { background: rgba(0,0,0,0.8); border: 1px solid #333; padding: 25px; margin-bottom: 40px; }
+
+    input, textarea { width: 100%; background: #111; border: 1px solid #444; color: #fff; padding: 12px; margin-bottom: 15px; box-sizing: border-box; outline: none; resize: none; }
+    input:focus, textarea:focus { border-color: var(--nfs-yellow); }
+    .btn-create { background: var(--nfs-yellow); color: #000; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+
+    .topic-card { background: rgba(15,15,15,0.95); border-left: 6px solid #444; padding: 25px; margin-bottom: 20px; transition: 0.3s; cursor: pointer; box-shadow: 5px 5px 15px rgba(0,0,0,0.5); }
+    .topic-card:hover { border-color: var(--nfs-yellow); transform: translateX(10px); background: rgba(40,40,40,0.9); }
+    .topic-title { font-size: 1.8rem; color: var(--nfs-yellow); margin: 0 0 10px; text-transform: uppercase; font-weight: 900; font-style: italic; letter-spacing: 1px; text-shadow: 2px 2px 0px #000; }
+    .topic-meta { font-size: 0.8rem; color: #777; }
+
+    /* ФУТЕР И ПОИСК */
+    .bottom-bar {
+      position: fixed; bottom: 0; width: 100%;
+      background: rgba(0,0,0,0.95); padding: 15px 0;
+      border-top: 2px solid var(--nfs-yellow);
+      text-align: center; font-size: 0.9rem; z-index: 1000;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .highlight { color: var(--nfs-yellow); font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<header class="top-navbar">
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <img src="https://i.ibb.co/DfKw5Ywp/IMG-3707.png"
+         alt="NFS Logo"
+         style="height: 65px; width: auto; filter: drop-shadow(2px 2px 8px #000);">
+
+    <div style="font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 5px #000; font-style: italic; text-transform: uppercase;">
+      FORUM
+    </div>
+  </div>
+
+  <div id="myNickContainer" style="display: flex; align-items: center;">
+    <span id="myNick" style="font-weight: bold; color: var(--nfs-yellow); text-shadow: 2px 2px 4px #000; font-size: 1.1rem;">
+      ЗАГРУЗКА...
+    </span>
+    <button onclick="handleLogout()" style="background:rgba(0,0,0,0.6); border:1px solid #ff4444; color:#ff4444; cursor:pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase; margin-left: 15px;">
+      EXIT
+    </button>
+  </div>
+</header>
+
+<aside class="sidebar">
+  <nav style="padding-top: 20px;">
+    <a href="index.html" class="nav-item">Главная</a>
+    <a href="forum.html" class="nav-item active">Форум</a>
+    <a href="chats.html" class="nav-item">МЕССЕНДЖЕР <span id="msgBadge">0</span></a>
+    <a href="lobby.html" class="nav-item">ПОИСК ИГРЫ</a>
+    <a href="leaderboard.html" class="nav-item">ЛИДЕРЫ</a>
+    <a href="profile.html" class="nav-item">Мой Профиль</a>
+  </nav>
+</aside>
+
+<div class="container">
+  <h1>Игровые обсуждения</h1>
+  <div class="create-topic-box">
+    <h3 style="margin-top:0; color: var(--nfs-yellow); font-style: italic;">НОВОЕ ОБСУЖДЕНИЕ</h3>
+    <input type="text" id="topicTitle" placeholder="Заголовок темы...">
+    <textarea id="topicContent" rows="3" placeholder="Суть вопроса..."></textarea>
+    <button class="btn-create" onclick="createNewTopic()">Опубликовать</button>
+  </div>
+  <div id="topicsList"></div>
+</div>
+
+<footer class="bottom-bar">
+  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | В ЗАЕЗДЕ: <span class="highlight" id="footerPlaying">0</span></div>
+</footer>
+
+<script>
+  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let userProfile = null;
+
+  window.onload = async () => {
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (!user) { window.location.href = 'auth.html'; return; }
+
+    const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+    if (profile) {
+      userProfile = profile;
+      document.getElementById('myNick').innerText = userProfile.username;
+      initOnlineRadar(profile.username, profile.status);
+      updateMessageBadge(); // Проверяем сообщения при входе
+
+      // REALTIME: Слушаем входящие сообщения
+      _supabase.channel('forum-msg-updates')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${user.id}` }, () => {
+          updateMessageBadge();
+        })
+        .subscribe();
+    }
+    loadTopics();
+  };
+
+  async function updateMessageBadge() {
+    if (!userProfile) return;
+    const { count } = await _supabase
+      .from('direct_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('receiver_id', userProfile.id)
+      .eq('is_read', false);
+
+    const b = document.getElementById('msgBadge');
+    if (count > 0) {
+      b.innerText = count;
+      b.style.display = 'inline-block';
+    } else {
+      b.style.display = 'none';
+    }
+  }
+
+  function initOnlineRadar(username, status) {
+    const presenceChannel = _supabase.channel('online-users', { config: { presence: { key: username } } });
+    presenceChannel.on('presence', { event: 'sync' }, () => {
+      const state = presenceChannel.presenceState();
+      let total = 0; let playing = 0;
+      for (const key in state) {
+        total++;
+        const s = state[key][0].status;
+        if (s === 'IN GAME' || s === 'LOOKING FOR GAME') playing++;
+      }
+      document.getElementById('footerOnline').innerText = total;
+      document.getElementById('footerPlaying').innerText = playing;
+    }).subscribe(async (s) => {
+      if (s === 'SUBSCRIBED') await presenceChannel.track({ online_at: new Date().toISOString(), status: status });
+    });
+  }
+
+  async function loadTopics() {
+    const { data } = await _supabase.from('forum_topics').select('*').order('created_at', { ascending: false });
+    const list = document.getElementById('topicsList');
+    list.innerHTML = '';
+    if (data) {
+      data.forEach(topic => {
+        const date = new Date(topic.created_at).toLocaleDateString();
+        list.innerHTML += `
+          <div class="topic-card" onclick="window.location.href='topic.html?id=${topic.id}'">
+            <div class="topic-title">${topic.title}</div>
+            <div style="margin-bottom: 10px; color: #ccc;">${topic.content.substring(0, 120)}${topic.content.length > 120 ? '...' : ''}</div>
+            <div class="topic-meta">Гонщик: <strong>${topic.author_name}</strong> • ${date}</div>
+          </div>
+        `;
+      });
+    }
+  }
+
+  async function createNewTopic() {
+    const title = document.getElementById('topicTitle').value.trim();
+    const content = document.getElementById('topicContent').value.trim();
+    if (!title || !content) return;
+    const { error } = await _supabase.from('forum_topics').insert([{ title, content, author_name: userProfile.username, author_id: userProfile.id }]);
+    if (!error) { document.getElementById('topicTitle').value = ''; document.getElementById('topicContent').value = ''; loadTopics(); }
+  }
+
+  async function handleLogout() { await _supabase.auth.signOut(); window.location.href = 'auth.html'; }
+</script>
+</body>
+</html>

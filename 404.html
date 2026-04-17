@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>404 | Сигнал потерян</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --nfs-yellow: #f1c40f;
+      --nfs-red: #ff4d4d;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0a0a0a;
+      background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
+      url('https://images7.alphacoders.com/517/thumb-1920-517466.jpg');
+      background-size: cover;
+      background-position: center;
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    /* СКАНЕРНЫЕ ЛИНИИ (ЭФФЕКТ МОНИТОРА) */
+    body::before {
+      content: " ";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+      background-size: 100% 2px, 3px 100%;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .error-container {
+      background: rgba(0, 0, 0, 0.9);
+      padding: 60px;
+      border-left: 5px solid var(--nfs-yellow);
+      box-shadow: 20px 20px 0px rgba(0,0,0,0.5);
+      position: relative;
+      z-index: 10;
+      max-width: 500px;
+    }
+
+    .glitch {
+      font-size: 5rem;
+      font-weight: 900;
+      margin: 0;
+      color: var(--nfs-yellow);
+      text-transform: uppercase;
+      font-style: italic;
+      position: relative;
+      animation: glitch 1s infinite;
+    }
+
+    @keyframes glitch {
+      0% { transform: skew(0deg); }
+      20% { transform: skew(-2deg); text-shadow: 2px 0 red; }
+      40% { transform: skew(2deg); text-shadow: -2px 0 blue; }
+      60% { transform: skew(0deg); }
+      100% { transform: skew(0deg); }
+    }
+
+    h2 {
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 10px 0 20px;
+      color: #ccc;
+    }
+
+    p {
+      color: #888;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .btn-back {
+      background: var(--nfs-yellow);
+      color: #000;
+      border: none;
+      padding: 15px 40px;
+      font-weight: bold;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-size: 1rem;
+      clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+      transition: 0.3s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-back:hover {
+      background: #fff;
+      transform: scale(1.1);
+    }
+
+    .police-code {
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 0.7rem;
+      color: #444;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+
+<div class="error-container">
+  <div class="police-code">CODE: 10-44 / SIGNAL_LOST</div>
+  <h1 class="glitch">404</h1>
+  <h2>ВЫЕЗД ЗА ПРЕДЕЛЫ ГОРОДА</h2>
+  <p>Полиция Рокпорта сообщает: страница, которую вы ищете, скрылась в неизвестном направлении или никогда не существовала в этой базе данных.</p>
+
+  <a href="index.html" class="btn-back">ВЕРНУТЬСЯ В УКРЫТИЕ</a>
+</div>
+
+</body>
+</html>

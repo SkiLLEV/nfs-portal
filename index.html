@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="utils.js"></script>
+  <title>NFS MW Portal | Главная</title>
+  <style>
+    :root {
+      --nfs-yellow: #f1c40f;
+      --nfs-dark: rgba(15, 15, 15, 0.98);
+      --nfs-border: #333;
+      --admin-red: #e74c3c;
+      --nfs-bg: url('https://a.d-cd.net/89b5ea2s-960.jpg');
+    }
+
+    body {
+      margin: 0; padding: 0;
+      background: var(--nfs-bg) no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ШАПКА */
+    .top-navbar {
+      height: 70px;
+      position: fixed;
+      top: 0; width: 100%;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      box-sizing: border-box;
+
+      /* Мягкий полосатый фон: темно-серый + приглушенный желтый */
+      background:
+        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), /* Затемняющий слой */
+        repeating-linear-gradient(
+          -45deg,
+          #0a0a0a,
+          #0a0a0a 40px,
+          rgba(241, 196, 15, 0.4) 40px, /* Желтый теперь полупрозрачный */
+          rgba(241, 196, 15, 0.4) 80px
+        );
+
+      border-bottom: 2px solid var(--nfs-yellow);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+    }
+
+    .logo { font-size: 1.6rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 5px #000; font-style: italic; }
+
+    /* УВЕДОМЛЕНИЯ */
+    .notifications-wrapper { position: relative; margin-right: 20px; display: flex; align-items: center; }
+    #notifyBell { cursor: pointer; position: relative; font-size: 22px; transition: 0.2s; }
+    #notifyBell:hover { transform: scale(1.1); }
+    #notifyCount {
+      position: absolute; top: -5px; right: -8px; background: var(--admin-red);
+      color: white; border-radius: 50%; padding: 1px 6px; font-size: 10px;
+      font-weight: bold; border: 1px solid white; display: none;
+    }
+    #notifyPopup {
+      display: none; position: absolute; right: 0; top: 45px;
+      width: 280px; background: #0a0a0a; border: 2px solid var(--nfs-yellow);
+      z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+    .notify-header { padding: 10px; background: #1a1a1a; border-bottom: 1px solid #333; font-size: 11px; font-weight: bold; color: var(--nfs-yellow); text-transform: uppercase; }
+    .notify-item { padding: 12px; border-bottom: 1px solid #222; }
+    .notify-btns { display: flex; gap: 5px; margin-top: 8px; }
+    .btn-acc { flex: 1; background: var(--nfs-yellow); border: none; padding: 5px; cursor: pointer; font-weight: bold; font-size: 10px; text-transform: uppercase; }
+    .btn-rej { flex: 1; background: #333; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; text-transform: uppercase; }
+
+    /* САЙДБАР */
+    .sidebar {
+      width: 250px; background: var(--nfs-dark); height: 100vh;
+      position: fixed; top: 70px; left: 0;
+      border-right: 2px solid var(--nfs-border); padding-top: 20px; z-index: 999;
+    }
+
+    .nav-item {
+      display: block; padding: 18px 30px; color: #bbb;
+      text-decoration: none; font-weight: 600; text-transform: uppercase;
+      border-bottom: 1px solid #222; transition: 0.3s; font-size: 0.85rem;
+      position: relative;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #fff; background: rgba(241, 196, 15, 0.15);
+      border-left: 5px solid var(--nfs-yellow);
+    }
+
+    /* БЕЙДЖ СООБЩЕНИЙ */
+    #msgBadge {
+      background: var(--nfs-yellow); color: #000; padding: 1px 6px;
+      font-size: 0.7rem; font-weight: 900; border-radius: 2px;
+      margin-left: 8px; box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+      display: none;
+    }
+
+    /* КОНТЕНТ */
+    .main-content { margin-left: 250px; margin-top: 70px; padding: 50px; min-height: 100vh; }
+    .content-box {
+      background: rgba(0, 0, 0, 0.85); padding: 40px;
+      border-radius: 2px; border-left: 4px solid var(--nfs-yellow);
+      max-width: 800px; line-height: 1.8;
+    }
+
+    .btn-login {
+      background: var(--nfs-yellow); border: none; padding: 10px 30px;
+      cursor: pointer; font-weight: bold; text-transform: uppercase;
+      transition: 0.2s;
+    }
+    .btn-login:hover { background: #fff; transform: scale(1.05); }
+
+    /* РАДАР */
+    .radar-box {
+      background: rgba(20, 20, 20, 0.9); border: 1px solid #333;
+      padding: 20px; margin-top: 30px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    }
+    .radar-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px; border-bottom: 1px solid #222; animation: pulse-border 2s infinite;
+    }
+    @keyframes pulse-border {
+      0% { border-left: 3px solid #444; }
+      50% { border-left: 3px solid var(--nfs-yellow); }
+      100% { border-left: 3px solid #444; }
+    }
+    .btn-race {
+      background: var(--nfs-yellow); color: #000; border: none; padding: 5px 12px;
+      font-weight: bold; font-size: 0.7rem; cursor: pointer; text-transform: uppercase;
+    }
+
+    .racer-link { color: var(--nfs-yellow); font-weight: bold; cursor: pointer; text-decoration: none; }
+    .racer-link:hover { color: #fff; text-shadow: 0 0 8px var(--nfs-yellow); }
+
+    /* ФУТЕР И ПОИСК */
+    .bottom-bar {
+      position: fixed; bottom: 0; width: 100%;
+      background: rgba(0,0,0,0.95); padding: 15px 0;
+      border-top: 2px solid var(--nfs-yellow);
+      text-align: center; font-size: 0.9rem; z-index: 1000;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .highlight { color: var(--nfs-yellow); font-weight: bold; }
+
+    .search-widget {
+      position: fixed; bottom: 70px; right: 40px; z-index: 1001;
+      width: 220px; background: rgba(0,0,0,0.9);
+      border-right: 4px solid var(--nfs-yellow); padding: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .user-info { display: none; align-items: center; gap: 20px; }
+    .admin-glow { color: #ff4d4d !important; text-shadow: 0 0 10px #ff0000; font-weight: 900; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; }
+    .modal {
+      display: none; position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%); background: #111; padding: 40px;
+      border: 2px solid var(--nfs-yellow); width: 320px; z-index: 2100; text-align: center;
+    }
+    input {
+      width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a;
+      border: 1px solid #444; color: #fff; box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+<header class="top-navbar">
+  <div style="display: flex; align-items: center; gap: 15px;">
+    <img src="https://i.postimg.cc/W397HdLp/Need-for-Speed-Most-Wanted-Logo-Vector-svg.png"
+         alt="NFS Logo"
+         style="height: 45px; width: auto; filter: drop-shadow(2px 2px 5px #000);">
+
+    <div class="logo">SAFEHOUSE</div>
+  </div>
+
+  <div class="user-area" style="display: flex; align-items: center;">
+    <div class="notifications-wrapper" id="notifyWrapper" style="display: none;">
+      <div id="notifyBell" onclick="toggleNotifyPopup()">
+        🔔 <span id="notifyCount">0</span>
+      </div>
+      <div id="notifyPopup">
+        <div class="notify-header">Запросы в друзья</div>
+        <div id="notifyList"></div>
+      </div>
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="openModal()">LOGIN</button>
+    <div class="user-info" id="userInfo">
+      <span id="displayNick" style="font-weight: bold; cursor: pointer;" onclick="window.location.href='profile.html'">Гонщик</span>
+      <button onclick="handleLogout()" style="background:none; border:1px solid #ff4444; color:#ff4444; padding:5px 10px; cursor:pointer; font-size:0.7rem; font-weight:bold; text-transform:uppercase; margin-left: 15px;">EXIT</button>
+    </div>
+  </div>
+</header>
+
+<aside class="sidebar">
+  <nav>
+    <a href="index.html" class="nav-item active">ГЛАВНАЯ</a>
+    <a href="forum.html" class="nav-item">ФОРУМ</a>
+    <a href="chats.html" class="nav-item">МЕССЕНДЖЕР <span id="msgBadge">0</span></a>
+    <a href="lobby.html" class="nav-item">ПОИСК ИГРЫ</a>
+    <a href="leaderboard.html" class="nav-item">ЛИДЕРЫ</a>
+    <a href="profile.html" class="nav-item">МОЙ ПРОФИЛЬ</a>
+
+    <div style="margin-top: 30px; padding: 0 20px;">
+      <div style="font-size: 0.7rem; color: #555; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #222; padding-bottom: 5px; margin-bottom: 15px;">
+        Мои друзья
+      </div>
+      <div id="sidebarFriendsList">
+        <p style="color: #444; font-size: 0.8rem; font-style: italic;">Загрузка...</p>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<main class="main-content">
+  <div class="content-box">
+    <h1 style="color: var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;">
+      Это не просто сайт...
+    </h1>
+    <p style="font-size: 1.2rem; color: #fff; line-height: 1.5; font-weight: 300;">
+      Ты в системе, гонщик. Это твой главный узел связи в городе, где репутация важнее правил.
+    </p>
+    <p style="color: #ccc; border-left: 2px solid var(--nfs-yellow); padding-left: 15px; margin: 20px 0;">
+      Мы создали это место для тех, кто ищет единомышленников. Здесь ты можешь найти напарников для заездов через систему радара, обсудить секреты тюнинга на форуме или собрать экипаж из лучших водителей.
+    </p>
+
+    <p style="font-size: 1.2rem; color: #fff; line-height: 1.5; font-weight: 300;">
+      Спасибо, что ты с нами!
+    </p>
+
+    <div class="radar-box" id="matchmakingRadar" style="margin-top: 40px;">
+      <h2 style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 0.9rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; letter-spacing: 2px;">
+        ПЕРЕХВАТ ЧАСТОТЫ: ИЩУТ ИГРУ
+      </h2>
+      <div id="radarList" style="margin-top: 15px;">
+        <p style="color: #444; font-size: 0.8rem;">Сканирование сигналов...</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="search-widget">
+  <div style="font-size: 0.65rem; color: #555; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
+    ПОИСК ИГРОКА ПО НИКУ:
+  </div>
+  <div style="display: flex; gap: 5px;">
+    <input type="text" id="globalSearchInput" placeholder="NICKNAME..." onkeypress="if(event.key === 'Enter') performGlobalSearch()" style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 6px; outline: none;">
+    <button onclick="performGlobalSearch()" style="background: var(--nfs-yellow); border: none; font-weight: bold; cursor: pointer; padding: 0 12px;">></button>
+  </div>
+</div>
+
+<footer class="bottom-bar">
+  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | В ЗАЕЗДЕ: <span class="highlight" id="footerPlaying">0</span></div>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+<div class="modal" id="loginModal">
+  <h2 style="color: var(--nfs-yellow); text-transform: uppercase;">Вход в систему</h2>
+  <input type="email" id="emailInput" placeholder="EMAIL">
+  <input type="password" id="passInput" placeholder="ПАРОЛЬ">
+  <button class="btn-login" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">АВТОРИЗАЦИЯ</button>
+
+  <div style="margin-top: 15px; font-size: 0.8rem;">
+    Нет аккаунта?
+    <a href="auth.html" style="color: var(--nfs-yellow); text-decoration: none; font-weight: bold; text-transform: uppercase;">
+      Зарегистрироваться
+    </a>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let myProfile = null;
+
+  window.onload = async () => {
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (profile) {
+        myProfile = profile;
+        showLoggedIn(profile);
+        initOnlineRadar(profile.username, profile.status);
+        document.getElementById('notifyWrapper').style.display = 'flex';
+        updateFriendNotifications();
+        loadSidebarFriends();
+        updateMessageBadge();
+
+        // REALTIME: Слушаем всё сразу
+        _supabase.channel('global-updates')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'friend_requests' }, () => {
+            updateFriendNotifications();
+            loadSidebarFriends();
+          })
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${myProfile.id}` }, () => {
+            updateMessageBadge();
+          })
+          .subscribe();
+      }
+    } else {
+      initOnlineRadar("Guest_" + Math.floor(Math.random()*1000), "OFFLINE");
+    }
+    scanForPlayers();
+  };
+
+  async function updateMessageBadge() {
+    if (!myProfile) return;
+    const { count } = await _supabase
+      .from('direct_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('receiver_id', myProfile.id)
+      .eq('is_read', false);
+
+    const b = document.getElementById('msgBadge');
+    if (count > 0) {
+      b.innerText = count;
+      b.style.display = 'inline-block';
+    } else {
+      b.style.display = 'none';
+    }
+  }
+
+  async function loadSidebarFriends() {
+    if (!myProfile) return;
+
+    const { data, error } = await _supabase.from('friend_requests')
+      .select('sender_id, receiver_id, sender:profiles!friend_requests_sender_id_fkey(username, avatar_url, status), receiver:profiles!friend_requests_receiver_id_fkey(username, avatar_url, status)')
+      .eq('status', 'accepted')
+      .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`);
+
+    const listContainer = document.getElementById('sidebarFriendsList');
+    if (!data || data.length === 0) {
+      listContainer.innerHTML = '<p style="color: #444; font-size: 0.8rem;">Список пуст...</p>';
+      return;
+    }
+
+    listContainer.innerHTML = '';
+    data.forEach(rel => {
+      const friend = rel.sender_id === myProfile.id ? rel.receiver : rel.sender;
+      let dotColor = '#555';
+      let statusName = friend.status || 'OFFLINE';
+
+      if (statusName === 'IN GAME' || statusName === 'LOOKING FOR GAME') dotColor = 'var(--nfs-yellow)';
+      else if (statusName === 'ONLINE') dotColor = '#2ecc71';
+
+      listContainer.innerHTML += `
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s;"
+             onclick="window.location.href='profile.html?u=${friend.username}'">
+          <div style="position: relative;">
+            <img src="${friend.avatar_url || 'https://via.placeholder.com/35'}"
+                 style="width: 35px; height: 35px; border: 1px solid #333; object-fit: cover; display: block;">
+            <div style="width: 10px; height: 10px; background-color: ${dotColor}; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid #000; ${statusName !== 'OFFLINE' ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
+          </div>
+          <div style="overflow: hidden;">
+            <div style="font-size: 0.9rem; font-weight: 900; color: #eee; text-transform: uppercase;">${friend.username}</div>
+            <div style="font-size: 0.6rem; color: #555; font-weight: bold; text-transform: uppercase;">${statusName}</div>
+          </div>
+        </div>`;
+    });
+  }
+
+  function toggleNotifyPopup() {
+    const p = document.getElementById('notifyPopup');
+    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+  }
+
+  async function updateFriendNotifications() {
+    if (!myProfile) return;
+    const { data: requests } = await _supabase.from('friend_requests').select('*').eq('receiver_id', myProfile.id).eq('status', 'pending');
+    const countEl = document.getElementById('notifyCount');
+    const listEl = document.getElementById('notifyList');
+    if (requests && requests.length > 0) {
+      countEl.innerText = requests.length; countEl.style.display = 'block';
+      listEl.innerHTML = '';
+      requests.forEach(req => {
+        listEl.innerHTML += `<div class="notify-item"><b>${req.sender_name}</b> в друзья?<div class="notify-btns"><button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button><button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">НЕТ</button></div></div>`;
+      });
+    } else { countEl.style.display = 'none'; listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444;">Нет запросов</div>'; }
+  }
+
+  async function respondFriend(reqId, status) {
+    if (status === 'accepted') await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
+    else await _supabase.from('friend_requests').delete().eq('id', reqId);
+    updateFriendNotifications(); loadSidebarFriends();
+  }
+
+  async function performGlobalSearch() {
+    const query = document.getElementById('globalSearchInput').value.trim();
+    if (!query) return;
+    const { data } = await _supabase.from('profiles').select('username').ilike('username', query).maybeSingle();
+    if (data) window.location.href = `profile.html?u=${data.username}`;
+    else Swal.fire({title:'ОШИБКА', text:'Гонщик не найден', icon:'error', background:'#111', color:'#fff', confirmButtonColor:'#f1c40f'});
+  }
+
+  function initOnlineRadar(username, status) {
+    const presenceChannel = _supabase.channel('online-users', { config: { presence: { key: username } } });
+    presenceChannel.on('presence', { event: 'sync' }, () => {
+      const state = presenceChannel.presenceState();
+      let total = 0; let playing = 0;
+      for (const key in state) {
+        total++;
+        if (state[key][0].status === 'IN GAME' || state[key][0].status === 'LOOKING FOR GAME') playing++;
+      }
+      document.getElementById('footerOnline').innerText = total;
+      document.getElementById('footerPlaying').innerText = playing;
+    }).subscribe(async (s) => {
+      if (s === 'SUBSCRIBED') await presenceChannel.track({ online_at: new Date().toISOString(), status: status });
+    });
+  }
+
+  async function scanForPlayers() {
+    const { data } = await _supabase.from('profiles').select('*').eq('status', 'LOOKING FOR GAME');
+    const list = document.getElementById('radarList');
+    if (!data || data.length === 0) { list.innerHTML = '<p style="color:#444; font-size:0.8rem;">В эфире тишина...</p>'; return; }
+    list.innerHTML = '';
+    data.forEach(racer => {
+      const isMe = myProfile && racer.id === myProfile.id;
+      list.innerHTML += `<div class="radar-item"><div style="display:flex; align-items:center; gap:10px;"><img src="${racer.avatar_url || 'https://via.placeholder.com/30'}" style="width:30px; height:30px; border: 1px solid var(--nfs-yellow); object-fit:cover;"><span class="racer-link" onclick="window.location.href='profile.html?u=${racer.username}'">${racer.username}</span></div>${!isMe ? `<button class="btn-race" onclick="window.location.href='chats.html?to=${racer.username}'">ВЫЗВАТЬ</button>` : '<small style="color:var(--nfs-yellow); font-weight:bold;">ВЫ</small>'}</div>`;
+    });
+  }
+
+  function showLoggedIn(profile) {
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('userInfo').style.display = 'flex';
+    const nick = document.getElementById('displayNick'); nick.innerText = profile.username;
+    if (profile.is_admin) nick.className = 'admin-glow';
+  }
+
+  function openModal() { document.getElementById('modalOverlay').style.display = 'block'; document.getElementById('loginModal').style.display = 'block'; }
+  function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('loginModal').style.display = 'none'; }
+  async function handleLogin() {
+    const email = document.getElementById('emailInput').value.trim();
+    const password = document.getElementById('passInput').value.trim();
+    const { error } = await _supabase.auth.signInWithPassword({ email, password });
+    if (error) alert(error.message); else location.reload();
+  }
+  async function handleLogout() { await _supabase.auth.signOut(); location.reload(); }
+  setInterval(scanForPlayers, 15000);
+</script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Обсуждение | NFS Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="utils.js"></script>
+
+  <style>
+    :root { --nfs-yellow: #f1c40f; --nfs-dark: #0a0a0a; }
+    body {
+      margin: 0;
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+      url('https://toprating.in.ua/wp-content/uploads/2016/07/games-need_for_speed_3_most_wanted_002_1280x720.jpg')
+      no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+
+    .main-topic { background: rgba(255,255,255,0.05); padding: 30px; border-left: 5px solid var(--nfs-yellow); margin-bottom: 20px; }
+    .comment { background: #151515; padding: 15px; margin-bottom: 10px; border: 1px solid #333; }
+    .comment-meta { font-size: 0.8rem; color: var(--nfs-yellow); margin-bottom: 5px; }
+
+    /* ОБНОВЛЕННЫЙ ТЕКСТАРЕА */
+    textarea {
+      width: 100%;
+      background: #111;
+      border: 1px solid #444;
+      color: #fff;
+      padding: 15px;
+      margin: 20px 0;
+      outline: none;
+      resize: none; /* изменение размера окна для сообщений */
+      box-sizing: border-box; /* Фикс ширины */
+    }
+    textarea:focus { border-color: var(--nfs-yellow); }
+
+    .btn { background: var(--nfs-yellow); border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+    .btn:hover { transform: scale(1.05); background: #fff; }
+    .btn-secondary { background: #333; color: #fff; margin-right: 10px; }
+    .btn-danger { background: #ff4d4d; color: #fff; }
+
+    .back-link { color: #888; text-decoration: none; display: block; margin-bottom: 20px; font-size: 0.9rem; }
+    .back-link:hover { color: var(--nfs-yellow); }
+
+    .hidden { display: none !important; }
+    .nfs-swal-popup { border: 2px solid var(--nfs-yellow) !important; }
+
+    .racer-link { color: var(--nfs-yellow); cursor: pointer; text-decoration: underline; font-weight: bold; }
+    .racer-link:hover { color: #fff; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <a href="forum.html" class="back-link">← Вернуться в архив обсуждений</a>
+
+  <div id="topicDetail">
+    <div class="main-topic">
+      <p style="color: #666;">Сканирование частоты...</p>
+    </div>
+  </div>
+
+  <div id="authorControls" class="hidden" style="margin-bottom: 40px; padding-left: 30px;">
+    <button class="btn btn-secondary" onclick="editTopic()">Редактировать</button>
+    <button class="btn btn-danger" onclick="confirmDeleteTopic()">Удалить тему</button>
+  </div>
+
+  <hr style="border: 0; border-top: 1px solid #333; margin: 40px 0;">
+
+  <div id="commentsList">
+    <h3>ОТВЕТЫ:</h3>
+  </div>
+
+  <div id="replyBox">
+    <h3 style="color: var(--nfs-yellow); font-style: italic;">ОТПРАВИТЬ ОТВЕТ</h3>
+    <textarea id="commentText" rows="3" placeholder="Введите ваше сообщение..."></textarea>
+    <button class="btn" onclick="postComment()">Отправить</button>
+  </div>
+</div>
+
+<script>
+  // Твой JS код остается таким же
+  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const topicId = urlParams.get('id');
+
+  let myName = "";
+  let currentUserId = null;
+  let topicData = null;
+
+  window.onload = async () => {
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (user) {
+      currentUserId = user.id;
+      const { data: prof } = await _supabase.from('profiles').select('username').eq('id', user.id).single();
+      if (prof) myName = prof.username;
+    } else {
+      window.location.href = 'auth.html';
+      return;
+    }
+    await loadFullTopic();
+    await loadComments();
+  };
+
+  async function loadFullTopic() {
+    const { data, error } = await _supabase.from('forum_topics').select('*').eq('id', topicId).single();
+    if (error || !data) {
+      document.getElementById('topicDetail').innerHTML = "<h2>Тема не найдена или стерта полицией.</h2>";
+      return;
+    }
+    topicData = data;
+    document.getElementById('topicDetail').innerHTML = `
+      <div class="main-topic">
+        <h1 style="color:var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;">${data.title}</h1>
+        <p style="font-size: 1.1rem; line-height: 1.6; color: #eee;">${data.content}</p>
+        <small style="color: #888;">Автор поста:
+           <span class="racer-link" onclick="window.location.href='profile.html?u=${data.author_name}'">
+             ${data.author_name}
+           </span>
+        </small>
+      </div>
+    `;
+    if (currentUserId === data.author_id) {
+      document.getElementById('authorControls').classList.remove('hidden');
+    }
+  }
+
+  async function loadComments() {
+    const { data } = await _supabase.from('forum_comments')
+      .select('*')
+      .eq('topic_id', topicId)
+      .order('created_at', {ascending: true});
+
+    const list = document.getElementById('commentsList');
+    list.innerHTML = '<h3 style="border-bottom: 1px solid #222; padding-bottom: 10px; font-style: italic;">ПЕРЕХВАТ СООБЩЕНИЙ:</h3>';
+
+    if (data && data.length > 0) {
+      data.forEach(c => {
+        list.innerHTML += `
+          <div class="comment">
+            <div class="comment-meta">
+               <span class="racer-link" onclick="window.location.href='profile.html?u=${c.author_name}'">
+                 ${c.author_name}
+               </span> • ${new Date(c.created_at).toLocaleString()}
+            </div>
+            <div style="color: #ddd; line-height: 1.4;">${c.content}</div>
+          </div>
+        `;
+      });
+    } else {
+      list.innerHTML += '<p style="color: #444;">На этой частоте пока тишина...</p>';
+    }
+  }
+
+  async function postComment() {
+    const text = document.getElementById('commentText').value.trim();
+    if (!text) return;
+
+    const { error } = await _supabase.from('forum_comments').insert([
+      { topic_id: topicId, content: text, author_name: myName }
+    ]);
+
+    if (!error) {
+      document.getElementById('commentText').value = '';
+      nfsNotify("Ответ отправлен в сеть");
+      loadComments();
+    }
+  }
+
+  async function confirmDeleteTopic() {
+    const result = await Swal.fire({
+      title: 'УНИЧТОЖИТЬ УЛИКИ?',
+      text: "Это сообщение исчезнет из архивов навсегда!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ff4d4d',
+      confirmButtonText: 'УДАЛИТЬ',
+      cancelButtonText: 'ОТМЕНА',
+      background: '#0a0a0a',
+      color: '#fff'
+    });
+    if (result.isConfirmed) {
+      const { error } = await _supabase.from('forum_topics').delete().eq('id', topicId);
+      if (!error) {
+        nfsNotify("Тема удалена");
+        setTimeout(() => window.location.href = 'forum.html', 1000);
+      }
+    }
+  }
+
+  async function editTopic() {
+    const { value: formValues } = await Swal.fire({
+      title: 'ТЮНИНГ РАПОРТА',
+      background: '#0a0a0a',
+      color: '#fff',
+      html:
+        `<input id="swal-title" class="swal2-input" placeholder="Заголовок" value="${topicData.title}" style="background:#111; color:#fff; border:1px solid #444">` +
+        `<textarea id="swal-content" class="swal2-textarea" placeholder="Содержание" style="background:#111; color:#fff; border:1px solid #444; height: 150px;">${topicData.content}</textarea>`,
+      confirmButtonText: 'СОХРАНИТЬ',
+      confirmButtonColor: '#f1c40f',
+      preConfirm: () => {
+        return {
+          title: document.getElementById('swal-title').value.trim(),
+          content: document.getElementById('swal-content').value.trim()
+        }
+      }
+    });
+    if (formValues) {
+      const { error } = await _supabase.from('forum_topics')
+        .update({ title: formValues.title, content: formValues.content })
+        .eq('id', topicId);
+      if (!error) {
+        nfsNotify("Данные обновлены");
+        loadFullTopic();
+      }
+    }
+  }
+</script>
+</body>
+</html>

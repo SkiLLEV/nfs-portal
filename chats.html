@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Мои Чаты | NFS Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="utils.js"></script>
+
+  <style>
+    :root {
+      --nfs-yellow: #f1c40f;
+      --nfs-dark: rgba(15, 15, 15, 0.98);
+      --nfs-border: #333;
+      --nfs-bg: url('https://cdn.wallpapersafari.com/61/10/ixlZPs.jpg');
+    }
+
+    body {
+      margin: 0; padding: 0;
+      background: var(--nfs-bg) no-repeat center center fixed;
+      background-size: cover;
+      color: #fff; font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ШАПКА */
+    .top-navbar {
+      height: 90px;
+      position: fixed;
+      top: 0; width: 100%;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+        repeating-linear-gradient(
+          -45deg,
+          #0a0a0a,
+          #0a0a0a 40px,
+          rgba(241, 196, 15, 0.4) 40px,
+          rgba(241, 196, 15, 0.4) 80px
+        );
+      border-bottom: 2px solid var(--nfs-yellow);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+    }
+
+    /* САЙДБАР */
+    .main-sidebar {
+      width: 250px; background: var(--nfs-dark); height: calc(100vh - 90px); position: fixed; top: 90px; border-right: 2px solid #333; z-index: 900;
+    }
+    .nav-item { display: block; padding: 20px 30px; color: #bbb; text-decoration: none; text-transform: uppercase; transition: 0.3s; font-size: 0.85rem; }
+    .nav-item:hover, .nav-item.active { color: #fff; background: rgba(241,196,15,0.1); border-left: 5px solid var(--nfs-yellow); }
+
+    /* КОНТЕЙНЕР ЧАТА */
+    .app-container { display: flex; height: calc(100vh - 90px); margin-top: 90px; margin-left: 250px; }
+
+    .chat-list { width: 320px; background: rgba(10, 10, 10, 0.95); border-right: 1px solid var(--nfs-border); overflow-y: auto; }
+    .chat-category { padding: 20px 20px 10px; font-size: 0.7rem; color: #555; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; }
+
+    .chat-item {
+      padding: 18px 20px;
+      border-bottom: 1px solid #1a1a1a;
+      display: flex; align-items: center; gap: 15px;
+      cursor: pointer; transition: 0.2s; position: relative;
+    }
+
+    .chat-item:hover { background: rgba(241, 196, 15, 0.05); }
+    .chat-item.active { border-left: 4px solid var(--nfs-yellow); background: rgba(255,255,255,0.05); }
+
+    .unread-badge {
+      background: var(--nfs-yellow); color: #000;
+      min-width: 18px; height: 18px; padding: 2px;
+      border-radius: 10px; font-size: 0.7rem; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+    }
+
+    /* СТАТУСЫ */
+    .avatar-wrapper { position: relative; display: inline-flex; flex-shrink: 0; }
+    .chat-avatar { width: 40px; height: 40px; background: #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--nfs-yellow); border: 1px solid #333; overflow: hidden; }
+    .chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .mini-avatar { width: 28px; height: 28px; border: 1px solid var(--nfs-yellow); object-fit: cover; background: #222; display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--nfs-yellow); }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #000; position: absolute; bottom: -2px; right: -2px; z-index: 10; }
+
+    /* ОКНО СООБЩЕНИЙ */
+    .chat-window { flex-grow: 1; background: rgba(0, 0, 0, 0.88); display: flex; flex-direction: column; }
+    .chat-header { padding: 15px 30px; background: #0a0a0a; border-bottom: 1px solid var(--nfs-border); display: flex; justify-content: space-between; align-items: center; }
+
+    .messages-area { flex-grow: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+
+    .msg { max-width: 75%; padding: 12px 16px; border-radius: 4px; position: relative; font-size: 0.95rem; line-height: 1.4; box-shadow: 4px 4px 10px rgba(0,0,0,0.4); }
+    .msg.incoming { align-self: flex-start; background: #1e1e1e; border-left: 4px solid #444; }
+    .msg.outgoing { align-self: flex-end; background: #2a2a2a; border-right: 4px solid var(--nfs-yellow); }
+
+    .msg-info {
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      gap: 8px;
+    }
+
+    .msg-info .avatar-wrapper { margin-right: 2px; }
+
+    .chat-input-area { padding: 20px; background: #0a0a0a; display: flex; gap: 15px; border-top: 1px solid #222; }
+    input[type="text"] { flex-grow: 1; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; outline: none; }
+    input[type="text"]:focus { border-color: var(--nfs-yellow); }
+
+    .send-btn { background: var(--nfs-yellow); border: none; padding: 0 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+
+    .admin-glow { color: #ff4d4d !important; text-shadow: 0 0 10px #ff0000; font-weight: 900 !important; }
+    .badge-admin { background: #ff4d4d; color: white; border: 1px solid #fff; font-size: 0.6rem; padding: 2px 5px; border-radius: 3px; margin-left: 5px; }
+
+    .del-btn { color: #666; font-size: 0.7rem; margin-left: 10px; cursor: pointer; }
+    .del-btn:hover { color: #ff4444; }
+
+    .racer-link { color: var(--nfs-yellow); cursor: pointer; text-decoration: none; }
+    .racer-link:hover { color: #fff; text-decoration: underline; }
+
+    #typingIndicator {
+      height: 20px;
+      font-size: 0.75rem;
+      color: var(--nfs-yellow);
+      font-style: italic;
+      padding: 0 25px;
+      margin-bottom: 5px;
+      opacity: 0.8;
+      transition: 0.3s;
+    }
+
+    .chat-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: hidden;
+      flex-grow: 1;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="top-navbar">
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <img src="https://i.ibb.co/DfKw5Ywp/IMG-3707.png"
+         alt="NFS Logo"
+         style="height: 65px; width: auto; filter: drop-shadow(2px 2px 8px #000);">
+
+    <div style="font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 5px #000; font-style: italic; text-transform: uppercase;">
+      MY MESSENGER
+    </div>
+  </div>
+
+  <div id="myNickContainer" style="display: flex; align-items: center;">
+    <span id="myNick" style="font-weight: bold; color: var(--nfs-yellow); text-shadow: 2px 2px 4px #000; font-size: 1.1rem;">
+      ЗАГРУЗКА...
+    </span>
+    <button onclick="handleLogout()" style="background:rgba(0,0,0,0.6); border:1px solid #ff4444; color:#ff4444; cursor:pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase; margin-left: 15px;">
+      EXIT
+    </button>
+  </div>
+</header>
+
+<aside class="main-sidebar">
+  <nav>
+    <a href="index.html" class="nav-item">Главная</a>
+    <a href="forum.html" class="nav-item">Форум</a>
+    <a href="chats.html" class="nav-item active">Мои чаты</a>
+    <a href="lobby.html" class="nav-item">ПОИСК ИГРЫ</a>
+    <a href="leaderboard.html" class="nav-item">ЛИДЕРЫ</a>
+    <a href="profile.html" class="nav-item">Мой профиль</a>
+  </nav>
+</aside>
+
+<div class="app-container">
+  <div class="chat-list">
+    <div class="chat-category">Каналы Рокпорта</div>
+    <div id="publicChatBtn" class="chat-item active" onclick="switchChat('global', 'ОБЩИЙ КАНАЛ', 'public')">
+      <div class="chat-avatar">G</div>
+      <div class="chat-item-info">
+        <div style="font-weight: bold;">ОБЩИЙ КАНАЛ</div>
+        <div style="font-size: 0.8rem; color: var(--nfs-yellow);">Все гонщики</div>
+      </div>
+    </div>
+
+    <div class="chat-category">Личные сообщения</div>
+    <div id="dmListContainer"></div>
+  </div>
+
+  <div class="chat-window">
+    <div class="chat-header">
+      <div>Чат: <strong id="chatWithTitle" style="color: var(--nfs-yellow);">ОБЩИЙ КАНАЛ</strong></div>
+      <div id="chatStatus" style="font-size: 0.7rem; color: #444;">PUBLIC SESSION</div>
+    </div>
+    <div class="messages-area" id="msgBox"></div>
+
+    <div id="typingIndicator"></div>
+
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Введите сообщение..." onkeydown="if(event.key==='Enter') doSendMessage()">
+      <button class="send-btn" onclick="doSendMessage()">ОТПРАВИТЬ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let myProfile = null;
+  let activeChatId = 'global';
+  let activeChatType = 'public';
+  let targetUserName = '';
+  let specialUsers = {};
+  let typingTimeout = null;
+  let typingChannel = null;
+
+  window.onload = async () => {
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (!user) { window.location.href = 'auth.html'; return; }
+
+    const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+    if (profile) {
+      myProfile = profile;
+      document.getElementById('myNick').innerText = myProfile.username;
+    }
+
+    await fetchSpecialRoles();
+    await loadRecentDMs();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetName = urlParams.get('to');
+
+    if (targetName) {
+      const targetUser = Object.values(specialUsers).find(u => u.username === targetName);
+      if (targetUser) {
+        await switchChat(targetUser.id, targetUser.username, 'private');
+      } else {
+        await loadMessages();
+      }
+    } else {
+      await loadMessages();
+    }
+
+    subscribeToChanges();
+    initTypingTracker();
+  };
+
+  async function fetchSpecialRoles() {
+    const { data } = await _supabase.from('profiles').select('id, username, is_admin, is_vip, avatar_url, status');
+    if (data) data.forEach(u => specialUsers[u.username] = {
+      id: u.id, admin: u.is_admin, vip: u.is_vip, avatar: u.avatar_url, status: u.status || 'OFFLINE', username: u.username
+    });
+  }
+
+  function getStatusColor(status) {
+    if (status === 'ONLINE') return '#2ecc71';
+    if (status === 'IN GAME' || status === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
+    return '#555';
+  }
+
+  async function loadRecentDMs() {
+    const { data } = await _supabase.from('direct_messages')
+      .select('*')
+      .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`)
+      .order('created_at', {ascending: false});
+
+    const container = document.getElementById('dmListContainer');
+    const contacts = new Map();
+
+    if (data) {
+      data.forEach(m => {
+        const otherId = (m.sender_id === myProfile.id) ? m.receiver_id : m.sender_id;
+        const otherName = (m.sender_id === myProfile.id) ? m.receiver_name : m.sender_name;
+        if (otherId && otherId !== myProfile.id && !contacts.has(otherId)) {
+          const uData = specialUsers[otherName] || { avatar: null, status: 'OFFLINE' };
+          contacts.set(otherId, {
+            name: otherName, avatar: uData.avatar, status: uData.status, lastMsg: m.text, unreadCount: 0
+          });
+        }
+        if (m.receiver_id === myProfile.id && m.is_read === false) {
+          if (contacts.has(otherId)) contacts.get(otherId).unreadCount++;
+        }
+      });
+    }
+
+    container.innerHTML = contacts.size > 0 ? '' : '<p style="padding: 0 20px; font-size: 0.8rem; color: #444;">Нет активных диалогов</p>';
+    contacts.forEach((val, id) => {
+      let preview = val.lastMsg.length > 20 ? val.lastMsg.substring(0, 20) + '...' : val.lastMsg;
+      let badge = val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : '';
+      let color = getStatusColor(val.status);
+
+      container.innerHTML += `
+        <div class="chat-item ${activeChatId === id ? 'active' : ''}" id="chat-${id}" onclick="switchChat('${id}', '${val.name}', 'private')">
+          <div class="avatar-wrapper">
+            <div class="chat-avatar">${val.avatar ? `<img src="${val.avatar}">` : val.name[0].toUpperCase()}</div>
+            <div class="status-dot" style="background: ${color};"></div>
+          </div>
+          <div class="chat-item-info">
+            <div style="font-weight: bold; white-space: nowrap; text-overflow: ellipsis;">${val.name}</div>
+            <div style="font-size: 0.75rem; color: #666; white-space: nowrap; text-overflow: ellipsis; opacity: 0.8;">${preview}</div>
+          </div>
+          ${badge}
+        </div>`;
+    });
+  }
+
+  async function switchChat(id, name, type) {
+    activeChatId = id; activeChatType = type; targetUserName = name;
+    document.getElementById('chatWithTitle').innerText = name;
+    document.getElementById('chatStatus').innerText = type === 'public' ? 'PUBLIC SESSION' : 'ENCRYPTED DM';
+    document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
+
+    if(type === 'private') {
+      const el = document.getElementById(`chat-${id}`);
+      if (el) el.classList.add('active');
+      await _supabase.from('direct_messages').update({ is_read: true }).eq('sender_id', id).eq('receiver_id', myProfile.id);
+    } else {
+      document.getElementById('publicChatBtn').classList.add('active');
+    }
+
+    if (typingChannel) typingChannel.unsubscribe();
+    initTypingTracker();
+
+    await loadMessages();
+    await loadRecentDMs();
+  }
+
+  async function loadMessages() {
+    const box = document.getElementById('msgBox'); box.innerHTML = '';
+    let query = activeChatType === 'public'
+      ? _supabase.from('messages').select('*').eq('room_id', 'global')
+      : _supabase.from('direct_messages').select('*').or(`and(sender_id.eq.${myProfile.id},receiver_id.eq.${activeChatId}),and(sender_id.eq.${activeChatId},receiver_id.eq.${myProfile.id})`);
+
+    const { data } = await query.order('created_at', {ascending: true});
+    if (data) data.forEach(m => renderSingleMessage(m));
+  }
+
+  function renderSingleMessage(msg) {
+    const box = document.getElementById('msgBox');
+    if (document.getElementById(`msg-${msg.id}`)) return;
+
+    const sender = msg.sender_name;
+    const isMine = (msg.sender_id === myProfile.id) || (sender === myProfile.username);
+    const userData = specialUsers[sender] || { admin: false, id: null, status: 'OFFLINE' };
+    const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    let color = getStatusColor(userData.status);
+
+    let adminTools = "";
+    if (myProfile.is_admin) {
+      adminTools = `<span class="del-btn" onclick="deleteMessage('${msg.id}', '${activeChatType}')">[X]</span>`;
+    }
+
+    const avatarHTML = userData.avatar
+      ? `<img src="${userData.avatar}" class="mini-avatar">`
+      : `<div class="mini-avatar">${sender[0].toUpperCase()}</div>`;
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `msg ${isMine ? 'outgoing' : 'incoming'}`;
+    msgDiv.id = `msg-${msg.id}`;
+    msgDiv.innerHTML = `
+      <div class="msg-info">
+        <div class="avatar-wrapper" style="cursor:pointer;" onclick="window.location.href='profile.html?u=${sender}'">
+          ${avatarHTML}
+          <div class="status-dot" style="background: ${color};"></div>
+        </div>
+        <span class="racer-link ${userData.admin ? 'admin-glow' : ''}"
+              style="cursor:pointer;"
+              onclick="window.location.href='profile.html?u=${sender}'">
+          ${sender}
+        </span>
+        ${userData.admin ? '<span class="badge-admin">ADM</span>' : ''} • ${time} ${adminTools}
+      </div>
+      <div class="msg-text">${msg.text}</div>`;
+    box.appendChild(msgDiv);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function initTypingTracker() {
+    const channelKey = activeChatType === 'public' ? 'global' : [myProfile.id, activeChatId].sort().join('-');
+    typingChannel = _supabase.channel(`typing:${channelKey}`);
+
+    typingChannel
+      .on('presence', { event: 'sync' }, () => {
+        const state = typingChannel.presenceState();
+        const typingUsers = [];
+        for (const id in state) {
+          const info = state[id][0];
+          if (info.user !== myProfile.username && info.isTyping) {
+            typingUsers.push(info.user);
+          }
+        }
+        const indicator = document.getElementById('typingIndicator');
+        if (typingUsers.length > 0) {
+          indicator.innerText = typingUsers.join(', ') + (typingUsers.length > 1 ? ' печатают...' : ' печатает...');
+        } else {
+          indicator.innerText = '';
+        }
+      })
+      .subscribe();
+
+    const chatInput = document.getElementById('chatInput');
+    chatInput.oninput = () => {
+      typingChannel.track({ user: myProfile.username, isTyping: true });
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => {
+        typingChannel.track({ user: myProfile.username, isTyping: false });
+      }, 3000);
+    };
+  }
+
+  async function doSendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    if (myProfile.muted_until && new Date(myProfile.muted_until) > new Date()) {
+      Swal.fire("ТЫ В МУТЕ", "Твой передатчик заблокирован.", "error");
+      return;
+    }
+
+    if (typingChannel) typingChannel.track({ user: myProfile.username, isTyping: false });
+
+    let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
+    let payload = activeChatType === 'public'
+      ? { sender_name: myProfile.username, text: text, room_id: 'global' }
+      : { sender_id: myProfile.id, receiver_id: activeChatId, sender_name: myProfile.username, receiver_name: targetUserName, text: text };
+
+    const { data, error } = await _supabase.from(table).insert([payload]).select();
+
+    if (error) {
+      Swal.fire("ОШИБКА", "Сообщение не ушло: " + error.message, "error");
+    } else if (data && data.length > 0) {
+      if (document.getElementById(`msg-${data[0].id}`) === null) {
+        renderSingleMessage(data[0]);
+      }
+      input.value = '';
+      loadRecentDMs();
+    }
+  }
+
+  async function deleteMessage(id, type) {
+    const table = (type === 'public') ? 'messages' : 'direct_messages';
+    const { error } = await _supabase.from(table).delete().eq('id', id);
+    if (!error) {
+      document.getElementById(`msg-${id}`)?.remove();
+    }
+  }
+
+  function subscribeToChanges() {
+    _supabase.channel('msgs').on('postgres_changes', {event:'INSERT', schema:'public', table:'messages'}, p => {
+      if (activeChatType === 'public') renderSingleMessage(p.new);
+    }).on('postgres_changes', {event:'DELETE', schema:'public', table:'messages'}, p => {
+      document.getElementById(`msg-${p.old.id}`)?.remove();
+    }).subscribe();
+
+    _supabase.channel('dms').on('postgres_changes', {event:'INSERT', schema:'public', table:'direct_messages'}, p => {
+      if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
+        if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
+          renderSingleMessage(p.new);
+        }
+        loadRecentDMs();
+      }
+    }).subscribe();
+
+    _supabase.channel('profile-status').on('postgres_changes', {event:'UPDATE', schema:'public', table:'profiles'}, p => {
+      if (specialUsers[p.new.username]) {
+        specialUsers[p.new.username].status = p.new.status;
+        loadRecentDMs();
+      }
+    }).subscribe();
+  }
+
+  async function handleLogout() { await _supabase.auth.signOut(); window.location.href = 'auth.html'; }
+</script>
+</body>
+</html>

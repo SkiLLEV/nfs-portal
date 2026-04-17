@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Blacklist | NFS Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="utils.js"></script>
+
+  <style>
+    :root {
+      --nfs-yellow: #f1c40f;
+      --nfs-dark: rgba(15, 15, 15, 0.98);
+      --nfs-border: #333;
+      --nfs-bg: url('https://i.playground.ru//i/screenshot/108305/nfs_most_wanted_2005.jpg');
+    }
+
+    body {
+      margin: 0; padding: 0;
+      background: var(--nfs-bg) no-repeat center center fixed;
+      background-size: cover;
+      color: #fff; font-family: 'Segoe UI', sans-serif;
+      padding-bottom: 60px; /* Отступ под футер */
+    }
+
+    /* ШАПКА */
+    .top-navbar {
+      height: 70px;
+      position: fixed;
+      top: 0; width: 100%;
+      z-index: 1100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      box-sizing: border-box;
+      background:
+        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+        repeating-linear-gradient(
+          -45deg,
+          #0a0a0a,
+          #0a0a0a 40px,
+          rgba(241, 196, 15, 0.4) 40px,
+          rgba(241, 196, 15, 0.4) 80px
+        );
+      border-bottom: 2px solid var(--nfs-yellow);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+    }
+
+    .main-sidebar {
+      width: 250px; background: var(--nfs-dark); height: 100vh; position: fixed; top: 70px; border-right: 2px solid #333; z-index: 900;
+    }
+    .nav-item { display: block; padding: 20px 30px; color: #bbb; text-decoration: none; text-transform: uppercase; transition: 0.3s; font-size: 0.85rem; }
+    .nav-item:hover, .nav-item.active { color: #fff; background: rgba(241,196,15,0.1); border-left: 5px solid var(--nfs-yellow); }
+
+    /* СТИЛЬ ДЛЯ БЕЙДЖА СООБЩЕНИЙ */
+    #msgBadge {
+      background: var(--nfs-yellow); color: #000; padding: 2px 6px;
+      font-size: 0.7rem; font-weight: 900; border-radius: 2px;
+      margin-left: 8px; box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+      display: none;
+    }
+
+    .container { margin-left: 250px; padding: 100px 50px 50px; }
+
+    h1 { font-style: italic; text-transform: uppercase; border-bottom: 3px solid var(--nfs-yellow); display: inline-block; margin-bottom: 30px; }
+
+    .blacklist-table {
+      width: 100%; border-collapse: collapse; background: rgba(0,0,0,0.85);
+      box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+    }
+    .blacklist-table th {
+      text-align: left; padding: 15px; background: #111; color: var(--nfs-yellow);
+      text-transform: uppercase; font-size: 0.8rem;
+    }
+    .blacklist-table td { padding: 15px; border-bottom: 1px solid #222; }
+    .blacklist-row:hover { background: rgba(241, 196, 15, 0.05); cursor: pointer; }
+
+    .rank-num { font-size: 1.5rem; font-weight: 900; font-style: italic; color: #444; width: 50px; }
+    .top-rank { color: var(--nfs-yellow); text-shadow: 0 0 10px var(--nfs-yellow); }
+
+    .racer-avatar {
+      width: 45px; height: 45px; border: 2px solid #444;
+      object-fit: cover; background: #111; transition: 0.3s;
+    }
+    .blacklist-row:hover .racer-avatar { border-color: var(--nfs-yellow); transform: scale(1.1); }
+
+    .racer-name { font-weight: bold; font-size: 1.1rem; }
+    .admin-name { color: #ff4d4d; text-shadow: 0 0 5px #ff0000; }
+
+    .racer-status { font-size: 0.7rem; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; }
+    .online { color: #2ecc71; border: 1px solid #2ecc71; }
+    .offline { color: #555; border: 1px solid #333; }
+
+    /* ФУТЕР И ПОИСК */
+    .bottom-bar {
+      position: fixed; bottom: 0; width: 100%;
+      background: rgba(0,0,0,0.95); padding: 15px 0;
+      border-top: 2px solid var(--nfs-yellow);
+      text-align: center; font-size: 0.9rem; z-index: 1000;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .highlight { color: var(--nfs-yellow); font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<header class="top-navbar">
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <img src="https://i.ibb.co/DfKw5Ywp/IMG-3707.png"
+         alt="NFS Logo"
+         style="height: 65px; width: auto; filter: drop-shadow(2px 2px 8px #000);">
+
+    <div style="font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 5px #000; font-style: italic; text-transform: uppercase;">
+      LEADERBOARD
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 15px;">
+    <span id="myNick" style="font-weight: bold; color: var(--nfs-yellow); text-shadow: 2px 2px 4px #000; font-size: 1.1rem;">
+      </span>
+    <button onclick="handleLogout()" style="background:rgba(0,0,0,0.6); border:1px solid #ff4444; color:#ff4444; cursor:pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
+      EXIT
+    </button>
+  </div>
+</header>
+
+<aside class="main-sidebar">
+  <nav>
+    <a href="index.html" class="nav-item">Главная</a>
+    <a href="forum.html" class="nav-item">Форум</a>
+    <a href="chats.html" class="nav-item">МЕССЕНДЖЕР <span id="msgBadge">0</span></a>
+    <a href="lobby.html" class="nav-item">ПОИСК ИГРЫ</a>
+    <a href="leaderboard.html" class="nav-item active">ЛИДЕРЫ</a>
+    <a href="profile.html" class="nav-item">Мой профиль</a>
+  </nav>
+</aside>
+
+<div class="container">
+  <h1>ЛИДЕРЫ</h1>
+  <table class="blacklist-table">
+    <thead>
+    <tr>
+      <th>Место</th>
+      <th>Фото</th>
+      <th>Гонщик</th>
+      <th>Клан</th>
+      <th>Рейтинг</th>
+      <th>Статус</th>
+    </tr>
+    </thead>
+    <tbody id="blacklistBody"></tbody>
+  </table>
+</div>
+
+<footer class="bottom-bar">
+  <div class="stats">ONLINE: <span class="highlight" id="footerOnline">0</span> | В ЗАЕЗДЕ: <span class="highlight" id="footerPlaying">0</span></div>
+</footer>
+
+<script>
+  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentUserId = null;
+
+  window.onload = async () => {
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (user) {
+      currentUserId = user.id;
+      const { data: p } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (p) {
+        document.getElementById('myNick').innerText = p.username;
+        initOnlineRadar(p.username, p.status);
+        updateMessageBadge();
+
+        // REALTIME: Слушаем входящие сообщения
+        _supabase.channel('leaderboard-msg-updates')
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${user.id}` }, () => {
+            updateMessageBadge();
+          })
+          .subscribe();
+      }
+    } else {
+      initOnlineRadar("Guest_" + Math.floor(Math.random()*1000), "OFFLINE");
+    }
+    await loadBlacklist();
+  };
+
+  async function updateMessageBadge() {
+    if (!currentUserId) return;
+    const { count } = await _supabase
+      .from('direct_messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('receiver_id', currentUserId)
+      .eq('is_read', false);
+
+    const b = document.getElementById('msgBadge');
+    if (count > 0) {
+      b.innerText = count;
+      b.style.display = 'inline-block';
+    } else {
+      b.style.display = 'none';
+    }
+  }
+
+  function initOnlineRadar(username, status) {
+    const presenceChannel = _supabase.channel('online-users', { config: { presence: { key: username } } });
+    presenceChannel.on('presence', { event: 'sync' }, () => {
+      const state = presenceChannel.presenceState();
+      let total = 0; let playing = 0;
+      for (const key in state) {
+        total++;
+        const s = state[key][0].status;
+        if (s === 'IN GAME' || s === 'LOOKING FOR GAME') playing++;
+      }
+      document.getElementById('footerOnline').innerText = total;
+      document.getElementById('footerPlaying').innerText = playing;
+    }).subscribe(async (s) => {
+      if (s === 'SUBSCRIBED') await presenceChannel.track({ online_at: new Date().toISOString(), status: status });
+    });
+  }
+
+  async function loadBlacklist() {
+    const { data, error } = await _supabase
+      .from('profiles')
+      .select('*')
+      .order('rating', { ascending: false });
+
+    if (error) return;
+
+    const tbody = document.getElementById('blacklistBody');
+    tbody.innerHTML = '';
+
+    data.forEach((racer, index) => {
+      const rank = index + 1;
+      const isOnline = racer.status !== 'OFFLINE';
+      const myNick = document.getElementById('myNick').innerText;
+      const isMe = myNick === racer.username;
+
+      let crown = "";
+      let nameStyle = "";
+      let rowStyle = "";
+
+      if (rank === 1) {
+        crown = "👑 ";
+        nameStyle = "color: #f1c40f; text-shadow: 0 0 15px #f1c40f; font-size: 1.3rem;";
+        rowStyle = "background: rgba(241, 196, 15, 0.08); border-left: 5px solid #f1c40f;";
+      } else if (rank === 2) {
+        crown = "🥈 ";
+        nameStyle = "color: #dfe6e9; text-shadow: 0 0 10px #dfe6e9;";
+      } else if (rank === 3) {
+        crown = "🥉 ";
+        nameStyle = "color: #cd7f32; text-shadow: 0 0 10px #cd7f32;";
+      }
+
+      const avatarHTML = racer.avatar_url
+        ? `<img src="${racer.avatar_url}" class="racer-avatar" style="${rank <= 3 ? 'border-color: var(--nfs-yellow);' : ''}">`
+        : `<div class="racer-avatar" style="display:flex; align-items:center; justify-content:center; color:#333; font-weight:900;">?</div>`;
+
+      const row = document.createElement('tr');
+      row.className = 'blacklist-row';
+      if (rowStyle) row.setAttribute('style', rowStyle);
+      if (isMe && rank > 1) row.style.background = "rgba(255, 255, 255, 0.05)";
+
+      row.onclick = () => window.location.href = `profile.html?u=${racer.username}`;
+
+      row.innerHTML = `
+        <td class="rank-num ${rank <= 3 ? 'top-rank' : ''}" style="${rank <= 3 ? 'font-size: 2rem;' : ''}">
+          #${rank}
+        </td>
+        <td>${avatarHTML}</td>
+        <td>
+          <span class="racer-name ${racer.is_admin ? 'admin-name' : ''}" style="${nameStyle}">
+            ${crown}${racer.username} ${isMe ? '<small style="color:var(--nfs-yellow); font-size: 0.6rem;">(ВЫ)</small>' : ''}
+          </span>
+        </td>
+        <td style="color: #888;">${racer.clan_tag || '[НЕТ]'}</td>
+        <td style="font-weight: bold; color: var(--nfs-yellow); font-size: 1.1rem;">
+          ${(racer.rating || 0).toLocaleString()}
+        </td>
+        <td>
+          <span class="racer-status ${isOnline ? 'online' : 'offline'}">
+            ${racer.status || 'OFFLINE'}
+          </span>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  async function handleLogout() {
+    await _supabase.auth.signOut();
+    window.location.href = 'auth.html';
+  }
+</script>
+</body>
+</html>

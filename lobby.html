@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Гонка | NFS Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="utils.js"></script>
+  <style>
+    :root {
+      --nfs-yellow: #f1c40f;
+      --nfs-bg: url('https://cdn.wallpapersafari.com/61/10/ixlZPs.jpg');
+      --nfs-dark: rgba(10, 10, 10, 0.95);
+    }
+    body {
+      margin: 0; background: var(--nfs-bg) no-repeat center center fixed;
+      background-size: cover; color: #fff; font-family: 'Segoe UI', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ШАПКА В ПОЛОСКУ (90px) */
+    .top-navbar {
+      height: 90px; position: fixed; top: 0; width: 100%; z-index: 1100;
+      display: flex; justify-content: space-between; align-items: center; padding: 0 40px; box-sizing: border-box;
+      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+      repeating-linear-gradient(-45deg, #0a0a0a, #0a0a0a 40px, rgba(241, 196, 15, 0.4) 40px, rgba(241, 196, 15, 0.4) 80px);
+      border-bottom: 2px solid var(--nfs-yellow); box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+    }
+
+    /* САЙДБАР */
+    .main-sidebar { width: 250px; background: rgba(15,15,15,0.98); height: calc(100vh - 90px); position: fixed; top: 90px; border-right: 2px solid #333; z-index: 100; }
+    .nav-item { display: block; padding: 20px 30px; color: #bbb; text-decoration: none; text-transform: uppercase; transition: 0.3s; font-size: 0.85rem; }
+    .nav-item:hover, .nav-item.active { color: #fff; background: rgba(241,196,15,0.1); border-left: 5px solid var(--nfs-yellow); }
+
+    .content { margin-left: 250px; min-height: 100vh; padding-top: 90px; }
+
+    /* HERO СЕКЦИЯ С КАРТИНКОЙ */
+    .lobby-hero {
+      width: 100%; height: 300px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.9)),
+      url('https://images7.alphacoders.com/517/thumb-1920-517466.jpg');
+      background-size: cover; background-position: center;
+      border-bottom: 4px solid var(--nfs-yellow);
+      display: flex; align-items: flex-end; padding: 40px; box-sizing: border-box;
+      position: relative;
+    }
+    .lobby-hero::after {
+      content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px);
+    }
+
+    .lobby-grid-container { padding: 40px; }
+
+    .create-btn {
+      background: var(--nfs-yellow); color: #000; border: none; padding: 12px 25px;
+      font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s;
+    }
+    .create-btn:hover { background: #fff; transform: scale(1.05); }
+
+    .lobby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
+    .lobby-card {
+      background: var(--nfs-dark); border-left: 4px solid #444; padding: 25px;
+      transition: 0.3s; position: relative; box-shadow: 10px 10px 0 rgba(0,0,0,0.5);
+    }
+    .lobby-card:hover { border-left-color: var(--nfs-yellow); transform: translateY(-5px); }
+    .lobby-status { font-size: 0.65rem; text-transform: uppercase; color: var(--nfs-yellow); letter-spacing: 2px; margin-bottom: 10px; font-weight: bold; }
+    .lobby-title { font-size: 1.3rem; font-weight: 900; margin-bottom: 10px; font-style: italic; text-transform: uppercase; }
+
+    .player-dots { display: flex; gap: 6px; margin: 15px 0; }
+    .dot { width: 14px; height: 14px; border: 1px solid #444; background: #222; }
+    .dot.filled { background: var(--nfs-yellow); border-color: var(--nfs-yellow); box-shadow: 0 0 10px rgba(241, 196, 15, 0.3); }
+
+    .join-btn {
+      width: 100%; padding: 12px; background: none; border: 1px solid var(--nfs-yellow);
+      color: var(--nfs-yellow); font-weight: 900; cursor: pointer; text-transform: uppercase; transition: 0.2s;
+    }
+    .join-btn:hover { background: var(--nfs-yellow); color: #000; }
+
+    /* МОДАЛКА ЛОББИ */
+    #activeLobbyModal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.92); z-index: 2000; align-items: center; justify-content: center;
+    }
+    .lobby-window {
+      width: 900px; background: #0a0a0a; border: 2px solid var(--nfs-yellow);
+      display: flex; height: 550px; box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    }
+    .lobby-players-side { width: 320px; border-right: 1px solid #222; padding: 30px; display: flex; flex-direction: column; }
+    .lobby-chat-side { flex-grow: 1; display: flex; flex-direction: column; background: rgba(255,255,255,0.01); }
+
+    .player-row {
+      display: flex; align-items: center; gap: 12px; background: #151515;
+      padding: 12px; border-left: 3px solid var(--nfs-yellow); margin-bottom: 10px;
+    }
+    .player-avatar { width: 35px; height: 35px; background: #222; border-radius: 50%; overflow: hidden; border: 1px solid #333; }
+    .player-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    #lobbyChatBox { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .lobby-msg { font-size: 0.85rem; color: #ccc; }
+    .lobby-msg b { color: var(--nfs-yellow); }
+    .leave-btn { margin-top: auto; padding: 12px; background: #ff4444; color: #fff; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; }
+    .admin-glow { color: #ff4d4d !important; text-shadow: 0 0 10px #ff0000; font-weight: 900 !important; }
+  </style>
+</head>
+<body>
+
+<header class="top-navbar">
+  <div style="display: flex; align-items: center; gap: 20px;">
+    <img src="https://i.ibb.co/DfKw5Ywp/IMG-3707.png" alt="NFS Logo" style="height: 65px; width: auto; filter: drop-shadow(2px 2px 8px #000);">
+    <div style="font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 5px #000; font-style: italic; text-transform: uppercase;">
+      Race Lobbies
+    </div>
+  </div>
+  <div style="display: flex; align-items: center; gap: 15px;">
+    <span id="myNickTop" style="font-weight: bold; color: var(--nfs-yellow); text-shadow: 2px 2px 4px #000; font-size: 1.1rem;">ЗАГРУЗКА...</span>
+    <button onclick="handleLogout()" style="background:rgba(0,0,0,0.6); border:1px solid #ff4444; color:#ff4444; cursor:pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">EXIT</button>
+  </div>
+</header>
+
+<aside class="main-sidebar">
+  <nav>
+    <a href="index.html" class="nav-item">Главная</a>
+    <a href="forum.html" class="nav-item">Форум</a>
+    <a href="chats.html" class="nav-item">Мессенджер</a>
+    <a href="lobby.html" class="nav-item active">Поиск игры</a>
+    <a href="leaderboard.html" class="nav-item">Лидеры</a>
+    <a href="profile.html" class="nav-item">Мой профиль</a>
+  </nav>
+</aside>
+
+<div class="content">
+  <div class="lobby-hero">
+    <div style="position: relative; z-index: 10; width: 100%; display: flex; justify-content: space-between; align-items: flex-end;">
+      <div>
+        <h1 style="margin:0; font-style: italic; text-transform: uppercase; font-size: 3rem; text-shadow: 4px 4px 0 #000;">FIND YOUR CREW</h1>
+        <p style="color: var(--nfs-yellow); font-size: 0.9rem; font-weight: bold; letter-spacing: 2px; text-shadow: 2px 2px 4px #000;">СОБЕРИ КОМАНДУ ДЛЯ ВЫЕЗДА В GAMERANGER</p>
+      </div>
+      <button class="create-btn" onclick="createLobby()">+ СОЗДАТЬ ЛОББИ</button>
+    </div>
+  </div>
+
+  <div class="lobby-grid-container">
+    <div id="lobbyList" class="lobby-grid"></div>
+  </div>
+</div>
+
+<div id="activeLobbyModal">
+  <div class="lobby-window">
+    <div class="lobby-players-side">
+      <h2 id="modalLobbyTitle" style="margin:0; font-style:italic; text-transform:uppercase;">Lobby Name</h2>
+      <div id="playerSlotContainer" style="margin-top:25px;"></div>
+      <button class="leave-btn" onclick="leaveLobby()">Покинуть заезд</button>
+    </div>
+    <div class="lobby-chat-side">
+      <div id="lobbyChatBox">
+        <div class="lobby-msg"><i>Система: Добро пожаловать в комнату. Ожидайте готовности всех гонщиков.</i></div>
+      </div>
+      <div style="padding:20px; border-top:1px solid #222; display:flex; gap:10px;">
+        <input type="text" id="lobbyChatInput" placeholder="Написать команде..." style="flex-grow:1; background:#111; border:1px solid #333; color:#fff; padding:12px; outline:none;" onkeydown="if(event.key==='Enter') sendLobbyMsg()">
+        <button class="create-btn" style="padding:0 20px;" onclick="sendLobbyMsg()">ОК</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let myProfile = null;
+  let currentLobbyId = null;
+
+  window.onload = async () => {
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (!user) { window.location.href = 'auth.html'; return; }
+
+    const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+    myProfile = profile;
+
+    // ОБНОВЛЕНИЕ НИКА В ШАПКЕ
+    const nickDisplay = document.getElementById('myNickTop');
+    if (nickDisplay) {
+      nickDisplay.innerText = myProfile.username;
+      if (myProfile.is_admin) nickDisplay.classList.add('admin-glow');
+    }
+
+    loadLobbies();
+    subscribeToUpdates();
+  };
+
+  async function loadLobbies() {
+    const { data } = await _supabase.from('lobbies').select('*').order('created_at', {ascending: false});
+    const container = document.getElementById('lobbyList');
+    container.innerHTML = '';
+    if (data && data.length > 0) {
+      data.forEach(lobby => {
+        let dots = '';
+        for(let i=1; i<=4; i++) dots += `<div class="dot ${i <= lobby.current_players ? 'filled' : ''}"></div>`;
+        container.innerHTML += `<div class="lobby-card"><div class="lobby-status">${lobby.status}</div><div class="lobby-title">${lobby.title}</div><div style="font-size: 0.8rem; color: #777; margin-bottom: 10px;">ОРГАНИЗАТОР: ${lobby.host_name}</div><div class="player-dots">${dots}</div><button class="join-btn" onclick="joinLobby('${lobby.id}')">${lobby.current_players >= 4 ? 'ПОЛНОЕ' : 'ВСТУПИТЬ'}</button></div>`;
+      });
+    } else {
+      container.innerHTML = '<p style="color:#ffffff;">Активных комнат нет. Будь первым — создай лобби!</p>';
+    }
+  }
+
+  async function createLobby() {
+    const { value: title } = await Swal.fire({
+      title: 'НАЗВАНИЕ КОМНАТЫ', input: 'text', inputPlaceholder: 'Напр: Drag Race 1v1',
+      background: '#0a0a0a', color: '#fff', confirmButtonColor: '#f1c40f', inputAttributes: { maxlength: 25 }
+    });
+    if (title) {
+      const { data, error } = await _supabase.from('lobbies').insert([{
+        host_name: myProfile.username, host_id: myProfile.id, title: title, current_players: 1,
+        players: [{id: myProfile.id, name: myProfile.username, avatar: myProfile.avatar_url}]
+      }]).select();
+      if (!error && data) joinLobby(data[0].id);
+    }
+  }
+
+  async function joinLobby(id) {
+    const { data: lobby } = await _supabase.from('lobbies').select('*').eq('id', id).single();
+    let players = lobby.players || [];
+    const isAlreadyIn = players.find(p => p.id === myProfile.id);
+    if (!isAlreadyIn) {
+      if (lobby.current_players >= 4) return Swal.fire("FULL", "Мест нет!", "error");
+      players.push({ id: myProfile.id, name: myProfile.username, avatar: myProfile.avatar_url });
+      await _supabase.from('lobbies').update({ players: players, current_players: players.length, status: players.length >= 4 ? 'full' : 'open' }).eq('id', id);
+    }
+    currentLobbyId = id;
+    renderLobbyWindow(id);
+  }
+
+  async function renderLobbyWindow(id) {
+    const { data: lobby } = await _supabase.from('lobbies').select('*').eq('id', id).single();
+    if (!lobby) return;
+    document.getElementById('modalLobbyTitle').innerText = lobby.title;
+    document.getElementById('activeLobbyModal').style.display = 'flex';
+    const container = document.getElementById('playerSlotContainer');
+    container.innerHTML = '';
+    lobby.players.forEach(p => {
+      container.innerHTML += `<div class="player-row"><div class="player-avatar">${p.avatar ? `<img src="${p.avatar}">` : `<div style="text-align:center;line-height:35px;color:#f1c40f;">${p.name[0]}</div>`}</div><span style="font-weight:900; letter-spacing:1px;">${p.name}</span></div>`;
+    });
+  }
+
+  async function leaveLobby() {
+    const { data: lobby } = await _supabase.from('lobbies').select('*').eq('id', currentLobbyId).single();
+    if (!lobby) return;
+    let players = lobby.players.filter(p => p.id !== myProfile.id);
+    if (players.length === 0) { await _supabase.from('lobbies').delete().eq('id', currentLobbyId); }
+    else { await _supabase.from('lobbies').update({ players: players, current_players: players.length, host_name: players[0].name, status: 'open' }).eq('id', currentLobbyId); }
+    document.getElementById('activeLobbyModal').style.display = 'none';
+    currentLobbyId = null;
+    loadLobbies();
+  }
+
+  function sendLobbyMsg() {
+    const input = document.getElementById('lobbyChatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const box = document.getElementById('lobbyChatBox');
+    box.innerHTML += `<div class="lobby-msg"><b>${myProfile.username}:</b> ${text}</div>`;
+    box.scrollTop = box.scrollHeight;
+    input.value = '';
+  }
+
+  function subscribeToUpdates() {
+    _supabase.channel('lobby-changes').on('postgres_changes', { event: '*', schema: 'public', table: 'lobbies' }, payload => {
+      loadLobbies();
+      if (currentLobbyId && payload.new && payload.new.id === currentLobbyId) { renderLobbyWindow(currentLobbyId); }
+    }).subscribe();
+  }
+
+  async function handleLogout() { await _supabase.auth.signOut(); window.location.href = 'auth.html'; }
+</script>
+</body>
+</html>
