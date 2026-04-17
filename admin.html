@@ -120,33 +120,29 @@
 
     if (!ratingInput || !vipCheckbox) return;
 
-    // Жестко приводим к типам, которые ждет база (int4 и bool)
-    const newRating = parseInt(ratingInput.value) || 0;
-    const newVipStatus = Boolean(vipCheckbox.checked);
+    // Превращаем значения в чистые типы: Число и Булево (true/false)
+    const newRating = parseInt(ratingInput.value, 10) || 0;
+    const newVipStatus = vipCheckbox.checked; // Это вернет строго true или false
 
     showStatus("СИНХРОНИЗАЦИЯ...");
 
+    // Выполняем апдейт
     const { data, error } = await _supabase
       .from('profiles')
       .update({
         rating: newRating,
-        is_vip: newVipStatus
+        is_vip: newVipStatus // Теперь база получит четкое false, если галка снята
       })
-      .eq('id', userId)
-      .select(); // Просим базу вернуть обновленную строку
+      .eq('id', userId);
 
     if (error) {
-      console.error("ОШИБКА SUPABASE:", error);
+      console.error("ОШИБКА:", error);
       showStatus("ОШИБКА: " + error.message);
       Swal.fire("ОШИБКА", error.message, "error");
     } else {
-      console.log("ОБНОВЛЕНО:", data);
-      showStatus("ГONЩИК ОБНОВЛЕН!");
-
-      // Даем базе 300мс "отдохнуть" и обновляем таблицу
-      setTimeout(() => {
-        loadUsers();
-      }, 300);
+      showStatus("ДАННЫЕ ОБНОВЛЕНЫ!");
+      // Перезагружаем список, чтобы увидеть изменения
+      loadUsers();
     }
   }
 
