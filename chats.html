@@ -229,16 +229,11 @@
     if (profile) {
       myProfile = profile;
       document.getElementById('myNick').innerText = myProfile.username;
-
-      // Сразу ставим себе ONLINE в базе
       await _supabase.from('profiles').update({ status: 'ONLINE' }).eq('id', myProfile.id);
     }
 
     await fetchSpecialRoles();
-
-    // Запускаем радар статусов
     initStatusTracker();
-
     await loadRecentDMs();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -259,7 +254,6 @@
     initTypingTracker();
   };
 
-  // ФУНКЦИЯ РАДАРА ( Presence )
   function initStatusTracker() {
     statusChannel = _supabase.channel('global-online', {
       config: { presence: { key: myProfile.username } }
@@ -268,8 +262,7 @@
     statusChannel
       .on('presence', { event: 'sync' }, () => {
         onlineUsers = statusChannel.presenceState();
-        console.log("Радар зафиксировал гонщиков:", onlineUsers);
-        loadRecentDMs(); // Обновляем список, чтобы точки стали серыми/зелеными
+        loadRecentDMs();
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -287,10 +280,9 @@
 
   function getStatusColor(username, statusFromDb) {
     const isActuallyOnline = onlineUsers[username];
-    if (!isActuallyOnline) return '#555'; // Серый, если радара нет
-
+    if (!isActuallyOnline) return '#555';
     if (statusFromDb === 'IN GAME' || statusFromDb === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
-    return '#2ecc71'; // Зеленый ONLINE
+    return '#2ecc71';
   }
 
   async function loadRecentDMs() {
@@ -356,7 +348,6 @@
 
     if (typingChannel) typingChannel.unsubscribe();
     initTypingTracker();
-
     await loadMessages();
     await loadRecentDMs();
   }
@@ -381,15 +372,9 @@
     const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     let color = getStatusColor(sender, userData.status);
+    let adminTools = (myProfile.is_admin) ? `<span class="del-btn" onclick="deleteMessage('${msg.id}', '${activeChatType}')">[X]</span>` : "";
 
-    let adminTools = "";
-    if (myProfile.is_admin) {
-      adminTools = `<span class="del-btn" onclick="deleteMessage('${msg.id}', '${activeChatType}')">[X]</span>`;
-    }
-
-    const avatarHTML = userData.avatar
-      ? `<img src="${userData.avatar}" class="mini-avatar">`
-      : `<div class="mini-avatar">${sender[0].toUpperCase()}</div>`;
+    const avatarHTML = userData.avatar ? `<img src="${userData.avatar}" class="mini-avatar">` : `<div class="mini-avatar">${sender[0].toUpperCase()}</div>`;
 
     const msgDiv = document.createElement('div');
     msgDiv.className = `msg ${isMine ? 'outgoing' : 'incoming'}`;
@@ -400,11 +385,7 @@
           ${avatarHTML}
           <div class="status-dot" style="background: ${color};"></div>
         </div>
-        <span class="racer-link ${userData.admin ? 'admin-glow' : ''}"
-              style="cursor:pointer;"
-              onclick="window.location.href='profile.html?u=${sender}'">
-          ${sender}
-        </span>
+        <span class="racer-link ${userData.admin ? 'admin-glow' : ''}" onclick="window.location.href='profile.html?u=${sender}'">${sender}</span>
         ${userData.admin ? '<span class="badge-admin">ADM</span>' : ''} • ${time} ${adminTools}
       </div>
       <div class="msg-text">${msg.text}</div>`;
@@ -417,134 +398,98 @@
     typingChannel = _supabase.channel(`typing:${channelKey}`);
 
     typingChannel
-      .on('presence', {event: 'sync'}, () => {
+      .on('presence', { event: 'sync' }, () => {
         const state = typingChannel.presenceState();
         const typingUsers = [];
         for (const id in state) {
           const info = state[id][0];
-          if (info.user !== myProfile.username && info.isTyping) {
-            typingUsers.push(info.user);
-          }
+          if (info.user !== myProfile.username && info.isTyping) typingUsers.push(info.user);
         }
-        const indicator = document.getElementById('typingIndicator');
-        if (typingUsers.length > 0) {
-          indicator.innerText = typingUsers.join(', ') + (typingUsers.length > 1 ? ' печатают...' : ' печатает...');
-        } else {
-          indicator.innerText = '';
-        }
+        document.getElementById('typingIndicator').innerText = typingUsers.length > 0 ? typingUsers.join(', ') + " печатает..." : "";
       })
       .subscribe();
 
     const chatInput = document.getElementById('chatInput');
-    let isCurrentlyTyping = false; // Флаг, чтобы не долбить сервер на каждой букве
+    let isCurrentlyTyping = false;
 
     chatInput.oninput = () => {
-      // 1. Шлем сигнал "печатаю" только если мы ДО этого молчали
       if (!isCurrentlyTyping) {
         isCurrentlyTyping = true;
-        typingChannel.track({user: myProfile.username, isTyping: true});
-        console.log("Отправил: Печатаю...");
+        typingChannel.track({ user: myProfile.username, isTyping: true });
       }
-
-      // 2. Сбрасываем старый таймер оффлайна
       clearTimeout(typingTimeout);
-
-      // 3. Если за 4 секунды ничего не нажали — снимаем статус
       typingTimeout = setTimeout(() => {
         isCurrentlyTyping = false;
-        typingChannel.track({user: myProfile.username, isTyping: false});
-        console.log("Отправил: Перестал печатать");
+        typingChannel.track({ user: myProfile.username, isTyping: false });
       }, 4000);
     };
+  }
 
-    async function doSendMessage() {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (!text) return;
+  async function doSendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
 
-      if (myProfile.muted_until && new Date(myProfile.muted_until) > new Date()) {
-        Swal.fire("ТЫ В МУТЕ", "Твой передатчик заблокирован.", "error");
-        return;
-      }
+    if (myProfile.muted_until && new Date(myProfile.muted_until) > new Date()) {
+      Swal.fire("ТЫ В МУТЕ", "Твой передатчик заблокирован.", "error");
+      return;
+    }
 
-      if (typingChannel) typingChannel.track({user: myProfile.username, isTyping: false});
+    if (typingChannel) typingChannel.track({ user: myProfile.username, isTyping: false });
 
-      let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
-      let payload = activeChatType === 'public'
-        ? {sender_name: myProfile.username, text: text, room_id: 'global'}
-        : {
-          sender_id: myProfile.id,
-          receiver_id: activeChatId,
-          sender_name: myProfile.username,
-          receiver_name: targetUserName,
-          text: text
-        };
+    let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
+    let payload = activeChatType === 'public'
+      ? { sender_name: myProfile.username, text: text, room_id: 'global' }
+      : { sender_id: myProfile.id, receiver_id: activeChatId, sender_name: myProfile.username, receiver_name: targetUserName, text: text };
 
-      const {data, error} = await _supabase.from(table).insert([payload]).select();
+    const { data, error } = await _supabase.from(table).insert([payload]).select();
 
-      if (error) {
-        Swal.fire("ОШИБКА", "Сообщение не ушло: " + error.message, "error");
-      } else if (data && data.length > 0) {
-        if (document.getElementById(`msg-${data[0].id}`) === null) {
-          renderSingleMessage(data[0]);
+    if (error) {
+      Swal.fire("ОШИБКА", "Сообщение не ушло: " + error.message, "error");
+    } else if (data && data.length > 0) {
+      renderSingleMessage(data[0]);
+      input.value = '';
+      loadRecentDMs();
+    }
+  }
+
+  async function deleteMessage(id, type) {
+    const table = (type === 'public') ? 'messages' : 'direct_messages';
+    await _supabase.from(table).delete().eq('id', id);
+  }
+
+  function subscribeToChanges() {
+    _supabase.channel('msgs').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'messages'}, p => {
+      if (activeChatType === 'public') renderSingleMessage(p.new);
+    }).on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'messages'}, p => {
+      document.getElementById(`msg-${p.old.id}`)?.remove();
+    }).subscribe();
+
+    _supabase.channel('dms').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'direct_messages'}, p => {
+      if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
+        if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
+          renderSingleMessage(p.new);
         }
-        input.value = '';
         loadRecentDMs();
       }
-    }
+    }).subscribe();
 
-    async function deleteMessage(id, type) {
-      const table = (type === 'public') ? 'messages' : 'direct_messages';
-      const {error} = await _supabase.from(table).delete().eq('id', id);
-      if (!error) {
-        document.getElementById(`msg-${id}`)?.remove();
+    _supabase.channel('profile-status').on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'profiles'}, p => {
+      if (specialUsers[p.new.username]) {
+        specialUsers[p.new.username].status = p.new.status;
+        loadRecentDMs();
       }
-    }
+    }).subscribe();
+  }
 
-    function subscribeToChanges() {
-      _supabase.channel('msgs').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'messages'}, p => {
-        if (activeChatType === 'public') renderSingleMessage(p.new);
-      }).on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'messages'}, p => {
-        document.getElementById(`msg-${p.old.id}`)?.remove();
-      }).subscribe();
+  window.onbeforeunload = () => {
+    if (myProfile) _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', myProfile.id);
+  };
 
-      _supabase.channel('dms').on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'direct_messages'
-      }, p => {
-        if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
-          if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
-            renderSingleMessage(p.new);
-          }
-          loadRecentDMs();
-        }
-      }).subscribe();
-
-      _supabase.channel('profile-status').on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'profiles'
-      }, p => {
-        if (specialUsers[p.new.username]) {
-          specialUsers[p.new.username].status = p.new.status;
-          loadRecentDMs();
-        }
-      }).subscribe();
-    }
-
-    // Попытка поставить OFFLINE при закрытии
-    window.onbeforeunload = () => {
-      if (myProfile) {
-        _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
-      }
-    };
-
-    async function handleLogout() {
-      if (myProfile) await _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
-      await _supabase.auth.signOut();
-      window.location.href = 'auth.html';
-    }
+  async function handleLogout() {
+    if (myProfile) await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', myProfile.id);
+    await _supabase.auth.signOut();
+    window.location.href = 'auth.html';
   }
 </script>
 </body>
