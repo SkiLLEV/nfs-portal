@@ -180,6 +180,8 @@
   const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  let onlineUsers = {};
+
   // СПИСОК ДОСТУПНЫХ АВАТАРОК
   const AVATAR_OPTIONS = [
     'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png',
@@ -260,12 +262,27 @@
 
   function initOnlineRadar(username, status) {
     const channel = _supabase.channel('online-users', { config: { presence: { key: username } } });
+
     channel.on('presence', { event: 'sync' }, () => {
-      const state = channel.presenceState();
+      onlineUsers = channel.presenceState(); // Обновляем список тех, кто в сети
+
+      // Считаем цифры для футера
       let total = 0, playing = 0;
-      for (const key in state) { total++; const s = state[key][0].status; if (s === 'IN GAME' || s === 'LOOKING FOR GAME') playing++; }
-      document.getElementById('footerOnline').innerText = total; document.getElementById('footerPlaying').innerText = playing;
-    }).subscribe(async (s) => { if (s === 'SUBSCRIBED') await channel.track({ status: status }); });
+      for (const key in onlineUsers) {
+        total++;
+        const s = onlineUsers[key][0].status;
+        if (s === 'IN GAME' || s === 'LOOKING FOR GAME') playing++;
+      }
+      document.getElementById('footerOnline').innerText = total;
+      document.getElementById('footerPlaying').innerText = playing;
+
+      // ОБНОВЛЯЕМ ПЛАШКУ СТАТУСА В ПРОФИЛЕ
+      if (profileData) {
+        updateLiveStatusUI();
+      }
+    }).subscribe(async (s) => {
+      if (s === 'SUBSCRIBED') await channel.track({ status: status });
+    });
   }
 
   async function loadMyOwnProfile(userId) {
@@ -342,6 +359,23 @@
     el.className = 'status-badge ' + (s === 'OFFLINE' ? 'status-offline' : (s === 'IN GAME' ? 'status-ingame' : 'status-online'));
   }
 
+  function updateLiveStatusUI() {
+    const el = document.getElementById('statusIndicator');
+    if (!el || !profileData) return;
+
+    const isActuallyOnline = onlineUsers[profileData.username];
+
+    if (!isActuallyOnline) {
+      el.innerText = 'OFFLINE';
+      el.className = 'status-badge status-offline';
+    } else {
+      // Если в сети, берем его текущий статус (ONLINE, IN GAME и т.д.)
+      const s = profileData.status || 'ONLINE';
+      el.innerText = s;
+      el.className = 'status-badge ' + (s === 'IN GAME' || s === 'LOOKING FOR GAME' ? 'status-ingame' : 'status-online');
+    }
+  }
+
   async function openEditProfile() {
     let avatarHtml = '<div class="swal-avatar-list">';
     AVATAR_OPTIONS.forEach(url => { avatarHtml += `<img src="${url}" class="swal-avatar-item ${profileData.avatar_url === url ? 'selected' : ''}" onclick="selectSwalAvatar(this, '${url}')">`; });
@@ -369,8 +403,23 @@
   async function sendFriendRequest(targetId) { await _supabase.from('friend_requests').insert([{ sender_id: myProfile.id, receiver_id: targetId, sender_name: myProfile.username }]); location.reload(); }
   async function acceptFriendRequest(requestId) { await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', requestId); location.reload(); }
   async function removeFriend(requestId) { await _supabase.from('friend_requests').delete().eq('id', requestId); location.reload(); }
-  async function handleLogout() { await _supabase.auth.signOut(); window.location.href = 'auth.html'; }
+  async function handleLogout() {
+    // Сначала ставим оффлайн в базе
+    if (currentUserId) {
+      await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', currentUserId);
+    }
+    // Потом выходим из аккаунта
+    await _supabase.auth.signOut();
+    window.location.href = 'auth.html';
+  }
   function goToChat() { window.location.href = `chats.html?to=${profileData.username}`; }
+
+  // Авто-оффлайн при закрытии вкладки
+  window.onbeforeunload = () => {
+    if (currentUserId) {
+      _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', currentUserId);
+    }
+  };
 </script>
 </body>
 </html>
