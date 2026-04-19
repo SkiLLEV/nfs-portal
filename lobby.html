@@ -200,7 +200,7 @@
         container.innerHTML += `<div class="lobby-card"><div class="lobby-status">${lobby.status}</div><div class="lobby-title">${lobby.title}</div><div style="font-size: 0.8rem; color: #777; margin-bottom: 10px;">ОРГАНИЗАТОР: ${lobby.host_name}</div><div class="player-dots">${dots}</div><button class="join-btn" onclick="joinLobby('${lobby.id}')">${lobby.current_players >= 4 ? 'ПОЛНОЕ' : 'ВСТУПИТЬ'}</button></div>`;
       });
     } else {
-      container.innerHTML = '<p style="color:#ffffff;">Активных комнат нет. Будь первым — создай лобби!</p>';
+      container.innerHTML = '<p style="color:#f1c40f;><strong>Активных комнат нет. Будь первым — создай лобби!</strong></p>';
     }
   }
 

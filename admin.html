@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Admin HQ | Sergeant Cross</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    :root {
+      --nfs-yellow: #f1c40f;
+      --admin-red: #e74c3c;
+      --nfs-dark: #0a0a0a;
+    }
+    body { background: #111; color: #eee; font-family: 'Segoe UI', sans-serif; margin: 0; }
+    .header {
+      background: var(--admin-red); color: white; padding: 20px;
+      text-transform: uppercase; font-weight: 900; letter-spacing: 2px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .container { padding: 30px; }
+    .user-table { width: 100%; border-collapse: collapse; background: #1a1a1a; border: 1px solid #333; margin-top: 20px; }
+    .user-table th, .user-table td { padding: 12px; border: 1px solid #333; text-align: left; }
+    .user-table th { background: #222; color: var(--nfs-yellow); text-transform: uppercase; }
+    input[type="number"] { background: #000; border: 1px solid #444; color: #fff; padding: 5px; width: 80px; }
+    .btn { padding: 8px 15px; border: none; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.2s; margin-right: 5px; }
+    .btn:hover { transform: scale(1.05); filter: brightness(1.2); }
+    .btn-save { background: var(--nfs-yellow); color: #000; }
+    .btn-mute { background: #f39c12; color: #fff; }
+    .btn-ban { background: var(--admin-red); color: #fff; }
+    .status-msg { margin-top: 10px; color: var(--nfs-yellow); font-weight: bold; min-height: 20px; }
+    .mute-tag { display: block; font-size: 0.7rem; color: #f39c12; margin-top: 5px; font-style: italic; }
+    /* Fix SweetAlert2 colors */
+    .swal2-select { background: #222 !important; color: var(--nfs-yellow) !important; border: 1px solid #444 !important; }
+    .swal2-select option { background: #222 !important; color: #fff !important; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div>ADMIN CONTROL CENTER // MOST WANTED</div>
+  <a href="index.html" style="color: white; text-decoration: none; border: 1px solid #fff; padding: 5px 15px;">ВЕРНУТЬСЯ В ГОРОД</a>
+</header>
+
+<div class="container">
+  <h2 style="text-transform: uppercase; border-left: 5px solid var(--nfs-yellow); padding-left: 15px;">Управление гонщиками</h2>
+  <div id="statusMsg" class="status-msg"></div>
+
+  <table class="user-table">
+    <thead>
+    <tr>
+      <th>ID (UUID)</th>
+      <th>Гонщик</th>
+      <th>Рейтинг</th>
+      <th>Статус VIP</th>
+      <th>Управление</th>
+    </tr>
+    </thead>
+    <tbody id="userList">
+    <tr><td colspan="5" style="text-align:center;">Сканирование частот...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentAdminId = null;
+
+  async function checkAdmin() {
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (!user) { window.location.href = 'auth.html'; return; }
+    currentAdminId = user.id;
+
+    const { data: profile } = await _supabase.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!profile || !profile.is_admin) {
+      window.location.href = 'index.html';
+    } else {
+      loadUsers();
+    }
+  }
+
+  async function loadUsers() {
+    const { data, error } = await _supabase.from('profiles').select('*').order('username');
+    if (error) return;
+
+    const tbody = document.getElementById('userList');
+    tbody.innerHTML = '';
+
+    data.forEach(user => {
+      const isMuted = user.muted_until && new Date(user.muted_until) > new Date();
+      const muteText = isMuted ? `<span class="mute-tag">В МУТЕ ДО: ${new Date(user.muted_until).toLocaleString()}</span>` : '';
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="font-size: 10px; color: #666;">${user.id}</td>
+        <td>
+            <strong>${user.username}</strong>
+            ${user.is_admin ? '<span style="color:var(--admin-red)">[ADM]</span>' : ''}
+            ${muteText}
+        </td>
+        <td><input type="number" id="rating-${user.id}" value="${user.rating}"></td>
+        <td>
+          <input type="checkbox" id="vip-${user.id}" ${user.is_vip ? 'checked' : ''}>
+        </td>
+        <td>
+          <button class="btn btn-save" onclick="saveUser('${user.id}')">SAVE</button>
+          <button class="btn btn-mute" onclick="muteUser('${user.id}', '${user.username}')">MUTE</button>
+          <button class="btn btn-ban" onclick="deleteUser('${user.id}')">BAN</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  async function saveUser(userId) {
+    const ratingInput = document.getElementById(`rating-${userId}`);
+    const vipCheckbox = document.getElementById(`vip-${userId}`);
+
+    if (!ratingInput || !vipCheckbox) return;
+
+    // Превращаем значения в чистые типы: Число и Булево (true/false)
+    const newRating = parseInt(ratingInput.value, 10) || 0;
+    const newVipStatus = vipCheckbox.checked; // Это вернет строго true или false
+
+    showStatus("СИНХРОНИЗАЦИЯ...");
+
+    // Выполняем апдейт
+    const { data, error } = await _supabase
+      .from('profiles')
+      .update({
+        rating: newRating,
+        is_vip: newVipStatus // Теперь база получит четкое false, если галка снята
+      })
+      .eq('id', userId);
+
+    if (error) {
+      console.error("ОШИБКА:", error);
+      showStatus("ОШИБКА: " + error.message);
+      Swal.fire("ОШИБКА", error.message, "error");
+    } else {
+      showStatus("ДАННЫЕ ОБНОВЛЕНЫ!");
+      // Перезагружаем список, чтобы увидеть изменения
+      loadUsers();
+    }
+  }
+
+  // Функции muteUser и deleteUser остаются такими же, как были
+  async function muteUser(userId, username) {
+    const { value: minutes } = await Swal.fire({
+      title: `ЛИШИТЬ ЭФИРА: ${username}`,
+      input: 'select',
+      inputOptions: { '10': '10 Мин', '60': '1 Час', '1440': '24 Часа', '0': 'СНЯТЬ МУТ' },
+      background: '#111', color: '#fff', confirmButtonColor: '#f39c12'
+    });
+    if (minutes !== undefined) {
+      let untilDate = minutes === '0' ? null : new Date(new Date().getTime() + minutes * 60000).toISOString();
+      await _supabase.from('profiles').update({ muted_until: untilDate }).eq('id', userId);
+      loadUsers();
+    }
+  }
+
+  async function deleteUser(userId) {
+    if (userId === currentAdminId) return Swal.fire("ОШИБКА", "Себя нельзя!", "error");
+    const res = await Swal.fire({ title: 'УДАЛИТЬ?', showCancelButton: true, background: '#111', color: '#fff' });
+    if (res.isConfirmed) {
+      await _supabase.from('profiles').delete().eq('id', userId);
+      loadUsers();
+    }
+  }
+
+  function showStatus(msg) {
+    const el = document.getElementById('statusMsg');
+    el.innerText = `>> ${msg}`;
+    setTimeout(() => el.innerText = '', 3000);
+  }
+
+  checkAdmin();
+</script>
+</body>
+</html>

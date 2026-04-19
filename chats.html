@@ -206,7 +206,6 @@
     </div>
   </div>
 </div>
-
 <script>
   const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
@@ -219,6 +218,8 @@
   let specialUsers = {};
   let typingTimeout = null;
   let typingChannel = null;
+  let statusChannel = null;
+  let onlineUsers = {};
 
   window.onload = async () => {
     const { data: { user } } = await _supabase.auth.getUser();
@@ -228,9 +229,16 @@
     if (profile) {
       myProfile = profile;
       document.getElementById('myNick').innerText = myProfile.username;
+
+      // Сразу ставим себе ONLINE в базе
+      await _supabase.from('profiles').update({ status: 'ONLINE' }).eq('id', myProfile.id);
     }
 
     await fetchSpecialRoles();
+
+    // Запускаем радар статусов
+    initStatusTracker();
+
     await loadRecentDMs();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -251,6 +259,25 @@
     initTypingTracker();
   };
 
+  // ФУНКЦИЯ РАДАРА ( Presence )
+  function initStatusTracker() {
+    statusChannel = _supabase.channel('global-online', {
+      config: { presence: { key: myProfile.username } }
+    });
+
+    statusChannel
+      .on('presence', { event: 'sync' }, () => {
+        onlineUsers = statusChannel.presenceState();
+        console.log("Радар зафиксировал гонщиков:", onlineUsers);
+        loadRecentDMs(); // Обновляем список, чтобы точки стали серыми/зелеными
+      })
+      .subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await statusChannel.track({ user: myProfile.username, online: true });
+        }
+      });
+  }
+
   async function fetchSpecialRoles() {
     const { data } = await _supabase.from('profiles').select('id, username, is_admin, is_vip, avatar_url, status');
     if (data) data.forEach(u => specialUsers[u.username] = {
@@ -258,10 +285,12 @@
     });
   }
 
-  function getStatusColor(status) {
-    if (status === 'ONLINE') return '#2ecc71';
-    if (status === 'IN GAME' || status === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
-    return '#555';
+  function getStatusColor(username, statusFromDb) {
+    const isActuallyOnline = onlineUsers[username];
+    if (!isActuallyOnline) return '#555'; // Серый, если радара нет
+
+    if (statusFromDb === 'IN GAME' || statusFromDb === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
+    return '#2ecc71'; // Зеленый ONLINE
   }
 
   async function loadRecentDMs() {
@@ -290,10 +319,11 @@
     }
 
     container.innerHTML = contacts.size > 0 ? '' : '<p style="padding: 0 20px; font-size: 0.8rem; color: #444;">Нет активных диалогов</p>';
+
     contacts.forEach((val, id) => {
       let preview = val.lastMsg.length > 20 ? val.lastMsg.substring(0, 20) + '...' : val.lastMsg;
       let badge = val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : '';
-      let color = getStatusColor(val.status);
+      let color = getStatusColor(val.name, val.status);
 
       container.innerHTML += `
         <div class="chat-item ${activeChatId === id ? 'active' : ''}" id="chat-${id}" onclick="switchChat('${id}', '${val.name}', 'private')">
@@ -349,7 +379,8 @@
     const isMine = (msg.sender_id === myProfile.id) || (sender === myProfile.username);
     const userData = specialUsers[sender] || { admin: false, id: null, status: 'OFFLINE' };
     const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    let color = getStatusColor(userData.status);
+
+    let color = getStatusColor(sender, userData.status);
 
     let adminTools = "";
     if (myProfile.is_admin) {
@@ -476,7 +507,18 @@
     }).subscribe();
   }
 
-  async function handleLogout() { await _supabase.auth.signOut(); window.location.href = 'auth.html'; }
+  // Попытка поставить OFFLINE при закрытии
+  window.onbeforeunload = () => {
+    if (myProfile) {
+      _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', myProfile.id);
+    }
+  };
+
+  async function handleLogout() {
+    if (myProfile) await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', myProfile.id);
+    await _supabase.auth.signOut();
+    window.location.href = 'auth.html';
+  }
 </script>
 </body>
 </html>

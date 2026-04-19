@@ -167,59 +167,61 @@
 
   window.onload = async () => {
     const { data: { user } } = await _supabase.auth.getUser();
+
     if (user) {
       currentUserId = user.id;
       const { data: p } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+
       if (p) {
         document.getElementById('myNick').innerText = p.username;
-        initOnlineRadar(p.username, p.status);
-        updateMessageBadge();
 
-        // REALTIME: Слушаем входящие сообщения
+        // 1. Твой личный статус (из utils.js)
+        initGlobalStatus(_supabase, p);
+
+        // 2. Счетчик сообщений (из utils.js)
+        updateGlobalMsgBadge(_supabase, user.id);
+
+        // 3. Запускаем счетчик людей в футере
+        initFooterStats();
+
+        // REALTIME: Слушаем новые сообщения для бейджа
         _supabase.channel('leaderboard-msg-updates')
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${user.id}` }, () => {
-            updateMessageBadge();
+          .on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'direct_messages',
+            filter: `receiver_id=eq.${user.id}`
+          }, () => {
+            updateGlobalMsgBadge(_supabase, user.id);
           })
           .subscribe();
       }
     } else {
-      initOnlineRadar("Guest_" + Math.floor(Math.random()*1000), "OFFLINE");
+      console.log("Вход в режиме гостя");
     }
+
     await loadBlacklist();
   };
 
-  async function updateMessageBadge() {
-    if (!currentUserId) return;
-    const { count } = await _supabase
-      .from('direct_messages')
-      .select('*', { count: 'exact', head: true })
-      .eq('receiver_id', currentUserId)
-      .eq('is_read', false);
+  // ФУНКЦИЯ ДЛЯ ЦИФР В ФУТЕРЕ (живое обновление)
+  function initFooterStats() {
+    const presenceChannel = _supabase.channel('online-stats');
 
-    const b = document.getElementById('msgBadge');
-    if (count > 0) {
-      b.innerText = count;
-      b.style.display = 'inline-block';
-    } else {
-      b.style.display = 'none';
-    }
-  }
-
-  function initOnlineRadar(username, status) {
-    const presenceChannel = _supabase.channel('online-users', { config: { presence: { key: username } } });
     presenceChannel.on('presence', { event: 'sync' }, () => {
       const state = presenceChannel.presenceState();
-      let total = 0; let playing = 0;
+      let total = 0;
+      let playing = 0;
+
       for (const key in state) {
         total++;
+        // Если в данных присутствия есть статус игры
         const s = state[key][0].status;
         if (s === 'IN GAME' || s === 'LOOKING FOR GAME') playing++;
       }
+
       document.getElementById('footerOnline').innerText = total;
       document.getElementById('footerPlaying').innerText = playing;
-    }).subscribe(async (s) => {
-      if (s === 'SUBSCRIBED') await presenceChannel.track({ online_at: new Date().toISOString(), status: status });
-    });
+    }).subscribe();
   }
 
   async function loadBlacklist() {
@@ -235,6 +237,7 @@
 
     data.forEach((racer, index) => {
       const rank = index + 1;
+      // Используем проверку статуса из базы (или можно добавить логику радара и сюда)
       const isOnline = racer.status !== 'OFFLINE';
       const myNick = document.getElementById('myNick').innerText;
       const isMe = myNick === racer.username;
@@ -257,12 +260,12 @@
 
       const avatarHTML = racer.avatar_url
         ? `<img src="${racer.avatar_url}" class="racer-avatar" style="${rank <= 3 ? 'border-color: var(--nfs-yellow);' : ''}">`
-        : `<div class="racer-avatar" style="display:flex; align-items:center; justify-content:center; color:#333; font-weight:900;">?</div>`;
+        : `<div class="racer-avatar" style="display:flex; align-items:center; justify-content:center; color:#555; font-weight:900;">?</div>`;
 
       const row = document.createElement('tr');
       row.className = 'blacklist-row';
       if (rowStyle) row.setAttribute('style', rowStyle);
-      if (isMe && rank > 1) row.style.background = "rgba(255, 255, 255, 0.05)";
+      if (isMe && rank > 1) row.style.background = "rgba(255, 255, 255, 0.08)";
 
       row.onclick = () => window.location.href = `profile.html?u=${racer.username}`;
 
@@ -291,6 +294,10 @@
   }
 
   async function handleLogout() {
+    // При выходе ставим оффлайн
+    if (currentUserId) {
+      await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', currentUserId);
+    }
     await _supabase.auth.signOut();
     window.location.href = 'auth.html';
   }
