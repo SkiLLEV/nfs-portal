@@ -282,6 +282,8 @@
   const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  let onlineUsers = {}; // Наш радар для отслеживания всех, кто в сети
+
   let myProfile = null;
 
   window.onload = async () => {
@@ -348,11 +350,19 @@
     listContainer.innerHTML = '';
     data.forEach(rel => {
       const friend = rel.sender_id === myProfile.id ? rel.receiver : rel.sender;
-      let dotColor = '#555';
-      let statusName = friend.status || 'OFFLINE';
 
-      if (statusName === 'IN GAME' || statusName === 'LOOKING FOR GAME') dotColor = 'var(--nfs-yellow)';
-      else if (statusName === 'ONLINE') dotColor = '#2ecc71';
+      // ПРОВЕРКА ЧЕРЕЗ РАДАР
+      const isActuallyOnline = onlineUsers[friend.username];
+
+      let dotColor = '#555'; // По умолчанию оффлайн
+      let statusName = 'OFFLINE';
+
+      if (isActuallyOnline) {
+        // Если радар его видит, берем статус (онлайн или в игре)
+        statusName = friend.status || 'ONLINE';
+        if (statusName === 'IN GAME' || statusName === 'LOOKING FOR GAME') dotColor = 'var(--nfs-yellow)';
+        else dotColor = '#2ecc71';
+      }
 
       listContainer.innerHTML += `
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s;"
@@ -360,7 +370,7 @@
           <div style="position: relative;">
             <img src="${friend.avatar_url || 'https://via.placeholder.com/35'}"
                  style="width: 35px; height: 35px; border: 1px solid #333; object-fit: cover; display: block;">
-            <div style="width: 10px; height: 10px; background-color: ${dotColor}; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid #000; ${statusName !== 'OFFLINE' ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
+            <div style="width: 10px; height: 10px; background-color: ${dotColor}; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid #000; ${isActuallyOnline ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
           </div>
           <div style="overflow: hidden;">
             <div style="font-size: 0.9rem; font-weight: 900; color: #eee; text-transform: uppercase;">${friend.username}</div>
@@ -405,15 +415,20 @@
 
   function initOnlineRadar(username, status) {
     const presenceChannel = _supabase.channel('online-users', { config: { presence: { key: username } } });
+
     presenceChannel.on('presence', { event: 'sync' }, () => {
-      const state = presenceChannel.presenceState();
+      onlineUsers = presenceChannel.presenceState(); // ЗАПОМИНАЕМ КТО В СЕТИ
+
       let total = 0; let playing = 0;
-      for (const key in state) {
+      for (const key in onlineUsers) {
         total++;
-        if (state[key][0].status === 'IN GAME' || state[key][0].status === 'LOOKING FOR GAME') playing++;
+        if (onlineUsers[key][0].status === 'IN GAME' || onlineUsers[key][0].status === 'LOOKING FOR GAME') playing++;
       }
       document.getElementById('footerOnline').innerText = total;
       document.getElementById('footerPlaying').innerText = playing;
+
+      // ОБНОВЛЯЕМ СПИСОК ДРУЗЕЙ В САЙДБАРЕ
+      loadSidebarFriends();
     }).subscribe(async (s) => {
       if (s === 'SUBSCRIBED') await presenceChannel.track({ online_at: new Date().toISOString(), status: status });
     });
