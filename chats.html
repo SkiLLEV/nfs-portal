@@ -417,7 +417,7 @@
     typingChannel = _supabase.channel(`typing:${channelKey}`);
 
     typingChannel
-      .on('presence', { event: 'sync' }, () => {
+      .on('presence', {event: 'sync'}, () => {
         const state = typingChannel.presenceState();
         const typingUsers = [];
         for (const id in state) {
@@ -436,88 +436,115 @@
       .subscribe();
 
     const chatInput = document.getElementById('chatInput');
+    let isCurrentlyTyping = false; // Флаг, чтобы не долбить сервер на каждой букве
+
     chatInput.oninput = () => {
-      typingChannel.track({ user: myProfile.username, isTyping: true });
+      // 1. Шлем сигнал "печатаю" только если мы ДО этого молчали
+      if (!isCurrentlyTyping) {
+        isCurrentlyTyping = true;
+        typingChannel.track({user: myProfile.username, isTyping: true});
+        console.log("Отправил: Печатаю...");
+      }
+
+      // 2. Сбрасываем старый таймер оффлайна
       clearTimeout(typingTimeout);
+
+      // 3. Если за 4 секунды ничего не нажали — снимаем статус
       typingTimeout = setTimeout(() => {
-        typingChannel.track({ user: myProfile.username, isTyping: false });
-      }, 3000);
+        isCurrentlyTyping = false;
+        typingChannel.track({user: myProfile.username, isTyping: false});
+        console.log("Отправил: Перестал печатать");
+      }, 4000);
     };
-  }
 
-  async function doSendMessage() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if (!text) return;
+    async function doSendMessage() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
 
-    if (myProfile.muted_until && new Date(myProfile.muted_until) > new Date()) {
-      Swal.fire("ТЫ В МУТЕ", "Твой передатчик заблокирован.", "error");
-      return;
-    }
-
-    if (typingChannel) typingChannel.track({ user: myProfile.username, isTyping: false });
-
-    let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
-    let payload = activeChatType === 'public'
-      ? { sender_name: myProfile.username, text: text, room_id: 'global' }
-      : { sender_id: myProfile.id, receiver_id: activeChatId, sender_name: myProfile.username, receiver_name: targetUserName, text: text };
-
-    const { data, error } = await _supabase.from(table).insert([payload]).select();
-
-    if (error) {
-      Swal.fire("ОШИБКА", "Сообщение не ушло: " + error.message, "error");
-    } else if (data && data.length > 0) {
-      if (document.getElementById(`msg-${data[0].id}`) === null) {
-        renderSingleMessage(data[0]);
+      if (myProfile.muted_until && new Date(myProfile.muted_until) > new Date()) {
+        Swal.fire("ТЫ В МУТЕ", "Твой передатчик заблокирован.", "error");
+        return;
       }
-      input.value = '';
-      loadRecentDMs();
-    }
-  }
 
-  async function deleteMessage(id, type) {
-    const table = (type === 'public') ? 'messages' : 'direct_messages';
-    const { error } = await _supabase.from(table).delete().eq('id', id);
-    if (!error) {
-      document.getElementById(`msg-${id}`)?.remove();
-    }
-  }
+      if (typingChannel) typingChannel.track({user: myProfile.username, isTyping: false});
 
-  function subscribeToChanges() {
-    _supabase.channel('msgs').on('postgres_changes', {event:'INSERT', schema:'public', table:'messages'}, p => {
-      if (activeChatType === 'public') renderSingleMessage(p.new);
-    }).on('postgres_changes', {event:'DELETE', schema:'public', table:'messages'}, p => {
-      document.getElementById(`msg-${p.old.id}`)?.remove();
-    }).subscribe();
+      let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
+      let payload = activeChatType === 'public'
+        ? {sender_name: myProfile.username, text: text, room_id: 'global'}
+        : {
+          sender_id: myProfile.id,
+          receiver_id: activeChatId,
+          sender_name: myProfile.username,
+          receiver_name: targetUserName,
+          text: text
+        };
 
-    _supabase.channel('dms').on('postgres_changes', {event:'INSERT', schema:'public', table:'direct_messages'}, p => {
-      if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
-        if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
-          renderSingleMessage(p.new);
+      const {data, error} = await _supabase.from(table).insert([payload]).select();
+
+      if (error) {
+        Swal.fire("ОШИБКА", "Сообщение не ушло: " + error.message, "error");
+      } else if (data && data.length > 0) {
+        if (document.getElementById(`msg-${data[0].id}`) === null) {
+          renderSingleMessage(data[0]);
         }
+        input.value = '';
         loadRecentDMs();
       }
-    }).subscribe();
-
-    _supabase.channel('profile-status').on('postgres_changes', {event:'UPDATE', schema:'public', table:'profiles'}, p => {
-      if (specialUsers[p.new.username]) {
-        specialUsers[p.new.username].status = p.new.status;
-        loadRecentDMs();
-      }
-    }).subscribe();
-  }
-
-  // Попытка поставить OFFLINE при закрытии
-  window.onbeforeunload = () => {
-    if (myProfile) {
-      _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', myProfile.id);
     }
-  };
 
-  async function handleLogout() {
-    if (myProfile) await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', myProfile.id);
-    await _supabase.auth.signOut();
-    window.location.href = 'auth.html';
+    async function deleteMessage(id, type) {
+      const table = (type === 'public') ? 'messages' : 'direct_messages';
+      const {error} = await _supabase.from(table).delete().eq('id', id);
+      if (!error) {
+        document.getElementById(`msg-${id}`)?.remove();
+      }
+    }
+
+    function subscribeToChanges() {
+      _supabase.channel('msgs').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'messages'}, p => {
+        if (activeChatType === 'public') renderSingleMessage(p.new);
+      }).on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'messages'}, p => {
+        document.getElementById(`msg-${p.old.id}`)?.remove();
+      }).subscribe();
+
+      _supabase.channel('dms').on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'direct_messages'
+      }, p => {
+        if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
+          if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
+            renderSingleMessage(p.new);
+          }
+          loadRecentDMs();
+        }
+      }).subscribe();
+
+      _supabase.channel('profile-status').on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'profiles'
+      }, p => {
+        if (specialUsers[p.new.username]) {
+          specialUsers[p.new.username].status = p.new.status;
+          loadRecentDMs();
+        }
+      }).subscribe();
+    }
+
+    // Попытка поставить OFFLINE при закрытии
+    window.onbeforeunload = () => {
+      if (myProfile) {
+        _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
+      }
+    };
+
+    async function handleLogout() {
+      if (myProfile) await _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
+      await _supabase.auth.signOut();
+      window.location.href = 'auth.html';
+    }
   }
 </script>
 </body>
