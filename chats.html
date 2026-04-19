@@ -398,7 +398,7 @@
     typingChannel = _supabase.channel(`typing:${channelKey}`);
 
     typingChannel
-      .on('broadcast', { event: 'typing' }, (payload) => {
+      .on('broadcast', {event: 'typing'}, (payload) => {
         const userName = payload.payload.user;
         if (userName === myProfile.username) return;
 
@@ -423,7 +423,7 @@
       typingChannel.send({
         type: 'broadcast',
         event: 'typing',
-        payload: { user: myProfile.username }
+        payload: {user: myProfile.username}
       });
 
       // Локальный таймер, чтобы у нас самих надпись не дергалась
@@ -433,71 +433,86 @@
       }, 3000);
     };
 
-  async function doSendMessage() {
-    const input = document.getElementById('chatInput');
-    const text = input.value.trim();
-    if (!text) return;
+    async function doSendMessage() {
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
 
-    if (myProfile.muted_until && new Date(myProfile.muted_until) > new Date()) {
-      Swal.fire("ТЫ В МУТЕ", "Твой передатчик заблокирован.", "error");
-      return;
+      if (myProfile.muted_until && new Date(myProfile.muted_until) > new Date()) {
+        Swal.fire("ТЫ В МУТЕ", "Твой передатчик заблокирован.", "error");
+        return;
+      }
+
+      if (typingChannel) typingChannel.track({user: myProfile.username, isTyping: false});
+
+      let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
+      let payload = activeChatType === 'public'
+        ? {sender_name: myProfile.username, text: text, room_id: 'global'}
+        : {
+          sender_id: myProfile.id,
+          receiver_id: activeChatId,
+          sender_name: myProfile.username,
+          receiver_name: targetUserName,
+          text: text
+        };
+
+      const {data, error} = await _supabase.from(table).insert([payload]).select();
+
+      if (error) {
+        Swal.fire("ОШИБКА", "Сообщение не ушло: " + error.message, "error");
+      } else if (data && data.length > 0) {
+        renderSingleMessage(data[0]);
+        input.value = '';
+        loadRecentDMs();
+      }
     }
 
-    if (typingChannel) typingChannel.track({ user: myProfile.username, isTyping: false });
-
-    let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
-    let payload = activeChatType === 'public'
-      ? { sender_name: myProfile.username, text: text, room_id: 'global' }
-      : { sender_id: myProfile.id, receiver_id: activeChatId, sender_name: myProfile.username, receiver_name: targetUserName, text: text };
-
-    const { data, error } = await _supabase.from(table).insert([payload]).select();
-
-    if (error) {
-      Swal.fire("ОШИБКА", "Сообщение не ушло: " + error.message, "error");
-    } else if (data && data.length > 0) {
-      renderSingleMessage(data[0]);
-      input.value = '';
-      loadRecentDMs();
+    async function deleteMessage(id, type) {
+      const table = (type === 'public') ? 'messages' : 'direct_messages';
+      await _supabase.from(table).delete().eq('id', id);
     }
-  }
 
-  async function deleteMessage(id, type) {
-    const table = (type === 'public') ? 'messages' : 'direct_messages';
-    await _supabase.from(table).delete().eq('id', id);
-  }
+    function subscribeToChanges() {
+      _supabase.channel('msgs').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'messages'}, p => {
+        if (activeChatType === 'public') renderSingleMessage(p.new);
+      }).on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'messages'}, p => {
+        document.getElementById(`msg-${p.old.id}`)?.remove();
+      }).subscribe();
 
-  function subscribeToChanges() {
-    _supabase.channel('msgs').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'messages'}, p => {
-      if (activeChatType === 'public') renderSingleMessage(p.new);
-    }).on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'messages'}, p => {
-      document.getElementById(`msg-${p.old.id}`)?.remove();
-    }).subscribe();
-
-    _supabase.channel('dms').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'direct_messages'}, p => {
-      if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
-        if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
-          renderSingleMessage(p.new);
+      _supabase.channel('dms').on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'direct_messages'
+      }, p => {
+        if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
+          if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
+            renderSingleMessage(p.new);
+          }
+          loadRecentDMs();
         }
-        loadRecentDMs();
-      }
-    }).subscribe();
+      }).subscribe();
 
-    _supabase.channel('profile-status').on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'profiles'}, p => {
-      if (specialUsers[p.new.username]) {
-        specialUsers[p.new.username].status = p.new.status;
-        loadRecentDMs();
-      }
-    }).subscribe();
-  }
+      _supabase.channel('profile-status').on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'profiles'
+      }, p => {
+        if (specialUsers[p.new.username]) {
+          specialUsers[p.new.username].status = p.new.status;
+          loadRecentDMs();
+        }
+      }).subscribe();
+    }
 
-  window.onbeforeunload = () => {
-    if (myProfile) _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', myProfile.id);
-  };
+    window.onbeforeunload = () => {
+      if (myProfile) _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
+    };
 
-  async function handleLogout() {
-    if (myProfile) await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', myProfile.id);
-    await _supabase.auth.signOut();
-    window.location.href = 'auth.html';
+    async function handleLogout() {
+      if (myProfile) await _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
+      await _supabase.auth.signOut();
+      window.location.href = 'auth.html';
+    }
   }
 </script>
 </body>
