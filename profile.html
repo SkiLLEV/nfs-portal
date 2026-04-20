@@ -175,151 +175,158 @@
   <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | В ЗАЕЗДЕ: <span class="highlight" id="footerPlaying">0</span></div>
 </footer>
 
-<script>
-  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
-  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <script>
+    const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let onlineUsers = {};
-
-  // СПИСОК ДОСТУПНЫХ АВАТАРОК
-  const AVATAR_OPTIONS = [
+    // Константы
+    const AVATAR_OPTIONS = [
     'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png',
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEveKMVakzm3H74-BgFH8JGuoTkavsfgIAaw&s',
     'https://static.wikia.nocookie.net/needforspeed/images/e/ee/TazProfileIcon.png/revision/latest/scale-to-width-down/220?cb=20160105211008&path-prefix=ru',
     'https://static.wikia.nocookie.net/nfs/images/6/6f/Sonny.png/revision/latest/smart/width/250/height/250?cb=20150519180637&path-prefix=es'
-  ];
+    ];
 
-  let currentUserId = null, myProfile = null, profileData = null;
+    let currentUserId = null, myProfile = null, profileData = null;
 
-  window.onload = async () => {
+    window.onload = async () => {
+    // 1. Проверка авторизации
     const { data: { user } } = await _supabase.auth.getUser();
     if (!user) { window.location.href = 'auth.html'; return; }
     currentUserId = user.id;
 
+    // 2. Загрузка личных данных (для шапки и статуса)
     const { data: me } = await _supabase.from('profiles').select('*').eq('id', currentUserId).single();
     if (me) {
-      myProfile = me;
-      document.getElementById('myNickTop').innerText = me.username;
-      initOnlineRadar(me.username, me.status);
-      updateMessageBadge();
+    myProfile = me;
+    const nickEl = document.getElementById('myNickTop');
+    if (nickEl) nickEl.innerText = me.username;
 
-      _supabase.channel('profile-msg-updates')
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${user.id}` }, () => {
-          updateMessageBadge();
-        })
-        .subscribe();
-    }
+    // Запускаем глобальный маяк из utils.js
+    if (typeof initGlobalStatus === 'function') {
+    initGlobalStatus(_supabase, me);
+  }
 
+    if (typeof updateGlobalMsgBadge === 'function') {
+    updateGlobalMsgBadge(_supabase, me.id);
+  }
+  }
+
+    // 3. Логика отображения профиля
     const urlParams = new URLSearchParams(window.location.search);
     const targetName = urlParams.get('u');
+
     if (targetName) {
-      const { data } = await _supabase.from('profiles').select('*').ilike('username', targetName).single();
-      if (data) { profileData = data; renderFullProfile(data, data.id === currentUserId); updateRacerRank(data.id); if (data.id !== currentUserId) checkFriendshipStatus(data.id); }
-    } else { loadMyOwnProfile(user.id); }
+    const { data } = await _supabase.from('profiles').select('*').ilike('username', targetName).maybeSingle();
+    if (data) {
+    profileData = data;
+    renderFullProfile(data, data.id === currentUserId);
+    updateRacerRank(data.id);
+    if (data.id !== currentUserId) checkFriendshipStatus(data.id);
+  } else {
+    loadMyOwnProfile(user.id);
+  }
+  } else {
+    loadMyOwnProfile(user.id);
+  }
   };
 
-  async function updateMessageBadge() {
-    if (!currentUserId) return;
-    const { count } = await _supabase.from('direct_messages').select('*', { count: 'exact', head: true }).eq('receiver_id', currentUserId).eq('is_read', false);
-    const b = document.getElementById('msgBadge');
-    if (count > 0) { b.innerText = count; b.style.display = 'inline-block'; }
-    else { b.style.display = 'none'; }
+    // ФУНКЦИЯ ОБНОВЛЕНИЯ СТАТУСА (вызывается из utils.js автоматически)
+    window.updateLiveStatusUI = function() {
+    const el = document.getElementById('statusIndicator');
+    if (!el || !profileData) return;
+
+    const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[profileData.username] : null;
+
+    if (!presence) {
+    el.innerText = 'OFFLINE';
+    el.className = 'status-badge status-offline';
+  } else {
+    const loc = presence[0].location;
+    const s = profileData.status || 'ONLINE';
+
+    if (loc === 'chats.html') {
+    el.innerText = 'В ЧАТЕ';
+    el.className = 'status-badge status-ingame'; // Красим в желтый/красный
+  } else {
+    el.innerText = s;
+    el.className = 'status-badge ' + (s === 'IN GAME' || s === 'LOOKING FOR GAME' ? 'status-ingame' : 'status-online');
   }
-
-  // --- ОБНОВЛЕННАЯ ФУНКЦИЯ ДОБАВЛЕНИЯ ФОТО С ИНСТРУКЦИЕЙ ---
-  async function addNewCarPhoto() {
-    const { value: url } = await Swal.fire({
-      title: 'ТЮНИНГ ГАРАЖА',
-      background: '#0a0a0a',
-      color: '#fff',
-      confirmButtonColor: '#f1c40f',
-      html: `
-        <div style="text-align: left; font-size: 0.85rem; line-height: 1.5;">
-          <p>Чтобы добавить тачку, нужна <span class="highlight">ПРЯМАЯ ССЫЛКА</span> на фото.</p>
-          <ol style="padding-left: 20px; color: #ccc;">
-            <li>Зайди на <a href="https://postimages.org/" target="_blank" style="color: #f1c40f;">Postimages.org</a></li>
-            <li>Загрузи свое фото</li>
-            <li>Скопируй поле <b style="color:#fff;">"Прямая ссылка"</b> (она заканчивается на .jpg или .png)</li>
-          </ol>
-          <input id="swal-input-url" class="swal2-input" placeholder="https://i.postimg.cc/..." style="width: 100%; background: #111; color: #fff; border: 1px solid #444;">
-        </div>
-      `,
-      focusConfirm: false,
-      preConfirm: () => {
-        const val = document.getElementById('swal-input-url').value;
-        if (!val) { Swal.showValidationMessage('Сначала вставь ссылку!'); }
-        return val;
-      }
-    });
-
-    if (url) {
-      const photos = [...(profileData.photos || []), url];
-      const { error } = await _supabase.from('profiles').update({ photos }).eq('id', currentUserId);
-      if (!error) location.reload();
-    }
   }
+  };
 
-  function initOnlineRadar(username, status) {
-    const channel = _supabase.channel('online-users', { config: { presence: { key: username } } });
-
-    channel.on('presence', { event: 'sync' }, () => {
-      onlineUsers = channel.presenceState(); // Обновляем список тех, кто в сети
-
-      // Считаем цифры для футера
-      let total = 0, playing = 0;
-      for (const key in onlineUsers) {
-        total++;
-        const s = onlineUsers[key][0].status;
-        if (s === 'IN GAME' || s === 'LOOKING FOR GAME') playing++;
-      }
-      document.getElementById('footerOnline').innerText = total;
-      document.getElementById('footerPlaying').innerText = playing;
-
-      // ОБНОВЛЯЕМ ПЛАШКУ СТАТУСА В ПРОФИЛЕ
-      if (profileData) {
-        updateLiveStatusUI();
-      }
-    }).subscribe(async (s) => {
-      if (s === 'SUBSCRIBED') await channel.track({ status: status });
-    });
-  }
-
-  async function loadMyOwnProfile(userId) {
+    async function loadMyOwnProfile(userId) {
     const { data } = await _supabase.from('profiles').select('*').eq('id', userId).single();
-    if (data) { profileData = data; renderFullProfile(data, true); updateRacerRank(data.id); }
+    if (data) {
+    profileData = data;
+    renderFullProfile(data, true);
+    updateRacerRank(data.id);
+  }
   }
 
-  async function updateRacerRank(targetUserId) {
+    async function updateRacerRank(targetUserId) {
     const { data: racers } = await _supabase.from('profiles').select('id').order('rating', { ascending: false });
     if (racers) {
-      const rank = racers.findIndex(r => r.id === targetUserId) + 1;
-      document.getElementById('rankDisplay').innerText = `#${rank}`;
+    const rank = racers.findIndex(r => r.id === targetUserId) + 1;
+    const rankEl = document.getElementById('rankDisplay');
+    if (rankEl) rankEl.innerText = `#${rank}`;
+  }
+  }
+
+    function renderFullProfile(data, isMine) {
+      // 1. Очищаем надпись "ЗАГРУЗКА..." в шапке (если она еще там висит)
+      const topNick = document.getElementById('myNickTop');
+      if (topNick && myProfile) topNick.innerText = myProfile.username;
+
+      const nameEl = document.getElementById('profName');
+      const badgeEl = document.getElementById('badgeContainer');
+
+      if (nameEl) {
+        nameEl.innerText = data.username;
+        if (data.is_admin) {
+          nameEl.classList.add('admin-glow');
+          badgeEl.innerHTML = `<span class="badge badge-admin">ADM</span>`;
+        } else if (data.is_vip) {
+          nameEl.classList.add('vip-glow');
+          badgeEl.innerHTML = `<span class="badge badge-vip">VIP</span>`;
+        }
+      }
+
+      // 2. Убираем "Загрузка данных..." из БИО
+      document.getElementById('profBio').innerText = data.bio || "Элитный гонщик Рокпорта";
+      document.getElementById('profRating').innerText = `★ ${data.rating.toLocaleString()}`;
+
+      const box = document.getElementById('avatarBox');
+      if (box) box.innerHTML = data.avatar_url ? `<img src="${data.avatar_url}">` : `<span class="avatar-letter">${data.username[0].toUpperCase()}</span>`;
+
+      const clanEl = document.getElementById('profClan');
+      if (clanEl) clanEl.innerText = data.clan_tag || '[НЕТ]';
+
+      renderGarage(data.photos);
+
+      // Вызываем обновление статуса (ONLINE/OFFLINE/В ЧАТЕ)
+      if (typeof window.updateLiveStatusUI === 'function') {
+        window.updateLiveStatusUI();
+      }
+
+      if (isMine) {
+        document.getElementById('editBtn').classList.remove('hidden');
+        document.getElementById('statusSelect').classList.remove('hidden');
+        document.getElementById('addCarBtn').classList.remove('hidden');
+        document.getElementById('statusSelect').value = data.status || 'ONLINE';
+      } else {
+        document.getElementById('msgBtn').classList.remove('hidden');
+        document.getElementById('friendBtn').classList.remove('hidden');
+      }
     }
-  }
 
-  function renderFullProfile(data, isMine) {
-    const nameEl = document.getElementById('profName');
-    const badgeEl = document.getElementById('badgeContainer');
-    nameEl.innerText = data.username;
-    if (data.is_admin) { nameEl.classList.add('admin-glow'); badgeEl.innerHTML = `<span class="badge badge-admin">ADM</span>`; }
-    else if (data.is_vip) { nameEl.classList.add('vip-glow'); badgeEl.innerHTML = `<span class="badge badge-vip">VIP</span>`; }
-    document.getElementById('profBio').innerText = data.bio || "Элитный гонщик Рокпорта";
-    document.getElementById('profRating').innerText = `★ ${data.rating.toLocaleString()}`;
-    const box = document.getElementById('avatarBox');
-    box.innerHTML = data.avatar_url ? `<img src="${data.avatar_url}">` : `<span class="avatar-letter">${data.username[0].toUpperCase()}</span>`;
-    document.getElementById('profClan').innerText = data.clan_tag || '[НЕТ]';
-    refreshStatusUI(data.status || 'ONLINE');
-    renderGarage(data.photos);
-    if (isMine) { document.getElementById('editBtn').classList.remove('hidden'); document.getElementById('statusSelect').classList.remove('hidden'); document.getElementById('addCarBtn').classList.remove('hidden'); document.getElementById('statusSelect').value = data.status || 'ONLINE'; }
-    else { document.getElementById('msgBtn').classList.remove('hidden'); document.getElementById('friendBtn').classList.remove('hidden'); }
-  }
-
-  function renderGarage(photos) {
+    function renderGarage(photos) {
     const container = document.getElementById('garageContainer');
+    if (!container) return;
     container.innerHTML = photos?.length ? '' : '<p style="color:#555">Пусто...</p>';
     photos?.forEach((url, i) => {
-      container.innerHTML += `
+    container.innerHTML += `
         <div class="car-card" onclick="viewFullImage('${url}')">
           <img src="${url}">
           <div style="padding:10px; display:flex; justify-content:space-between; background:rgba(0,0,0,0.8);">
@@ -327,99 +334,98 @@
             <button class="btn-tuning" style="position:static; padding:2px 10px;" onclick="event.stopPropagation(); nfsNotify('RESPECT!')">LIKE</button>
           </div>
         </div>`;
-    });
+  });
   }
 
-  // ФУНКЦИЯ ДЛЯ ПРОСМОТРА ФОТО
-  function viewFullImage(url) {
+    function viewFullImage(url) {
     Swal.fire({
       imageUrl: url,
-      imageAlt: 'Гонщик Rockport',
       background: 'rgba(0,0,0,0.9)',
       showConfirmButton: false,
       showCloseButton: true,
-      closeButtonHtml: '<span style="color:var(--nfs-yellow); font-size: 2rem;">&times;</span>',
-      width: 'auto',
-      padding: '0',
-      customClass: {
-        image: 'nfs-full-img'
-      }
+      width: 'auto'
     });
   }
 
-  async function updateUserStatus() {
+    async function addNewCarPhoto() {
+    const { value: url } = await Swal.fire({
+    title: 'ТЮНИНГ ГАРАЖА',
+    background: '#0a0a0a',
+    color: '#fff',
+    input: 'url',
+    inputPlaceholder: 'Вставь прямую ссылку на фото (.jpg, .png)',
+    confirmButtonText: 'ДОБАВИТЬ',
+    confirmButtonColor: '#f1c40f'
+  });
+
+    if (url) {
+    const photos = [...(profileData.photos || []), url];
+    const { error } = await _supabase.from('profiles').update({ photos }).eq('id', currentUserId);
+    if (!error) location.reload();
+  }
+  }
+
+    async function updateUserStatus() {
     const s = document.getElementById('statusSelect').value;
     await _supabase.from('profiles').update({ status: s }).eq('id', currentUserId);
     location.reload();
   }
 
-  function refreshStatusUI(s) {
-    const el = document.getElementById('statusIndicator');
-    el.innerText = s;
-    el.className = 'status-badge ' + (s === 'OFFLINE' ? 'status-offline' : (s === 'IN GAME' ? 'status-ingame' : 'status-online'));
-  }
-
-  function updateLiveStatusUI() {
-    const el = document.getElementById('statusIndicator');
-    if (!el || !profileData) return;
-
-    const isActuallyOnline = onlineUsers[profileData.username];
-
-    if (!isActuallyOnline) {
-      el.innerText = 'OFFLINE';
-      el.className = 'status-badge status-offline';
-    } else {
-      // Если в сети, берем его текущий статус (ONLINE, IN GAME и т.д.)
-      const s = profileData.status || 'ONLINE';
-      el.innerText = s;
-      el.className = 'status-badge ' + (s === 'IN GAME' || s === 'LOOKING FOR GAME' ? 'status-ingame' : 'status-online');
-    }
-  }
-
-  async function openEditProfile() {
+    async function openEditProfile() {
     let avatarHtml = '<div class="swal-avatar-list">';
-    AVATAR_OPTIONS.forEach(url => { avatarHtml += `<img src="${url}" class="swal-avatar-item ${profileData.avatar_url === url ? 'selected' : ''}" onclick="selectSwalAvatar(this, '${url}')">`; });
+    AVATAR_OPTIONS.forEach(url => {
+    avatarHtml += `<img src="${url}" class="swal-avatar-item ${profileData.avatar_url === url ? 'selected' : ''}" onclick="selectSwalAvatar(this, '${url}')">`;
+  });
     avatarHtml += '</div>';
+
     const { value: formValues } = await Swal.fire({
-      title: 'ТЮНИНГ ПРОФИЛЯ',
-      background: '#0a0a0a', color: '#fff',
-      html: `<p style="font-size:0.8rem;">ИКОНКА:</p>${avatarHtml}<p style="margin-top:15px; font-size:0.8rem;">BIO:</p><input id="swal-bio" class="swal2-input" value="${profileData.bio || ''}" style="background:#111; color:#fff; width:80%;">`,
-      confirmButtonText: 'СОХРАНИТЬ',
-      preConfirm: () => ({ bio: document.getElementById('swal-bio').value, avatar: document.querySelector('.swal-avatar-item.selected')?.src || profileData.avatar_url })
-    });
-    if (formValues) { await _supabase.from('profiles').update({ bio: formValues.bio, avatar_url: formValues.avatar }).eq('id', currentUserId); location.reload(); }
+    title: 'ТЮНИНГ ПРОФИЛЯ',
+    background: '#0a0a0a', color: '#fff',
+    html: `<p style="font-size:0.8rem;">ИКОНКА:</p>${avatarHtml}<p style="margin-top:15px; font-size:0.8rem;">BIO:</p><input id="swal-bio" class="swal2-input" value="${profileData.bio || ''}" style="background:#111; color:#fff; width:80%;">`,
+    confirmButtonText: 'СОХРАНИТЬ',
+    preConfirm: () => ({
+    bio: document.getElementById('swal-bio').value,
+    avatar: document.querySelector('.swal-avatar-item.selected')?.src || profileData.avatar_url
+  })
+  });
+
+    if (formValues) {
+    await _supabase.from('profiles').update({ bio: formValues.bio, avatar_url: formValues.avatar }).eq('id', currentUserId);
+    location.reload();
+  }
   }
 
-  function selectSwalAvatar(el, url) { document.querySelectorAll('.swal-avatar-item').forEach(img => img.classList.remove('selected')); el.classList.add('selected'); }
+    function selectSwalAvatar(el, url) {
+    document.querySelectorAll('.swal-avatar-item').forEach(img => img.classList.remove('selected'));
+    el.classList.add('selected');
+  }
 
-  async function checkFriendshipStatus(targetUserId) {
+    async function checkFriendshipStatus(targetUserId) {
     const { data: request } = await _supabase.from('friend_requests').select('*').or(`and(sender_id.eq.${myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${myProfile.id})`).maybeSingle();
-    const btn = document.getElementById('friendBtn'); btn.classList.remove('hidden'); btn.disabled = false; btn.style.background = ""; btn.style.color = ""; btn.style.border = "";
+    const btn = document.getElementById('friendBtn');
+    if (!btn) return;
+    btn.classList.remove('hidden');
     if (!request) { btn.innerText = "ДОБАВИТЬ В ДРУЗЬЯ"; btn.onclick = () => sendFriendRequest(targetUserId); }
-    else if (request.status === 'pending') { if (request.sender_id === myProfile.id) { btn.innerText = "ЗАПРОС ОТПРАВЛЕН"; btn.disabled = true; } else { btn.innerText = "ПРИНЯТЬ ЗАПРОС"; btn.onclick = () => acceptFriendRequest(request.id); } }
-    else if (request.status === 'accepted') { btn.innerText = "УДАЛИТЬ ИЗ ДРУЗЕЙ"; btn.style.background = "#333"; btn.style.color = "#ff4444"; btn.style.border = "1px solid #ff4444"; btn.onclick = () => removeFriend(request.id); }
+    else if (request.status === 'pending') {
+    if (request.sender_id === myProfile.id) { btn.innerText = "ЗАПРОС ОТПРАВЛЕН"; btn.disabled = true; }
+    else { btn.innerText = "ПРИНЯТЬ ЗАПРОС"; btn.onclick = () => acceptFriendRequest(request.id); }
+  }
+    else if (request.status === 'accepted') {
+    btn.innerText = "УДАЛИТЬ ИЗ ДРУЗЕЙ"; btn.style.color = "#ff4444"; btn.onclick = () => removeFriend(request.id);
+  }
   }
 
-  async function sendFriendRequest(targetId) { await _supabase.from('friend_requests').insert([{ sender_id: myProfile.id, receiver_id: targetId, sender_name: myProfile.username }]); location.reload(); }
-  async function acceptFriendRequest(requestId) { await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', requestId); location.reload(); }
-  async function removeFriend(requestId) { await _supabase.from('friend_requests').delete().eq('id', requestId); location.reload(); }
-  async function handleLogout() {
-    // Сначала ставим оффлайн в базе
-    if (currentUserId) {
-      await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', currentUserId);
-    }
-    // Потом выходим из аккаунта
+    async function sendFriendRequest(targetId) { await _supabase.from('friend_requests').insert([{ sender_id: myProfile.id, receiver_id: targetId, sender_name: myProfile.username }]); location.reload(); }
+    async function acceptFriendRequest(requestId) { await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', requestId); location.reload(); }
+    async function removeFriend(requestId) { await _supabase.from('friend_requests').delete().eq('id', requestId); location.reload(); }
+
+    function goToChat() { window.location.href = `chats.html?to=${profileData.username}`; }
+
+    async function handleLogout() {
+    if (currentUserId) await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', currentUserId);
     await _supabase.auth.signOut();
     window.location.href = 'auth.html';
   }
-  function goToChat() { window.location.href = `chats.html?to=${profileData.username}`; }
-
-  // Авто-оффлайн при закрытии вкладки
-  window.onbeforeunload = () => {
-    if (currentUserId) {
-      _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', currentUserId);
-    }
-  };
 </script>
 </body>
 </html>

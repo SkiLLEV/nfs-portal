@@ -302,52 +302,62 @@
     });
   }
 
+  let isDMsLoading = false; // Флаг защиты от спама запросами
+
   async function loadRecentDMs() {
-    const { data } = await _supabase.from('direct_messages')
-      .select('*')
-      .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`)
-      .order('created_at', {ascending: false});
+    if (!myProfile || isDMsLoading) return; // Если уже грузим — выходим
 
+    isDMsLoading = true;
     const container = document.getElementById('dmListContainer');
-    if (!container) return;
 
-    const contacts = new Map();
-    if (data) {
-      data.forEach(m => {
-        const otherId = (m.sender_id === myProfile.id) ? m.receiver_id : m.sender_id;
-        const otherName = (m.sender_id === myProfile.id) ? m.receiver_name : m.sender_name;
-        if (otherId && otherId !== myProfile.id && !contacts.has(otherId)) {
-          const uData = specialUsers[otherName] || { avatar: null, status: 'OFFLINE' };
-          contacts.set(otherId, {
-            name: otherName, avatar: uData.avatar, status: uData.status, lastMsg: m.text, unreadCount: 0
-          });
-        }
-        if (m.receiver_id === myProfile.id && m.is_read === false) {
-          if (contacts.has(otherId)) contacts.get(otherId).unreadCount++;
-        }
-      });
+    try {
+      const { data, error } = await _supabase.from('direct_messages')
+        .select('*')
+        .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`)
+        .order('created_at', {ascending: false});
+
+      if (error) throw error;
+
+      const contacts = new Map();
+      if (data) {
+        data.forEach(m => {
+          const otherId = (m.sender_id === myProfile.id) ? m.receiver_id : m.sender_id;
+          const otherName = (m.sender_id === myProfile.id) ? m.receiver_name : m.sender_name;
+          if (otherId && otherId !== myProfile.id && !contacts.has(otherId)) {
+            const uData = specialUsers[otherName] || { avatar: null, status: 'OFFLINE' };
+            contacts.set(otherId, {
+              name: otherName, avatar: uData.avatar, status: uData.status, lastMsg: m.text, unreadCount: 0
+            });
+          }
+          if (m.receiver_id === myProfile.id && m.is_read === false) {
+            if (contacts.has(otherId)) contacts.get(otherId).unreadCount++;
+          }
+        });
+      }
+
+      if (container) {
+        container.innerHTML = contacts.size > 0 ? '' : '<p style="padding: 20px; font-size: 0.8rem; color: #444;">Нет активных диалогов</p>';
+        contacts.forEach((val, id) => {
+          let color = getStatusColor(val.name, val.status);
+          container.innerHTML += `
+          <div class="chat-item ${activeChatId === id ? 'active' : ''}" onclick="switchChat('${id}', '${val.name}', 'private')">
+            <div class="avatar-wrapper">
+              <div class="chat-avatar">${val.avatar ? `<img src="${val.avatar}">` : val.name[0]}</div>
+              <div class="status-dot" style="background: ${color};"></div>
+            </div>
+            <div class="chat-item-info">
+              <div style="font-weight: bold;">${val.name}</div>
+              <div style="font-size: 0.75rem; color: #666;">${val.lastMsg.substring(0, 20)}...</div>
+            </div>
+            ${val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : ''}
+          </div>`;
+        });
+      }
+    } catch (err) {
+      console.error("Ошибка загрузки DMs:", err);
+    } finally {
+      isDMsLoading = false; // Снимаем блокировку
     }
-
-    container.innerHTML = contacts.size > 0 ? '' : '<p style="padding: 0 20px; font-size: 0.8rem; color: #444;">Нет активных диалогов</p>';
-
-    contacts.forEach((val, id) => {
-      let preview = val.lastMsg.length > 20 ? val.lastMsg.substring(0, 20) + '...' : val.lastMsg;
-      let badge = val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : '';
-      let color = getStatusColor(val.name, val.status);
-
-      container.innerHTML += `
-        <div class="chat-item ${activeChatId === id ? 'active' : ''}" id="chat-${id}" onclick="switchChat('${id}', '${val.name}', 'private')">
-          <div class="avatar-wrapper">
-            <div class="chat-avatar">${val.avatar ? `<img src="${val.avatar}">` : val.name[0].toUpperCase()}</div>
-            <div class="status-dot" style="background: ${color};"></div>
-          </div>
-          <div class="chat-item-info">
-            <div style="font-weight: bold;">${val.name}</div>
-            <div style="font-size: 0.75rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${preview}</div>
-          </div>
-          ${badge}
-        </div>`;
-    });
   }
 
   async function switchChat(id, name, type) {
