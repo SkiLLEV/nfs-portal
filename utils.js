@@ -2,7 +2,7 @@
 let onlineUsers = {};
 
 /**
- * 1. Функция для уведомлений в стиле NFS
+ * 1. Уведомления NFS
  */
 function nfsNotify(title, icon = 'success') {
   if (typeof Swal === 'undefined') return;
@@ -21,11 +21,10 @@ function nfsNotify(title, icon = 'success') {
 }
 
 /**
- * 2. Функция обновления счетчика сообщений
+ * 2. Счетчик сообщений
  */
 async function updateGlobalMsgBadge(supabase, myId) {
   if (!supabase || !myId) return;
-
   const { count, error } = await supabase
     .from('direct_messages')
     .select('*', { count: 'exact', head: true })
@@ -44,11 +43,10 @@ async function updateGlobalMsgBadge(supabase, myId) {
 }
 
 /**
- * 3. Пометка всех сообщений как прочитанных
+ * 3. Пометка прочитанных
  */
 async function markAllMsgsAsRead(supabase, myId) {
   if (!supabase || !myId) return;
-
   const { error } = await supabase
     .from('direct_messages')
     .update({ is_read: true })
@@ -62,14 +60,14 @@ async function markAllMsgsAsRead(supabase, myId) {
 }
 
 /**
- * 4. ГЛОБАЛЬНЫЙ ТРЕКЕР СТАТУСА (МАЯК)
+ * 4. ГЛОБАЛЬНЫЙ МАЯК (initGlobalStatus)
  */
 async function initGlobalStatus(supabase, profile) {
   if (!supabase) return;
 
   const currentPage = window.location.pathname.split("/").pop() || 'index.html';
 
-  // Создаем канал с уникальным ключом для гостя или профиля
+  // Создаем канал
   const statusChannel = supabase.channel('global-online', {
     config: {
       presence: {
@@ -78,7 +76,7 @@ async function initGlobalStatus(supabase, profile) {
     }
   });
 
-  // Настраиваем коллбэки ДО подписки
+  // --- ШАГ 1: СНАЧАЛА НАСТРАИВАЕМ ОБРАБОТЧИКИ ---
   statusChannel.on('presence', { event: 'sync' }, () => {
     onlineUsers = statusChannel.presenceState();
 
@@ -89,7 +87,7 @@ async function initGlobalStatus(supabase, profile) {
     if (typeof window.updateLiveStatusUI === 'function') window.updateLiveStatusUI();
   });
 
-  // Выносим функцию трекинга в глобальную область
+  // Глобальная функция для трекинга
   window.trackMyStatus = async (newStatus) => {
     if (!profile) return;
     await statusChannel.track({
@@ -99,14 +97,14 @@ async function initGlobalStatus(supabase, profile) {
     });
   };
 
-  // Подписываемся
+  // --- ШАГ 2: ТОЛЬКО ТЕПЕРЬ ПОДПИСЫВАЕМСЯ ---
   statusChannel.subscribe(async (status) => {
     if (status === 'SUBSCRIBED' && profile) {
       await window.trackMyStatus();
     }
   });
 
-  // Обработка ухода со страницы
+  // Обработка оффлайна
   if (profile) {
     window.addEventListener('beforeunload', () => {
       supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', profile.id);
