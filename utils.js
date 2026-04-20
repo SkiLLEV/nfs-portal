@@ -44,69 +44,72 @@ async function updateGlobalMsgBadge(supabase, myId) {
 }
 
 /**
- * 3. ГЛОБАЛЬНЫЙ ТРЕКЕР СТАТУСА (МАЯК)
+ * 3. Пометка всех сообщений как прочитанных
+ */
+async function markAllMsgsAsRead(supabase, myId) {
+  if (!supabase || !myId) return;
+
+  const { error } = await supabase
+    .from('direct_messages')
+    .update({ is_read: true })
+    .eq('receiver_id', myId)
+    .eq('is_read', false);
+
+  if (!error) {
+    const badge = document.getElementById('msgBadge');
+    if (badge) badge.style.display = 'none';
+  }
+}
+
+/**
+ * 4. ГЛОБАЛЬНЫЙ ТРЕКЕР СТАТУСА (МАЯК)
  */
 async function initGlobalStatus(supabase, profile) {
-  if (!supabase || !profile) return;
+  if (!supabase) return;
 
   const currentPage = window.location.pathname.split("/").pop() || 'index.html';
 
-  // Создаем канал ОДИН раз
+  // Создаем канал с уникальным ключом для гостя или профиля
   const statusChannel = supabase.channel('global-online', {
-    config: { presence: { key: profile.username } }
+    config: {
+      presence: {
+        key: profile ? profile.username : 'guest_' + Math.random().toString(36).substr(2, 5)
+      }
+    }
   });
 
-  // Глобальная функция для трекинга (чтобы дергать из профиля)
+  // Настраиваем коллбэки ДО подписки
+  statusChannel.on('presence', { event: 'sync' }, () => {
+    onlineUsers = statusChannel.presenceState();
+
+    const footerOnline = document.getElementById('footerOnline');
+    if (footerOnline) footerOnline.innerText = Object.keys(onlineUsers).length;
+
+    if (typeof window.updateFriendsStatusOnly === 'function') window.updateFriendsStatusOnly();
+    if (typeof window.updateLiveStatusUI === 'function') window.updateLiveStatusUI();
+  });
+
+  // Выносим функцию трекинга в глобальную область
   window.trackMyStatus = async (newStatus) => {
-    const s = newStatus || profile.status || 'ONLINE';
+    if (!profile) return;
     await statusChannel.track({
       user: profile.username,
       location: currentPage,
-      status: s
+      status: newStatus || profile.status || 'ONLINE'
     });
   };
 
-  statusChannel
-    .on('presence', { event: 'sync' }, () => {
-      onlineUsers = statusChannel.presenceState();
-
-      // Обновляем футер
-      const footerOnline = document.getElementById('footerOnline');
-      if (footerOnline) {
-        footerOnline.innerText = Object.keys(onlineUsers).length;
-      }
-
-      // Рассылаем сигналы на обновление UI
-      if (typeof window.updateFriendsStatusOnly === 'function') window.updateFriendsStatusOnly();
-      if (typeof window.loadRecentDMs === 'function') window.loadRecentDMs();
-      if (typeof window.updateLiveStatusUI === 'function') window.updateLiveStatusUI();
-    })
-    .subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') {
-        // При входе НЕ затираем базу словом ONLINE, а просто трекаем текущий статус
-        await window.trackMyStatus();
-      }
-    });
-
-  // Ставим OFFLINE только при закрытии вкладки
-  window.addEventListener('beforeunload', () => {
-    supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', profile.id);
+  // Подписываемся
+  statusChannel.subscribe(async (status) => {
+    if (status === 'SUBSCRIBED' && profile) {
+      await window.trackMyStatus();
+    }
   });
 
-  // Добавь это в utils.js
-  async function markAllMsgsAsRead(supabase, myId) {
-    if (!supabase || !myId) return;
-
-    const { error } = await supabase
-      .from('direct_messages')
-      .update({ is_read: true })
-      .eq('receiver_id', myId)
-      .eq('is_read', false);
-
-    if (!error) {
-      // После того как пометили в базе, скрываем бейдж на странице
-      const badge = document.getElementById('msgBadge');
-      if (badge) badge.style.display = 'none';
-    }
+  // Обработка ухода со страницы
+  if (profile) {
+    window.addEventListener('beforeunload', () => {
+      supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', profile.id);
+    });
   }
 }

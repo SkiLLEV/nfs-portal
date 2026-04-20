@@ -289,64 +289,42 @@
 
     if (user) {
       const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
-
       if (profile) {
         myProfile = profile;
         showLoggedIn(profile);
+        document.getElementById('notifyWrapper').style.display = 'flex';
 
-        // Показываем колокольчик
-        const notifyWrapper = document.getElementById('notifyWrapper');
-        if (notifyWrapper) notifyWrapper.style.display = 'flex';
-
-        // Запускаем радар (utils.js)
+        // Запускаем статус (здесь внутри уже есть subscribe)
         if (typeof initGlobalStatus === 'function') {
           initGlobalStatus(_supabase, myProfile);
         }
 
-        // Первичная загрузка данных
         updateGlobalMsgBadge(_supabase, myProfile.id);
         updateFriendNotifications();
         loadSidebarFriends();
 
-        // --- ВОТ ЭТОТ БЛОК МЫ ДОБАВИЛИ (REALTIME) ---
+        // Логика прочтения
+        const chatLink = document.querySelector('a[href="chats.html"]');
+        if (chatLink) {
+          chatLink.addEventListener('click', () => {
+            if (typeof markAllMsgsAsRead === 'function') markAllMsgsAsRead(_supabase, myProfile.id);
+          });
+        }
+
+        // Твой Realtime канал для сообщений (у него другое имя, он не мешает)
         _supabase.channel('index-realtime')
-          // 1. Слушаем новые сообщения (DM)
-          .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'direct_messages',
-            filter: `receiver_id=eq.${myProfile.id}`
-          }, (payload) => {
-            updateGlobalMsgBadge(_supabase, myProfile.id); // Обновляем бейдж
-            if (typeof nfsNotify === 'function') {
-              nfsNotify('ПОЛУЧЕНО НОВОЕ СООБЩЕНИЕ!', 'info'); // NFS тост
-            }
-          })
-          // 2. Слушаем изменения в запросах в друзья (новые или принятые)
-          .on('postgres_changes', {
-            event: '*',
-            schema: 'public',
-            table: 'friend_requests'
-          }, (payload) => {
-            // Если запрос касается нас (мы отправитель или получатель)
-            if (payload.new.receiver_id === myProfile.id || payload.new.sender_id === myProfile.id) {
-              updateFriendNotifications();
-              loadSidebarFriends();
-              // Если кто-то принял наш запрос
-              if (payload.new.status === 'accepted' && payload.new.sender_id === myProfile.id) {
-                nfsNotify('ВАШ ЗАПРОС ПРИНЯТ!', 'success');
-              }
-            }
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${myProfile.id}` }, (payload) => {
+            updateGlobalMsgBadge(_supabase, myProfile.id);
+            if (typeof nfsNotify === 'function') nfsNotify('НОВОЕ СООБЩЕНИЕ!', 'info');
           })
           .subscribe();
-        // ------------------------------------------
       }
     } else {
-      // Если гость - просто инициализируем базовый радар для счетчика онлайна
-      if (typeof initGuestRadar === 'function') initGuestRadar();
+      // ДЛЯ ГОСТЕЙ: Чтобы счетчик в футере работал, просто вызываем initGlobalStatus с null
+      if (typeof initGlobalStatus === 'function') {
+        initGlobalStatus(_supabase, null);
+      }
     }
-
-    // Радар поиска игроков (lobby) обновляем каждые 15 сек
     scanForPlayers();
   };
 
