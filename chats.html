@@ -279,9 +279,24 @@
   }
 
   function getStatusColor(username, statusFromDb) {
-    const isActuallyOnline = onlineUsers[username];
-    if (!isActuallyOnline) return '#555';
-    if (statusFromDb === 'IN GAME' || statusFromDb === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
+    const presenceData = onlineUsers[username];
+
+    if (!presenceData) return '#555'; // Оффлайн (серый)
+
+    // Presence возвращает массив, берем данные первого зашедшего (инфо о странице)
+    const userLocation = presenceData[0].location;
+
+    // Если человек находится на странице чатов — красим в КРАСНЫЙ
+    if (userLocation === 'chats.html') {
+      return '#ff4d4d'; // Красный (В чате)
+    }
+
+    // Если в базе стоит, что он в игре — ЖЕЛТЫЙ
+    if (statusFromDb === 'IN GAME' || statusFromDb === 'LOOKING FOR GAME') {
+      return 'var(--nfs-yellow)';
+    }
+
+    // В остальных случаях (на главной, в лидерах и т.д.) — ЗЕЛЕНЫЙ
     return '#2ecc71';
   }
 

@@ -36,27 +36,31 @@ async function updateGlobalMsgBadge(supabase, myId) {
   }
 }
 
-// 3. ГЛОБАЛЬНЫЙ ТРЕКЕР СТАТУСА (Твой вечный онлайн)
+// 3. ГЛОБАЛЬНЫЙ ТРЕКЕР СТАТУСА
 async function initGlobalStatus(supabase, profile) {
   if (!supabase || !profile) return;
 
-  // Создаем канал присутствия
+  // Находим имя текущей страницы (например, chats.html)
+  const currentPage = window.location.pathname.split("/").pop() || 'index.html';
+
   const statusChannel = supabase.channel('global-online', {
     config: { presence: { key: profile.username } }
   });
 
-  statusChannel.subscribe(async (status) => {
-    if (status === 'SUBSCRIBED') {
-      // Ставим ONLINE в базе данных
-      await supabase.from('profiles').update({ status: 'ONLINE' }).eq('id', profile.id);
-      // Включаем "рацию" для Presence
-      await statusChannel.track({ user: profile.username, online: true });
-    }
-  });
+  statusChannel
+    .subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await supabase.from('profiles').update({ status: 'ONLINE' }).eq('id', profile.id);
+        // Шлем в радар не просто онлайн, а конкретную страницу!
+        await statusChannel.track({
+          user: profile.username,
+          location: currentPage,
+          online: true
+        });
+      }
+    });
 
-  // Авто-оффлайн при закрытии вкладки
   window.addEventListener('beforeunload', () => {
-    // Используем navigator.sendBeacon или просто запрос, чтобы успеть
     supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', profile.id);
   });
 }
