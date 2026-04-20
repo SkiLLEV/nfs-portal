@@ -394,19 +394,22 @@
       const { error } = await _supabase.from('profiles').update({ status: s }).eq('id', currentUserId);
 
       if (!error) {
-        // 2. Обновляем локальный объект, чтобы UI не тупил
-        profileData.status = s;
-        myProfile.status = s;
+        // 2. Обновляем локальные данные профиля
+        if (profileData) profileData.status = s;
+        if (myProfile) myProfile.status = s;
 
-        // 3. Передаем в радар, чтобы друзья увидели (Presence)
+        // 3. Вещаем новый статус в радар (Presence) через utils.js
         if (typeof window.trackMyStatus === 'function') {
           await window.trackMyStatus(s);
         }
 
-        // 4. Обновляем плашку на странице
+        // 4. Мгновенно обновляем плашку на странице без перезагрузки
         window.updateLiveStatusUI();
 
-        nfsNotify('Статус обновлен: ' + s);
+        // Фирменное уведомление
+        if (typeof nfsNotify === 'function') {
+          nfsNotify('Статус обновлен: ' + s);
+        }
       }
     }
 

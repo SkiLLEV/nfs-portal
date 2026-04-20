@@ -1,4 +1,4 @@
-// Глобальный объект радара (доступен на всех страницах, где подключен utils.js)
+// Глобальный объект радара
 let onlineUsers = {};
 
 /**
@@ -51,19 +51,18 @@ async function initGlobalStatus(supabase, profile) {
 
   const currentPage = window.location.pathname.split("/").pop() || 'index.html';
 
+  // Создаем канал ОДИН раз
   const statusChannel = supabase.channel('global-online', {
     config: { presence: { key: profile.username } }
   });
 
-  // Глобальная функция для обновления данных в реальном времени
+  // Глобальная функция для трекинга (чтобы дергать из профиля)
   window.trackMyStatus = async (newStatus) => {
-    // Если статус не передан, берем текущий из профиля
-    const statusToSend = newStatus || profile.status || 'ONLINE';
-
+    const s = newStatus || profile.status || 'ONLINE';
     await statusChannel.track({
       user: profile.username,
       location: currentPage,
-      status: statusToSend
+      status: s
     });
   };
 
@@ -71,25 +70,25 @@ async function initGlobalStatus(supabase, profile) {
     .on('presence', { event: 'sync' }, () => {
       onlineUsers = statusChannel.presenceState();
 
+      // Обновляем футер
       const footerOnline = document.getElementById('footerOnline');
       if (footerOnline) {
         footerOnline.innerText = Object.keys(onlineUsers).length;
       }
 
-      // Рассылаем команды на обновление UI разным страницам
+      // Рассылаем сигналы на обновление UI
       if (typeof window.updateFriendsStatusOnly === 'function') window.updateFriendsStatusOnly();
       if (typeof window.loadRecentDMs === 'function') window.loadRecentDMs();
       if (typeof window.updateLiveStatusUI === 'function') window.updateLiveStatusUI();
     })
     .subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
-        // !!! МЫ УБРАЛИ update({ status: 'ONLINE' }) ОТСЮДА !!!
-        // Теперь при входе просто вещаем в радар тот статус, что уже есть в базе
-        await window.trackMyStatus(profile.status);
+        // При входе НЕ затираем базу словом ONLINE, а просто трекаем текущий статус
+        await window.trackMyStatus();
       }
     });
 
-  // При закрытии вкладки - только тогда ставим OFFLINE
+  // Ставим OFFLINE только при закрытии вкладки
   window.addEventListener('beforeunload', () => {
     supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', profile.id);
   });
