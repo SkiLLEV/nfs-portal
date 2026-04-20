@@ -234,29 +234,34 @@
   }
   };
 
-    // ФУНКЦИЯ ОБНОВЛЕНИЯ СТАТУСА (вызывается из utils.js автоматически)
     window.updateLiveStatusUI = function() {
-    const el = document.getElementById('statusIndicator');
-    if (!el || !profileData) return;
+      const el = document.getElementById('statusIndicator');
+      if (!el || !profileData) return;
 
-    const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[profileData.username] : null;
+      // Проверяем наличие в глобальном радаре
+      const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[profileData.username] : null;
 
-    if (!presence) {
-    el.innerText = 'OFFLINE';
-    el.className = 'status-badge status-offline';
-  } else {
-    const loc = presence[0].location;
-    const s = profileData.status || 'ONLINE';
+      const isItMe = (myProfile && profileData.id === myProfile.id);
 
-    if (loc === 'chats.html') {
-    el.innerText = 'В ЧАТЕ';
-    el.className = 'status-badge status-ingame'; // Красим в желтый/красный
-  } else {
-    el.innerText = s;
-    el.className = 'status-badge ' + (s === 'IN GAME' || s === 'LOOKING FOR GAME' ? 'status-ingame' : 'status-online');
-  }
-  }
-  };
+      if (!presence && !isItMe) {
+        el.innerText = 'OFFLINE';
+        el.className = 'status-badge status-offline';
+      } else {
+        // Берем статус из данных профиля (ONLINE, IN GAME и т.д.)
+        const s = profileData.status || 'ONLINE';
+
+        // Если кто-то (или ты) в чате, приоритет этому статусу
+        const loc = presence ? presence[0].location : '';
+
+        if (loc === 'chats.html') {
+          el.innerText = 'В ЧАТЕ';
+          el.className = 'status-badge status-ingame';
+        } else {
+          el.innerText = s;
+          el.className = 'status-badge ' + (s === 'IN GAME' || s === 'LOOKING FOR GAME' ? 'status-ingame' : 'status-online');
+        }
+      }
+    };
 
     async function loadMyOwnProfile(userId) {
       try {
