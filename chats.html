@@ -227,29 +227,31 @@
     const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
     if (profile) {
       myProfile = profile;
-      document.getElementById('myNick').innerText = myProfile.username;
+      const nickEl = document.getElementById('myNick');
+      if (nickEl) nickEl.innerText = myProfile.username;
 
-      // Глобальный статус из utils.js (для красной точки у друзей)
+      // ЕДИНЫЙ МАЯК: Теперь это заменяет initStatusTracker
       if (typeof initGlobalStatus === 'function') {
         initGlobalStatus(_supabase, myProfile);
+      }
+
+      // Обновляем бейдж сообщений в шапке/сайдбаре
+      if (typeof updateGlobalMsgBadge === 'function') {
+        updateGlobalMsgBadge(_supabase, myProfile.id);
       }
     }
 
     await fetchSpecialRoles();
-    initStatusTracker(); // Запуск радара для этой страницы
+    // initStatusTracker(); <-- УДАЛЕНО, чтобы не было ошибки subscribe()
+
     await loadRecentDMs();
 
-    // Обработка перехода в чат из профиля
     const urlParams = new URLSearchParams(window.location.search);
     const targetName = urlParams.get('to');
 
     if (targetName) {
-      const targetUser = Object.values(specialUsers).find(u => u.username === targetName);
-      if (targetUser) {
-        await switchChat(targetUser.id, targetUser.username, 'private');
-      } else {
-        await loadMessages();
-      }
+      // Твоя логика поиска юзера и открытия чата
+      openChatFromURL(targetName);
     } else {
       await loadMessages();
     }
