@@ -54,44 +54,37 @@ async function initGlobalStatus(supabase, profile) {
 
   const currentPage = window.location.pathname.split("/").pop() || 'index.html';
 
+  // Создаем канал
   const statusChannel = supabase.channel('global-online', {
     config: { presence: { key: profile.username } }
   });
+
+  // Функция для отправки данных в радар (теперь вынесена отдельно)
+  window.trackMyStatus = async (newStatus) => {
+    await statusChannel.track({
+      user: profile.username,
+      location: currentPage,
+      status: newStatus || profile.status || 'ONLINE'
+    });
+  };
 
   statusChannel
     .on('presence', { event: 'sync' }, () => {
       onlineUsers = statusChannel.presenceState();
 
-      // 1. Счетчик в футере
-      const footerOnline = document.getElementById('footerOnline');
-      if (footerOnline) {
-        footerOnline.innerText = Object.keys(onlineUsers).length;
+      if (document.getElementById('footerOnline')) {
+        document.getElementById('footerOnline').innerText = Object.keys(onlineUsers).length;
       }
 
-      // 2. Красные точки в сайдбаре (Главная)
-      if (typeof window.updateFriendsStatusOnly === 'function') {
-        window.updateFriendsStatusOnly();
-      }
-
-      // 3. Точки в списке чатов (Мессенджер)
-      if (typeof window.loadRecentDMs === 'function') {
-        window.loadRecentDMs();
-      }
-
-      // 4. Статус в профиле
-      if (typeof window.updateLiveStatusUI === 'function') {
-        window.updateLiveStatusUI();
-      }
+      if (typeof window.updateFriendsStatusOnly === 'function') window.updateFriendsStatusOnly();
+      if (typeof window.loadRecentDMs === 'function') window.loadRecentDMs();
+      if (typeof window.updateLiveStatusUI === 'function') window.updateLiveStatusUI();
     })
     .subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
         await supabase.from('profiles').update({ status: 'ONLINE' }).eq('id', profile.id);
-
-        await statusChannel.track({
-          user: profile.username,
-          location: currentPage,
-          status: profile.status || 'ONLINE'
-        });
+        // Трекаем начальный статус
+        await window.trackMyStatus(profile.status);
       }
     });
 

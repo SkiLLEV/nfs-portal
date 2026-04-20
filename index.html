@@ -351,27 +351,37 @@
       let statusName = 'OFFLINE';
 
       if (presence) {
-        const loc = presence[0].location;
+        // БЕРЕМ ДАННЫЕ ИЗ РАДАРА (presence), А НЕ ИЗ КЭША БАЗЫ
+        const pData = presence[0];
+        const loc = pData.location;
+        const liveStatus = pData.status || 'ONLINE'; // Тот самый статус, который мы трекаем
+
         if (loc === 'chats.html') {
           statusName = 'В ЧАТЕ';
           dotColor = '#ff4d4d';
         } else {
-          statusName = (friend.status === 'IN GAME') ? 'В ИГРЕ' : 'В СЕТИ';
-          dotColor = (friend.status === 'IN GAME') ? 'var(--nfs-yellow)' : '#2ecc71';
+          // Проверяем актуальный статус из радара
+          statusName = liveStatus;
+
+          if (liveStatus === 'IN GAME' || liveStatus === 'LOOKING FOR GAME') {
+            dotColor = 'var(--nfs-yellow)';
+          } else {
+            dotColor = '#2ecc71'; // Обычный ONLINE
+          }
         }
       }
 
       listContainer.innerHTML += `
-      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer;" onclick="window.location.href='profile.html?u=${friend.username}'">
-        <div style="position: relative;">
-          <img src="${friend.avatar_url || 'https://via.placeholder.com/35'}" style="width: 35px; height: 35px; border: 1px solid #333; object-fit: cover;">
-          <div style="width: 10px; height: 10px; background-color: ${dotColor}; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid #000;"></div>
-        </div>
-        <div>
-          <div style="font-size: 0.9rem; font-weight: 900; color: #eee;">${friend.username}</div>
-          <div style="font-size: 0.6rem; color: #555;">${statusName}</div>
-        </div>
-      </div>`;
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer;" onclick="window.location.href='profile.html?u=${friend.username}'">
+      <div style="position: relative;">
+        <img src="${friend.avatar_url || 'https://via.placeholder.com/35'}" style="width: 35px; height: 35px; border: 1px solid #333; object-fit: cover; display: block;">
+        <div style="width: 10px; height: 10px; background-color: ${dotColor}; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid #000; ${presence ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
+      </div>
+      <div style="overflow: hidden;">
+        <div style="font-size: 0.9rem; font-weight: 900; color: #eee; text-transform: uppercase;">${friend.username}</div>
+        <div style="font-size: 0.6rem; color: #555; font-weight: bold; text-transform: uppercase;">${statusName}</div>
+      </div>
+    </div>`;
     });
   }
 

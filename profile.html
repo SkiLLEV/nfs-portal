@@ -388,10 +388,22 @@
   }
 
     async function updateUserStatus() {
-    const s = document.getElementById('statusSelect').value;
-    await _supabase.from('profiles').update({ status: s }).eq('id', currentUserId);
-    location.reload();
-  }
+      const s = document.getElementById('statusSelect').value;
+
+      // 1. Обновляем таблицу
+      await _supabase.from('profiles').update({ status: s }).eq('id', currentUserId);
+
+      // 2. Обновляем активный трекинг в радаре (чтобы друзья увидели сразу)
+      if (typeof window.trackMyStatus === 'function') {
+        await window.trackMyStatus(s);
+      }
+
+      // 3. Обновляем локальные данные, чтобы UI перерисовался без лагов
+      profileData.status = s;
+      window.updateLiveStatusUI();
+
+      nfsNotify('Статус изменен: ' + s);
+    }
 
     async function openEditProfile() {
     let avatarHtml = '<div class="swal-avatar-list">';
