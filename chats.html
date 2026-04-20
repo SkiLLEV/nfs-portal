@@ -218,8 +218,8 @@
   let specialUsers = {};
   let typingTimeout = null;
   let typingChannel = null;
-  let statusChannel = null;
   let onlineUsers = {};
+  let localTypingTimeouts = {};
 
   window.onload = async () => {
     const { data: { user } } = await _supabase.auth.getUser();
@@ -229,13 +229,18 @@
     if (profile) {
       myProfile = profile;
       document.getElementById('myNick').innerText = myProfile.username;
-      await _supabase.from('profiles').update({ status: 'ONLINE' }).eq('id', myProfile.id);
+
+      // Глобальный статус из utils.js (для красной точки у друзей)
+      if (typeof initGlobalStatus === 'function') {
+        initGlobalStatus(_supabase, myProfile);
+      }
     }
 
     await fetchSpecialRoles();
-    initStatusTracker();
+    initStatusTracker(); // Запуск радара для этой страницы
     await loadRecentDMs();
 
+    // Обработка перехода в чат из профиля
     const urlParams = new URLSearchParams(window.location.search);
     const targetName = urlParams.get('to');
 
@@ -254,50 +259,47 @@
     initTypingTracker();
   };
 
+  // --- ФУНКЦИИ РАБОТЫ СО СТАТУСАМИ ---
+
   function initStatusTracker() {
-    statusChannel = _supabase.channel('global-online', {
+    const statusChannel = _supabase.channel('global-online', {
       config: { presence: { key: myProfile.username } }
     });
 
     statusChannel
       .on('presence', { event: 'sync' }, () => {
         onlineUsers = statusChannel.presenceState();
-        loadRecentDMs();
+        loadRecentDMs(); // Перерисовываем список чатов с актуальными точками
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
-          await statusChannel.track({ user: myProfile.username, online: true });
+          await statusChannel.track({
+            user: myProfile.username,
+            location: 'chats.html',
+            online: true
+          });
         }
       });
   }
+
+  function getStatusColor(username, statusFromDb) {
+    const presenceData = onlineUsers[username];
+    if (!presenceData) return '#555';
+
+    const userLocation = presenceData[0].location;
+    if (userLocation === 'chats.html') return '#ff4d4d'; // Красный (В чате)
+    if (statusFromDb === 'IN GAME' || statusFromDb === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
+
+    return '#2ecc71'; // Зеленый (На сайте)
+  }
+
+  // --- ФУНКЦИИ ЧАТА ---
 
   async function fetchSpecialRoles() {
     const { data } = await _supabase.from('profiles').select('id, username, is_admin, is_vip, avatar_url, status');
     if (data) data.forEach(u => specialUsers[u.username] = {
       id: u.id, admin: u.is_admin, vip: u.is_vip, avatar: u.avatar_url, status: u.status || 'OFFLINE', username: u.username
     });
-  }
-
-  function getStatusColor(username, statusFromDb) {
-    const presenceData = onlineUsers[username];
-
-    if (!presenceData) return '#555'; // Оффлайн (серый)
-
-    // Presence возвращает массив, берем данные первого зашедшего (инфо о странице)
-    const userLocation = presenceData[0].location;
-
-    // Если человек находится на странице чатов — красим в КРАСНЫЙ
-    if (userLocation === 'chats.html') {
-      return '#ff4d4d'; // Красный (В чате)
-    }
-
-    // Если в базе стоит, что он в игре — ЖЕЛТЫЙ
-    if (statusFromDb === 'IN GAME' || statusFromDb === 'LOOKING FOR GAME') {
-      return 'var(--nfs-yellow)';
-    }
-
-    // В остальных случаях (на главной, в лидерах и т.д.) — ЗЕЛЕНЫЙ
-    return '#2ecc71';
   }
 
   async function loadRecentDMs() {
@@ -307,8 +309,9 @@
       .order('created_at', {ascending: false});
 
     const container = document.getElementById('dmListContainer');
-    const contacts = new Map();
+    if (!container) return;
 
+    const contacts = new Map();
     if (data) {
       data.forEach(m => {
         const otherId = (m.sender_id === myProfile.id) ? m.receiver_id : m.sender_id;
@@ -339,8 +342,8 @@
             <div class="status-dot" style="background: ${color};"></div>
           </div>
           <div class="chat-item-info">
-            <div style="font-weight: bold; white-space: nowrap; text-overflow: ellipsis;">${val.name}</div>
-            <div style="font-size: 0.75rem; color: #666; white-space: nowrap; text-overflow: ellipsis; opacity: 0.8;">${preview}</div>
+            <div style="font-weight: bold;">${val.name}</div>
+            <div style="font-size: 0.75rem; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${preview}</div>
           </div>
           ${badge}
         </div>`;
@@ -350,7 +353,6 @@
   async function switchChat(id, name, type) {
     activeChatId = id; activeChatType = type; targetUserName = name;
     document.getElementById('chatWithTitle').innerText = name;
-    document.getElementById('chatStatus').innerText = type === 'public' ? 'PUBLIC SESSION' : 'ENCRYPTED DM';
     document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
 
     if(type === 'private') {
@@ -379,11 +381,11 @@
 
   function renderSingleMessage(msg) {
     const box = document.getElementById('msgBox');
-    if (document.getElementById(`msg-${msg.id}`)) return;
+    if (!box || document.getElementById(`msg-${msg.id}`)) return;
 
     const sender = msg.sender_name;
     const isMine = (msg.sender_id === myProfile.id) || (sender === myProfile.username);
-    const userData = specialUsers[sender] || { admin: false, id: null, status: 'OFFLINE' };
+    const userData = specialUsers[sender] || { admin: false, avatar: null, status: 'OFFLINE' };
     const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     let color = getStatusColor(sender, userData.status);
@@ -396,7 +398,7 @@
     msgDiv.id = `msg-${msg.id}`;
     msgDiv.innerHTML = `
       <div class="msg-info">
-        <div class="avatar-wrapper" style="cursor:pointer;" onclick="window.location.href='profile.html?u=${sender}'">
+        <div class="avatar-wrapper" onclick="window.location.href='profile.html?u=${sender}'">
           ${avatarHTML}
           <div class="status-dot" style="background: ${color};"></div>
         </div>
@@ -408,6 +410,8 @@
     box.scrollTop = box.scrollHeight;
   }
 
+  // --- ТРЕКЕР ПЕЧАТИ (Broadcast) ---
+
   function initTypingTracker() {
     const channelKey = activeChatType === 'public' ? 'global' : [myProfile.id, activeChatId].sort().join('-');
     typingChannel = _supabase.channel(`typing:${channelKey}`);
@@ -418,116 +422,83 @@
         if (userName === myProfile.username) return;
 
         const indicator = document.getElementById('typingIndicator');
-        indicator.innerText = userName + " печатает...";
+        if (indicator) indicator.innerText = userName + " печатает...";
 
-        // Умная очистка: если через 2.5 секунды не пришло нового "выстрела" typing,
-        // значит гонщик бросил руль — убираем надпись.
         clearTimeout(localTypingTimeouts[userName]);
         localTypingTimeouts[userName] = setTimeout(() => {
-          indicator.innerText = "";
+          if (indicator) indicator.innerText = "";
         }, 2500);
       })
       .subscribe();
 
     const chatInput = document.getElementById('chatInput');
-    let isCurrentlyTyping = false;
+    if (chatInput) {
+      chatInput.oninput = () => {
+        typingChannel.send({
+          type: 'broadcast',
+          event: 'typing',
+          payload: {user: myProfile.username}
+        });
+      };
+    }
+  }
 
-    // Внутри initTypingTracker
-    chatInput.oninput = () => {
-      // Шлем Broadcast-событие "typing"
-      typingChannel.send({
-        type: 'broadcast',
-        event: 'typing',
-        payload: {user: myProfile.username}
-      });
+  // --- ОТПРАВКА И УДАЛЕНИЕ ---
 
-      // Локальный таймер, чтобы у нас самих надпись не дергалась
-      clearTimeout(typingTimeout);
-      typingTimeout = setTimeout(() => {
-        // Можно слать событие "stop_typing", если хочется мгновенного исчезновения
-      }, 3000);
-    };
+  async function doSendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
 
-    async function doSendMessage() {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (!text) return;
+    if (myProfile.muted_until && new Date(myProfile.muted_until) > new Date()) {
+      alert("ТЫ В МУТЕ!");
+      return;
+    }
 
-      if (myProfile.muted_until && new Date(myProfile.muted_until) > new Date()) {
-        Swal.fire("ТЫ В МУТЕ", "Твой передатчик заблокирован.", "error");
-        return;
-      }
+    let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
+    let payload = activeChatType === 'public'
+      ? { sender_name: myProfile.username, text: text, room_id: 'global' }
+      : {
+        sender_id: myProfile.id,
+        receiver_id: activeChatId,
+        sender_name: myProfile.username,
+        receiver_name: targetUserName,
+        text: text
+      };
 
-      if (typingChannel) typingChannel.track({user: myProfile.username, isTyping: false});
+    const { data, error } = await _supabase.from(table).insert([payload]).select();
+    if (!error && data) {
+      renderSingleMessage(data[0]);
+      input.value = '';
+      loadRecentDMs();
+    }
+  }
 
-      let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
-      let payload = activeChatType === 'public'
-        ? {sender_name: myProfile.username, text: text, room_id: 'global'}
-        : {
-          sender_id: myProfile.id,
-          receiver_id: activeChatId,
-          sender_name: myProfile.username,
-          receiver_name: targetUserName,
-          text: text
-        };
+  async function deleteMessage(id, type) {
+    const table = (type === 'public') ? 'messages' : 'direct_messages';
+    await _supabase.from(table).delete().eq('id', id);
+    document.getElementById(`msg-${id}`)?.remove();
+  }
 
-      const {data, error} = await _supabase.from(table).insert([payload]).select();
+  function subscribeToChanges() {
+    _supabase.channel('msgs').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'messages'}, p => {
+      if (activeChatType === 'public') renderSingleMessage(p.new);
+    }).subscribe();
 
-      if (error) {
-        Swal.fire("ОШИБКА", "Сообщение не ушло: " + error.message, "error");
-      } else if (data && data.length > 0) {
-        renderSingleMessage(data[0]);
-        input.value = '';
+    _supabase.channel('dms').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'direct_messages'}, p => {
+      if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
+        if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
+          renderSingleMessage(p.new);
+        }
         loadRecentDMs();
       }
-    }
+    }).subscribe();
+  }
 
-    async function deleteMessage(id, type) {
-      const table = (type === 'public') ? 'messages' : 'direct_messages';
-      await _supabase.from(table).delete().eq('id', id);
-    }
-
-    function subscribeToChanges() {
-      _supabase.channel('msgs').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'messages'}, p => {
-        if (activeChatType === 'public') renderSingleMessage(p.new);
-      }).on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'messages'}, p => {
-        document.getElementById(`msg-${p.old.id}`)?.remove();
-      }).subscribe();
-
-      _supabase.channel('dms').on('postgres_changes', {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'direct_messages'
-      }, p => {
-        if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
-          if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
-            renderSingleMessage(p.new);
-          }
-          loadRecentDMs();
-        }
-      }).subscribe();
-
-      _supabase.channel('profile-status').on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'profiles'
-      }, p => {
-        if (specialUsers[p.new.username]) {
-          specialUsers[p.new.username].status = p.new.status;
-          loadRecentDMs();
-        }
-      }).subscribe();
-    }
-
-    window.onbeforeunload = () => {
-      if (myProfile) _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
-    };
-
-    async function handleLogout() {
-      if (myProfile) await _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
-      await _supabase.auth.signOut();
-      window.location.href = 'auth.html';
-    }
+  async function handleLogout() {
+    if (myProfile) await _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
+    await _supabase.auth.signOut();
+    window.location.href = 'auth.html';
   }
 </script>
 </body>

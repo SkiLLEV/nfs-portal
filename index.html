@@ -282,8 +282,6 @@
   const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let onlineUsers = {}; // Наш радар для отслеживания всех, кто в сети
-
   let myProfile = null;
 
   window.onload = async () => {
@@ -293,50 +291,50 @@
       if (profile) {
         myProfile = profile;
         showLoggedIn(profile);
-        initOnlineRadar(profile.username, profile.status);
-        document.getElementById('notifyWrapper').style.display = 'flex';
+
+        // 1. ЗАПУСКАЕМ ЕДИНЫЙ МАЯК ИЗ utils.js
+        if (typeof initGlobalStatus === 'function') {
+          initGlobalStatus(_supabase, myProfile);
+        }
+
+        // 2. ОБНОВЛЯЕМ ИНТЕРФЕЙС ПРИ ЗАГРУЗКЕ
+        updateGlobalMsgBadge(_supabase, myProfile.id);
         updateFriendNotifications();
         loadSidebarFriends();
-        updateMessageBadge();
 
-        // REALTIME: Слушаем всё сразу
+        // 3. REALTIME: Слушаем изменения в друзьях и новые сообщения
         _supabase.channel('global-updates')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'friend_requests' }, () => {
             updateFriendNotifications();
             loadSidebarFriends();
           })
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${myProfile.id}` }, () => {
-            updateMessageBadge();
+            updateGlobalMsgBadge(_supabase, myProfile.id);
           })
           .subscribe();
       }
     } else {
-      initOnlineRadar("Guest_" + Math.floor(Math.random()*1000), "OFFLINE");
+      console.log("Вход в режиме гостя");
+      initGuestRadar();
     }
     scanForPlayers();
   };
 
-  async function updateMessageBadge() {
-    if (!myProfile) return;
-    const { count } = await _supabase
-      .from('direct_messages')
-      .select('*', { count: 'exact', head: true })
-      .eq('receiver_id', myProfile.id)
-      .eq('is_read', false);
-
-    const b = document.getElementById('msgBadge');
-    if (count > 0) {
-      b.innerText = count;
-      b.style.display = 'inline-block';
-    } else {
-      b.style.display = 'none';
-    }
+  // ФУНКЦИЯ ДЛЯ ГОСТЕЙ (счетчик онлайна в футере)
+  function initGuestRadar() {
+    const channel = _supabase.channel('global-online');
+    channel.on('presence', { event: 'sync' }, () => {
+      const state = channel.presenceState();
+      const fOnline = document.getElementById('footerOnline');
+      if (fOnline) fOnline.innerText = Object.keys(state).length;
+    }).subscribe();
   }
 
+  // ОБНОВЛЕННАЯ ФУНКЦИЯ ДРУЗЕЙ (видит красные точки)
   async function loadSidebarFriends() {
     if (!myProfile) return;
 
-    const { data, error } = await _supabase.from('friend_requests')
+    const { data } = await _supabase.from('friend_requests')
       .select('sender_id, receiver_id, sender:profiles!friend_requests_sender_id_fkey(username, avatar_url, status), receiver:profiles!friend_requests_receiver_id_fkey(username, avatar_url, status)')
       .eq('status', 'accepted')
       .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`);
@@ -351,33 +349,50 @@
     data.forEach(rel => {
       const friend = rel.sender_id === myProfile.id ? rel.receiver : rel.sender;
 
-      // ПРОВЕРКА ЧЕРЕЗ РАДАР
-      const isActuallyOnline = onlineUsers[friend.username];
+      // onlineUsers берется из utils.js
+      const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[friend.username] : null;
 
-      let dotColor = '#555'; // По умолчанию оффлайн
+      let dotColor = '#555';
       let statusName = 'OFFLINE';
 
-      if (isActuallyOnline) {
-        // Если радар его видит, берем статус (онлайн или в игре)
-        statusName = friend.status || 'ONLINE';
-        if (statusName === 'IN GAME' || statusName === 'LOOKING FOR GAME') dotColor = 'var(--nfs-yellow)';
-        else dotColor = '#2ecc71';
+      if (presence) {
+        const loc = presence[0].location;
+        if (loc === 'chats.html') {
+          statusName = 'В ЧАТЕ';
+          dotColor = '#ff4d4d'; // Красный
+        } else {
+          if (friend.status === 'IN GAME' || friend.status === 'LOOKING FOR GAME') {
+            statusName = friend.status;
+            dotColor = 'var(--nfs-yellow)';
+          } else {
+            statusName = 'В СЕТИ';
+            dotColor = '#2ecc71'; // Зеленый
+          }
+        }
       }
 
       listContainer.innerHTML += `
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s;"
-             onclick="window.location.href='profile.html?u=${friend.username}'">
-          <div style="position: relative;">
-            <img src="${friend.avatar_url || 'https://via.placeholder.com/35'}"
-                 style="width: 35px; height: 35px; border: 1px solid #333; object-fit: cover; display: block;">
-            <div style="width: 10px; height: 10px; background-color: ${dotColor}; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid #000; ${isActuallyOnline ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
-          </div>
-          <div style="overflow: hidden;">
-            <div style="font-size: 0.9rem; font-weight: 900; color: #eee; text-transform: uppercase;">${friend.username}</div>
-            <div style="font-size: 0.6rem; color: #555; font-weight: bold; text-transform: uppercase;">${statusName}</div>
-          </div>
-        </div>`;
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s;"
+                     onclick="window.location.href='profile.html?u=${friend.username}'">
+                    <div style="position: relative;">
+                        <img src="${friend.avatar_url || 'https://via.placeholder.com/35'}"
+                             style="width: 35px; height: 35px; border: 1px solid #333; object-fit: cover; display: block;">
+                        <div style="width: 10px; height: 10px; background-color: ${dotColor}; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid #000; ${presence ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
+                    </div>
+                    <div style="overflow: hidden;">
+                        <div style="font-size: 0.9rem; font-weight: 900; color: #eee; text-transform: uppercase;">${friend.username}</div>
+                        <div style="font-size: 0.6rem; color: #555; font-weight: bold; text-transform: uppercase;">${statusName}</div>
+                    </div>
+                </div>`;
     });
+  }
+
+  async function handleLogout() {
+    if (myProfile) {
+      await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', myProfile.id);
+    }
+    await _supabase.auth.signOut();
+    window.location.href = 'index.html';
   }
 
   function toggleNotifyPopup() {
@@ -396,13 +411,17 @@
       requests.forEach(req => {
         listEl.innerHTML += `<div class="notify-item"><b>${req.sender_name}</b> в друзья?<div class="notify-btns"><button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button><button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">НЕТ</button></div></div>`;
       });
-    } else { countEl.style.display = 'none'; listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444;">Нет запросов</div>'; }
+    } else {
+      countEl.style.display = 'none';
+      listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444;">Нет запросов</div>';
+    }
   }
 
   async function respondFriend(reqId, status) {
     if (status === 'accepted') await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
     else await _supabase.from('friend_requests').delete().eq('id', reqId);
-    updateFriendNotifications(); loadSidebarFriends();
+    updateFriendNotifications();
+    loadSidebarFriends();
   }
 
   async function performGlobalSearch() {
@@ -413,31 +432,13 @@
     else Swal.fire({title:'ОШИБКА', text:'Гонщик не найден', icon:'error', background:'#111', color:'#fff', confirmButtonColor:'#f1c40f'});
   }
 
-  function initOnlineRadar(username, status) {
-    const presenceChannel = _supabase.channel('online-users', { config: { presence: { key: username } } });
-
-    presenceChannel.on('presence', { event: 'sync' }, () => {
-      onlineUsers = presenceChannel.presenceState(); // ЗАПОМИНАЕМ КТО В СЕТИ
-
-      let total = 0; let playing = 0;
-      for (const key in onlineUsers) {
-        total++;
-        if (onlineUsers[key][0].status === 'IN GAME' || onlineUsers[key][0].status === 'LOOKING FOR GAME') playing++;
-      }
-      document.getElementById('footerOnline').innerText = total;
-      document.getElementById('footerPlaying').innerText = playing;
-
-      // ОБНОВЛЯЕМ СПИСОК ДРУЗЕЙ В САЙДБАРЕ
-      loadSidebarFriends();
-    }).subscribe(async (s) => {
-      if (s === 'SUBSCRIBED') await presenceChannel.track({ online_at: new Date().toISOString(), status: status });
-    });
-  }
-
   async function scanForPlayers() {
     const { data } = await _supabase.from('profiles').select('*').eq('status', 'LOOKING FOR GAME');
     const list = document.getElementById('radarList');
-    if (!data || data.length === 0) { list.innerHTML = '<p style="color:#444; font-size:0.8rem;">В эфире тишина...</p>'; return; }
+    if (!data || data.length === 0) {
+      list.innerHTML = '<p style="color:#444; font-size:0.8rem;">В эфире тишина...</p>';
+      return;
+    }
     list.innerHTML = '';
     data.forEach(racer => {
       const isMe = myProfile && racer.id === myProfile.id;
@@ -454,13 +455,16 @@
 
   function openModal() { document.getElementById('modalOverlay').style.display = 'block'; document.getElementById('loginModal').style.display = 'block'; }
   function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('loginModal').style.display = 'none'; }
+
   async function handleLogin() {
     const email = document.getElementById('emailInput').value.trim();
     const password = document.getElementById('passInput').value.trim();
     const { error } = await _supabase.auth.signInWithPassword({ email, password });
     if (error) alert(error.message); else location.reload();
   }
-  async function handleLogout() { await _supabase.auth.signOut(); location.reload(); }
+
+  window.loadSidebarFriends = loadSidebarFriends;
+
   setInterval(scanForPlayers, 15000);
 </script>
 </body>
