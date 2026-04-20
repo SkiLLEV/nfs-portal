@@ -286,28 +286,68 @@
 
   window.onload = async () => {
     const { data: { user } } = await _supabase.auth.getUser();
+
     if (user) {
       const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+
       if (profile) {
         myProfile = profile;
         showLoggedIn(profile);
 
-        // --- ВОТ ЭТУ СТРОКУ НУЖНО ВЕРНУТЬ ---
-        document.getElementById('notifyWrapper').style.display = 'flex';
-        // ------------------------------------
+        // Показываем колокольчик
+        const notifyWrapper = document.getElementById('notifyWrapper');
+        if (notifyWrapper) notifyWrapper.style.display = 'flex';
 
+        // Запускаем радар (utils.js)
         if (typeof initGlobalStatus === 'function') {
           initGlobalStatus(_supabase, myProfile);
         }
 
+        // Первичная загрузка данных
         updateGlobalMsgBadge(_supabase, myProfile.id);
         updateFriendNotifications();
         loadSidebarFriends();
 
-        // Остальной код Realtime обновлений...
+        // --- ВОТ ЭТОТ БЛОК МЫ ДОБАВИЛИ (REALTIME) ---
+        _supabase.channel('index-realtime')
+          // 1. Слушаем новые сообщения (DM)
+          .on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'direct_messages',
+            filter: `receiver_id=eq.${myProfile.id}`
+          }, (payload) => {
+            updateGlobalMsgBadge(_supabase, myProfile.id); // Обновляем бейдж
+            if (typeof nfsNotify === 'function') {
+              nfsNotify('ПОЛУЧЕНО НОВОЕ СООБЩЕНИЕ!', 'info'); // NFS тост
+            }
+          })
+          // 2. Слушаем изменения в запросах в друзья (новые или принятые)
+          .on('postgres_changes', {
+            event: '*',
+            schema: 'public',
+            table: 'friend_requests'
+          }, (payload) => {
+            // Если запрос касается нас (мы отправитель или получатель)
+            if (payload.new.receiver_id === myProfile.id || payload.new.sender_id === myProfile.id) {
+              updateFriendNotifications();
+              loadSidebarFriends();
+              // Если кто-то принял наш запрос
+              if (payload.new.status === 'accepted' && payload.new.sender_id === myProfile.id) {
+                nfsNotify('ВАШ ЗАПРОС ПРИНЯТ!', 'success');
+              }
+            }
+          })
+          .subscribe();
+        // ------------------------------------------
       }
+    } else {
+      // Если гость - просто инициализируем базовый радар для счетчика онлайна
+      if (typeof initGuestRadar === 'function') initGuestRadar();
     }
-    // ...
+
+    // Радар поиска игроков (lobby) обновляем каждые 15 сек
+    scanForPlayers();
   };
 
   // ФУНКЦИЯ ДЛЯ ГОСТЕЙ (счетчик онлайна в футере)
