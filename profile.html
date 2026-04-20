@@ -410,19 +410,32 @@
   }
 
     async function checkFriendshipStatus(targetUserId) {
-    const { data: request } = await _supabase.from('friend_requests').select('*').or(`and(sender_id.eq.${myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${myProfile.id})`).maybeSingle();
-    const btn = document.getElementById('friendBtn');
-    if (!btn) return;
-    btn.classList.remove('hidden');
-    if (!request) { btn.innerText = "ДОБАВИТЬ В ДРУЗЬЯ"; btn.onclick = () => sendFriendRequest(targetUserId); }
-    else if (request.status === 'pending') {
-    if (request.sender_id === myProfile.id) { btn.innerText = "ЗАПРОС ОТПРАВЛЕН"; btn.disabled = true; }
-    else { btn.innerText = "ПРИНЯТЬ ЗАПРОС"; btn.onclick = () => acceptFriendRequest(request.id); }
-  }
-    else if (request.status === 'accepted') {
-    btn.innerText = "УДАЛИТЬ ИЗ ДРУЗЕЙ"; btn.style.color = "#ff4444"; btn.onclick = () => removeFriend(request.id);
-  }
-  }
+      const {data: request} = await _supabase.from('friend_requests').select('*').or(`and(sender_id.eq.${myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${myProfile.id})`).maybeSingle();
+      const btn = document.getElementById('friendBtn');
+      if (!btn) return;
+      btn.classList.remove('hidden');
+      if (!request) {
+        btn.innerText = "ДОБАВИТЬ В ДРУЗЬЯ";
+        btn.onclick = () => sendFriendRequest(targetUserId);
+      } else if (request.status === 'pending') {
+        if (request.sender_id === myProfile.id) {
+          btn.innerText = "ЗАПРОС ОТПРАВЛЕН";
+          btn.disabled = true;
+        } else {
+          btn.innerText = "ПРИНЯТЬ ЗАПРОС";
+          btn.onclick = () => acceptFriendRequest(request.id);
+        }
+      } else if (request.status === 'accepted') {
+        btn.innerText = "УДАЛИТЬ ИЗ ДРУЗЕЙ";
+        // Применяем стиль опасности
+        btn.style.background = "#e74c3c"; // Насыщенный красный
+        btn.style.color = "#fff";
+        btn.style.border = "2px solid #c0392b";
+        btn.style.boxShadow = "0 0 10px rgba(231, 76, 60, 0.4)";
+
+        btn.onclick = () => removeFriend(request.id);
+      }
+    }
 
     async function sendFriendRequest(targetId) { await _supabase.from('friend_requests').insert([{ sender_id: myProfile.id, receiver_id: targetId, sender_name: myProfile.username }]); location.reload(); }
     async function acceptFriendRequest(requestId) { await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', requestId); location.reload(); }
