@@ -3,7 +3,6 @@ let onlineUsers = {};
 
 /**
  * 1. Функция для уведомлений в стиле NFS
- * Использует SweetAlert2 для красивых всплывашек
  */
 function nfsNotify(title, icon = 'success') {
   if (typeof Swal === 'undefined') return;
@@ -17,9 +16,7 @@ function nfsNotify(title, icon = 'success') {
     background: '#0a0a0a',
     color: '#f1c40f',
     iconColor: '#f1c40f',
-    customClass: {
-      popup: 'nfs-toast-border'
-    }
+    customClass: { popup: 'nfs-toast-border' }
   });
 }
 
@@ -54,17 +51,19 @@ async function initGlobalStatus(supabase, profile) {
 
   const currentPage = window.location.pathname.split("/").pop() || 'index.html';
 
-  // Создаем канал
   const statusChannel = supabase.channel('global-online', {
     config: { presence: { key: profile.username } }
   });
 
-  // Функция для отправки данных в радар (теперь вынесена отдельно)
+  // Глобальная функция для обновления данных в реальном времени
   window.trackMyStatus = async (newStatus) => {
+    // Если статус не передан, берем текущий из профиля
+    const statusToSend = newStatus || profile.status || 'ONLINE';
+
     await statusChannel.track({
       user: profile.username,
       location: currentPage,
-      status: newStatus || profile.status || 'ONLINE'
+      status: statusToSend
     });
   };
 
@@ -72,22 +71,25 @@ async function initGlobalStatus(supabase, profile) {
     .on('presence', { event: 'sync' }, () => {
       onlineUsers = statusChannel.presenceState();
 
-      if (document.getElementById('footerOnline')) {
-        document.getElementById('footerOnline').innerText = Object.keys(onlineUsers).length;
+      const footerOnline = document.getElementById('footerOnline');
+      if (footerOnline) {
+        footerOnline.innerText = Object.keys(onlineUsers).length;
       }
 
+      // Рассылаем команды на обновление UI разным страницам
       if (typeof window.updateFriendsStatusOnly === 'function') window.updateFriendsStatusOnly();
       if (typeof window.loadRecentDMs === 'function') window.loadRecentDMs();
       if (typeof window.updateLiveStatusUI === 'function') window.updateLiveStatusUI();
     })
     .subscribe(async (status) => {
       if (status === 'SUBSCRIBED') {
-        await supabase.from('profiles').update({ status: 'ONLINE' }).eq('id', profile.id);
-        // Трекаем начальный статус
+        // !!! МЫ УБРАЛИ update({ status: 'ONLINE' }) ОТСЮДА !!!
+        // Теперь при входе просто вещаем в радар тот статус, что уже есть в базе
         await window.trackMyStatus(profile.status);
       }
     });
 
+  // При закрытии вкладки - только тогда ставим OFFLINE
   window.addEventListener('beforeunload', () => {
     supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', profile.id);
   });

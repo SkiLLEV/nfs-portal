@@ -390,19 +390,24 @@
     async function updateUserStatus() {
       const s = document.getElementById('statusSelect').value;
 
-      // 1. Обновляем таблицу
-      await _supabase.from('profiles').update({ status: s }).eq('id', currentUserId);
+      // 1. Сохраняем в базу навсегда
+      const { error } = await _supabase.from('profiles').update({ status: s }).eq('id', currentUserId);
 
-      // 2. Обновляем активный трекинг в радаре (чтобы друзья увидели сразу)
-      if (typeof window.trackMyStatus === 'function') {
-        await window.trackMyStatus(s);
+      if (!error) {
+        // 2. Обновляем локальный объект, чтобы UI не тупил
+        profileData.status = s;
+        myProfile.status = s;
+
+        // 3. Передаем в радар, чтобы друзья увидели (Presence)
+        if (typeof window.trackMyStatus === 'function') {
+          await window.trackMyStatus(s);
+        }
+
+        // 4. Обновляем плашку на странице
+        window.updateLiveStatusUI();
+
+        nfsNotify('Статус обновлен: ' + s);
       }
-
-      // 3. Обновляем локальные данные, чтобы UI перерисовался без лагов
-      profileData.status = s;
-      window.updateLiveStatusUI();
-
-      nfsNotify('Статус изменен: ' + s);
     }
 
     async function openEditProfile() {
