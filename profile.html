@@ -238,27 +238,35 @@
       const el = document.getElementById('statusIndicator');
       if (!el || !profileData) return;
 
-      // Проверяем наличие в глобальном радаре
+      // 1. Проверяем, видит ли радар этого пользователя в сети
       const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[profileData.username] : null;
 
+      // 2. Если это твой профиль — ты точно в сети, даже если радар тупит
       const isItMe = (myProfile && profileData.id === myProfile.id);
 
       if (!presence && !isItMe) {
+        // Юзер реально оффлайн
         el.innerText = 'OFFLINE';
         el.className = 'status-badge status-offline';
       } else {
-        // Берем статус из данных профиля (ONLINE, IN GAME и т.д.)
+        // Юзер ОНЛАЙН — теперь выбираем, какой именно статус показать
         const s = profileData.status || 'ONLINE';
-
-        // Если кто-то (или ты) в чате, приоритет этому статусу
         const loc = presence ? presence[0].location : '';
 
+        // Приоритет 1: Если юзер в мессенджере
         if (loc === 'chats.html') {
           el.innerText = 'В ЧАТЕ';
           el.className = 'status-badge status-ingame';
-        } else {
+        }
+        // Приоритет 2: Тот статус, который ты выбрала в списке (В ИГРЕ / ИЩУ ИГРУ)
+        else {
           el.innerText = s;
-          el.className = 'status-badge ' + (s === 'IN GAME' || s === 'LOOKING FOR GAME' ? 'status-ingame' : 'status-online');
+          // Если статус боевой (игра/поиск), красим в желтый, если просто онлайн — в зеленый
+          if (s === 'IN GAME' || s === 'LOOKING FOR GAME') {
+            el.className = 'status-badge status-ingame';
+          } else {
+            el.className = 'status-badge status-online';
+          }
         }
       }
     };
