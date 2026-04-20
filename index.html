@@ -292,32 +292,22 @@
         myProfile = profile;
         showLoggedIn(profile);
 
-        // 1. ЗАПУСКАЕМ ЕДИНЫЙ МАЯК ИЗ utils.js
+        // --- ВОТ ЭТУ СТРОКУ НУЖНО ВЕРНУТЬ ---
+        document.getElementById('notifyWrapper').style.display = 'flex';
+        // ------------------------------------
+
         if (typeof initGlobalStatus === 'function') {
           initGlobalStatus(_supabase, myProfile);
         }
 
-        // 2. ОБНОВЛЯЕМ ИНТЕРФЕЙС ПРИ ЗАГРУЗКЕ
         updateGlobalMsgBadge(_supabase, myProfile.id);
         updateFriendNotifications();
         loadSidebarFriends();
 
-        // 3. REALTIME: Слушаем изменения в друзьях и новые сообщения
-        _supabase.channel('global-updates')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'friend_requests' }, () => {
-            updateFriendNotifications();
-            loadSidebarFriends();
-          })
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${myProfile.id}` }, () => {
-            updateGlobalMsgBadge(_supabase, myProfile.id);
-          })
-          .subscribe();
+        // Остальной код Realtime обновлений...
       }
-    } else {
-      console.log("Вход в режиме гостя");
-      initGuestRadar();
     }
-    scanForPlayers();
+    // ...
   };
 
   // ФУНКЦИЯ ДЛЯ ГОСТЕЙ (счетчик онлайна в футере)
@@ -403,28 +393,51 @@
 
   async function updateFriendNotifications() {
     if (!myProfile) return;
-    const { data: requests } = await _supabase.from('friend_requests').select('*').eq('receiver_id', myProfile.id).eq('status', 'pending');
+    const { data: requests } = await _supabase.from('friend_requests')
+      .select('*')
+      .eq('receiver_id', myProfile.id)
+      .eq('status', 'pending');
+
     const countEl = document.getElementById('notifyCount');
     const listEl = document.getElementById('notifyList');
+
     if (requests && requests.length > 0) {
-      countEl.innerText = requests.length; countEl.style.display = 'block';
+      countEl.innerText = requests.length;
+      countEl.style.display = 'block'; // Показываем красный кружок с цифрой
       listEl.innerHTML = '';
       requests.forEach(req => {
-        listEl.innerHTML += `<div class="notify-item"><b>${req.sender_name}</b> в друзья?<div class="notify-btns"><button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button><button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">НЕТ</button></div></div>`;
+        listEl.innerHTML += `
+                    <div class="notify-item">
+                        <b>${req.sender_name}</b> хочет в друзья
+                        <div class="notify-btns">
+                            <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button>
+                            <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">НЕТ</button>
+                        </div>
+                    </div>`;
       });
     } else {
-      countEl.style.display = 'none';
-      listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444;">Нет запросов</div>';
+      countEl.style.display = 'none'; // Прячем кружок, если запросов нет
+      listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">Запросов нет</div>';
     }
   }
 
   async function respondFriend(reqId, status) {
-    if (status === 'accepted') await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
-    else await _supabase.from('friend_requests').delete().eq('id', reqId);
-    updateFriendNotifications();
-    loadSidebarFriends();
-  }
+    try {
+      if (status === 'accepted') {
+        await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
+        if (typeof nfsNotify === 'function') nfsNotify('Гонщик добавлен в друзья!');
+      } else {
+        await _supabase.from('friend_requests').delete().eq('id', reqId);
+        if (typeof nfsNotify === 'function') nfsNotify('Запрос отклонен', 'info');
+      }
 
+      // Мгновенно обновляем интерфейс
+      await updateFriendNotifications();
+      await loadSidebarFriends();
+    } catch (err) {
+      console.error("Ошибка при ответе на запрос:", err);
+    }
+  }
   async function performGlobalSearch() {
     const query = document.getElementById('globalSearchInput').value.trim();
     if (!query) return;
