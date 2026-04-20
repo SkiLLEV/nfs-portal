@@ -369,10 +369,9 @@
       let statusName = 'OFFLINE';
 
       if (presence) {
-        // БЕРЕМ ДАННЫЕ ИЗ РАДАРА (presence), А НЕ ИЗ КЭША БАЗЫ
         const pData = presence[0];
         const loc = pData.location;
-        const liveStatus = pData.status || 'ONLINE'; // Тот самый статус, который мы трекаем
+        const liveStatus = pData.status || 'В СЕТИ'; // Тот самый статус, который мы трекаем
 
         if (loc === 'chats.html') {
           statusName = 'В ЧАТЕ';
