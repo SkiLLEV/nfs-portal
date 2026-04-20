@@ -92,4 +92,21 @@ async function initGlobalStatus(supabase, profile) {
   window.addEventListener('beforeunload', () => {
     supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', profile.id);
   });
+
+  // Добавь это в utils.js
+  async function markAllMsgsAsRead(supabase, myId) {
+    if (!supabase || !myId) return;
+
+    const { error } = await supabase
+      .from('direct_messages')
+      .update({ is_read: true })
+      .eq('receiver_id', myId)
+      .eq('is_read', false);
+
+    if (!error) {
+      // После того как пометили в базе, скрываем бейдж на странице
+      const badge = document.getElementById('msgBadge');
+      if (badge) badge.style.display = 'none';
+    }
+  }
 }
