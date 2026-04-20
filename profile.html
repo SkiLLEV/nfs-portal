@@ -180,6 +180,8 @@
     const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    if (typeof onlineUsers === 'undefined') window.onlineUsers = {};
+
     // Константы
     const AVATAR_OPTIONS = [
     'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png',
@@ -257,13 +259,20 @@
   };
 
     async function loadMyOwnProfile(userId) {
-    const { data } = await _supabase.from('profiles').select('*').eq('id', userId).single();
-    if (data) {
-    profileData = data;
-    renderFullProfile(data, true);
-    updateRacerRank(data.id);
-  }
-  }
+      try {
+        const { data, error } = await _supabase.from('profiles').select('*').eq('id', userId).single();
+        if (error) throw error;
+        if (data) {
+          profileData = data;
+          renderFullProfile(data, true);
+          updateRacerRank(data.id);
+        }
+      } catch (err) {
+        console.error("Ошибка загрузки своего профиля:", err);
+        // Если даже база упала, хоть имя покажем из кеша авторизации
+        document.getElementById('profName').innerText = "ОШИБКА СВЯЗИ";
+      }
+    }
 
     async function updateRacerRank(targetUserId) {
     const { data: racers } = await _supabase.from('profiles').select('id').order('rating', { ascending: false });
