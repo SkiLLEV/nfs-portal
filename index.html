@@ -330,26 +330,31 @@
     }).subscribe();
   }
 
-  // ОБНОВЛЕННАЯ ФУНКЦИЯ ДРУЗЕЙ (видит красные точки)
+  let friendsCache = []; // Кэш для списка друзей
+
   async function loadSidebarFriends() {
     if (!myProfile) return;
 
+    // Грузим из базы только ОДИН РАЗ или принудительно
     const { data } = await _supabase.from('friend_requests')
       .select('sender_id, receiver_id, sender:profiles!friend_requests_sender_id_fkey(username, avatar_url, status), receiver:profiles!friend_requests_receiver_id_fkey(username, avatar_url, status)')
       .eq('status', 'accepted')
       .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`);
 
-    const listContainer = document.getElementById('sidebarFriendsList');
-    if (!data || data.length === 0) {
-      listContainer.innerHTML = '<p style="color: #444; font-size: 0.8rem;">Список пуст...</p>';
-      return;
+    if (data) {
+      friendsCache = data;
+      renderFriendsUI(); // Рисуем список
     }
+  }
 
+  // Новая функция, которая просто перерисовывает точки БЕЗ запроса к базе
+  function renderFriendsUI() {
+    const listContainer = document.getElementById('sidebarFriendsList');
+    if (!listContainer) return;
     listContainer.innerHTML = '';
-    data.forEach(rel => {
-      const friend = rel.sender_id === myProfile.id ? rel.receiver : rel.sender;
 
-      // onlineUsers берется из utils.js
+    friendsCache.forEach(rel => {
+      const friend = rel.sender_id === myProfile.id ? rel.receiver : rel.sender;
       const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[friend.username] : null;
 
       let dotColor = '#555';
@@ -359,33 +364,29 @@
         const loc = presence[0].location;
         if (loc === 'chats.html') {
           statusName = 'В ЧАТЕ';
-          dotColor = '#ff4d4d'; // Красный
+          dotColor = '#ff4d4d';
         } else {
-          if (friend.status === 'IN GAME' || friend.status === 'LOOKING FOR GAME') {
-            statusName = friend.status;
-            dotColor = 'var(--nfs-yellow)';
-          } else {
-            statusName = 'В СЕТИ';
-            dotColor = '#2ecc71'; // Зеленый
-          }
+          statusName = (friend.status === 'IN GAME') ? 'В ИГРЕ' : 'В СЕТИ';
+          dotColor = (friend.status === 'IN GAME') ? 'var(--nfs-yellow)' : '#2ecc71';
         }
       }
 
       listContainer.innerHTML += `
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.2s;"
-                     onclick="window.location.href='profile.html?u=${friend.username}'">
-                    <div style="position: relative;">
-                        <img src="${friend.avatar_url || 'https://via.placeholder.com/35'}"
-                             style="width: 35px; height: 35px; border: 1px solid #333; object-fit: cover; display: block;">
-                        <div style="width: 10px; height: 10px; background-color: ${dotColor}; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid #000; ${presence ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
-                    </div>
-                    <div style="overflow: hidden;">
-                        <div style="font-size: 0.9rem; font-weight: 900; color: #eee; text-transform: uppercase;">${friend.username}</div>
-                        <div style="font-size: 0.6rem; color: #555; font-weight: bold; text-transform: uppercase;">${statusName}</div>
-                    </div>
-                </div>`;
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer;" onclick="window.location.href='profile.html?u=${friend.username}'">
+        <div style="position: relative;">
+          <img src="${friend.avatar_url || 'https://via.placeholder.com/35'}" style="width: 35px; height: 35px; border: 1px solid #333; object-fit: cover;">
+          <div style="width: 10px; height: 10px; background-color: ${dotColor}; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid #000;"></div>
+        </div>
+        <div>
+          <div style="font-size: 0.9rem; font-weight: 900; color: #eee;">${friend.username}</div>
+          <div style="font-size: 0.6rem; color: #555;">${statusName}</div>
+        </div>
+      </div>`;
     });
   }
+
+  // Эта функция будет вызываться из utils.js для быстрого обновления точек
+  window.updateFriendsStatusOnly = renderFriendsUI;
 
   async function handleLogout() {
     if (myProfile) {
