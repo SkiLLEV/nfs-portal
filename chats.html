@@ -511,6 +511,11 @@
     await _supabase.auth.signOut();
     window.location.href = 'auth.html';
   }
+
+  window.updateFriendsStatusOnly = function() {
+    console.log("Радар обновился, перерисовываю список чатов...");
+    loadRecentDMs();
+  };
 </script>
 </body>
 </html>
