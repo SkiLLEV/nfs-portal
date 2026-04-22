@@ -1,7 +1,5 @@
-# 🏎️ NFS Most Wanted Portal: Safehouse 🏁
+# 🏎️ NFS Most Wanted Portal 🏁
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status: Dev](https://img.shields.io/badge/Status-In%20Progress-orange.svg)]()
 
 **Safehouse** — это высокотехнологичный портал для гонщиков Рокпорта, объединяющий в себе функции мессенджера, социальной сети и системы отслеживания игроков в реальном времени. Дизайн полностью вдохновлен интерфейсом игры *Need for Speed: Most Wanted (2005)*.
 
