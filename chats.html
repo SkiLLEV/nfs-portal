@@ -230,12 +230,21 @@
       const nickEl = document.getElementById('myNick');
       if (nickEl) nickEl.innerText = myProfile.username;
 
-      // ЕДИНЫЙ МАЯК: Теперь это заменяет initStatusTracker
+      // 1. Запускаем основной маяк
       if (typeof initGlobalStatus === 'function') {
         initGlobalStatus(_supabase, myProfile);
+
+        // 2. ПРИНУДИТЕЛЬНЫЙ ПИНГ (чтобы сразу стать красной)
+        // Даем каналу полсекунды на прогрев и вещаем, что мы в чатах
+        setTimeout(() => {
+          if (typeof window.trackMyStatus === 'function') {
+            window.trackMyStatus(myProfile.status || 'ONLINE');
+            console.log("Радар: принудительно вещаю статус 'В ЧАТЕ'");
+          }
+        }, 800);
       }
 
-      // Обновляем бейдж сообщений в шапке/сайдбаре
+      // Обновляем бейдж сообщений
       if (typeof updateGlobalMsgBadge === 'function') {
         updateGlobalMsgBadge(_supabase, myProfile.id);
       }
