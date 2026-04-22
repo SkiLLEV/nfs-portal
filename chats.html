@@ -91,7 +91,28 @@
 
     .messages-area { flex-grow: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
 
-    .msg { max-width: 75%; padding: 12px 16px; border-radius: 4px; position: relative; font-size: 0.95rem; line-height: 1.4; box-shadow: 4px 4px 10px rgba(0,0,0,0.4); }
+    .msg {
+      max-width: 75%; /* Сообщение не займет больше 75% ширины чата */
+      padding: 12px 16px;
+      border-radius: 4px;
+      position: relative;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      box-shadow: 4px 4px 10px rgba(0,0,0,0.4);
+
+      word-wrap: break-word;       /* Переносит длинные слова */
+      overflow-wrap: break-word;   /* Современный стандарт переноса */
+      white-space: pre-wrap;       /* Сохраняет пробелы и переносы строк, которые ты нажимала */
+      word-break: break-word;      /* Дополнительная страховка для старых браузеров */
+    }
+
+    .msg-text {
+      display: block;
+      width: 100%;
+      word-wrap: break-word;
+      overflow: hidden; /* Чтобы ничего не вылазило за границы */
+    }
+
     .msg.incoming { align-self: flex-start; background: #1e1e1e; border-left: 4px solid #444; }
     .msg.outgoing { align-self: flex-end; background: #2a2a2a; border-right: 4px solid var(--nfs-yellow); }
 
@@ -268,7 +289,7 @@
     initTypingTracker();
   };
 
-  // --- ФУНКЦИИ РАБОТЫ СО СТАТУСАМИ ---
+  // ФУНКЦИИ РАБОТЫ СО СТАТУСАМИ
 
   function initStatusTracker() {
     const statusChannel = _supabase.channel('global-online', {
@@ -305,7 +326,7 @@
     return '#2ecc71'; // Зеленый
   }
 
-  // --- ФУНКЦИИ ЧАТА ---
+  // ФУНКЦИИ ЧАТА
 
   async function fetchSpecialRoles() {
     const { data } = await _supabase.from('profiles').select('id, username, is_admin, is_vip, avatar_url, status');
@@ -447,7 +468,7 @@
     box.scrollTop = box.scrollHeight;
   }
 
-  // --- ТРЕКЕР ПЕЧАТИ (Broadcast) ---
+  // ТРЕКЕР ПЕЧАТИ (Broadcast)
 
   function initTypingTracker() {
     const channelKey = activeChatType === 'public' ? 'global' : [myProfile.id, activeChatId].sort().join('-');
@@ -480,7 +501,7 @@
     }
   }
 
-  // --- ОТПРАВКА И УДАЛЕНИЕ ---
+  // ОТПРАВКА И УДАЛЕНИЕ
 
   async function doSendMessage() {
     const input = document.getElementById('chatInput');
