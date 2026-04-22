@@ -514,11 +514,22 @@
       if (activeChatType === 'public') renderSingleMessage(p.new);
     }).subscribe();
 
-    _supabase.channel('dms').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'direct_messages'}, p => {
+    _supabase.channel('dms').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'direct_messages'}, async (p) => {
       if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
+
+        // ЕСЛИ МЫ В ЭТОМ ЧАТЕ СЕЙЧАС:
         if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
           renderSingleMessage(p.new);
+
+          // Автоматически помечаем как прочитанное
+          if (p.new.sender_id === activeChatId) {
+            await _supabase.from('direct_messages')
+              .update({ is_read: true })
+              .eq('id', p.new.id);
+          }
         }
+
+        // Перерисовываем список
         loadRecentDMs();
       }
     }).subscribe();
