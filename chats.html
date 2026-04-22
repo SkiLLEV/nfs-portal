@@ -284,14 +284,17 @@
   }
 
   function getStatusColor(username, statusFromDb) {
-    const presenceData = onlineUsers[username];
-    if (!presenceData) return '#555';
+    const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[username] : null;
+    if (!presence) return '#555';
 
-    const userLocation = presenceData[0].location;
-    if (userLocation === 'chats.html') return '#ff4d4d'; // Красный (В чате)
-    if (statusFromDb === 'IN GAME' || statusFromDb === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
+    const pData = presence[0];
+    const userLocation = pData.location;
+    const liveStatus = pData.status || 'ONLINE';
 
-    return '#2ecc71'; // Зеленый (На сайте)
+    if (userLocation === 'chats.html') return '#ff4d4d'; // Красный
+    if (liveStatus === 'IN GAME' || liveStatus === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
+
+    return '#2ecc71'; // Зеленый
   }
 
   // --- ФУНКЦИИ ЧАТА ---
@@ -306,10 +309,10 @@
   let isDMsLoading = false; // Флаг защиты от спама запросами
 
   async function loadRecentDMs() {
-    if (!myProfile || isDMsLoading) return; // Если уже грузим — выходим
+    if (!myProfile) return;
 
-    isDMsLoading = true;
     const container = document.getElementById('dmListContainer');
+    if (!container) return;
 
     try {
       const { data, error } = await _supabase.from('direct_messages')
@@ -336,28 +339,43 @@
         });
       }
 
-      if (container) {
-        container.innerHTML = contacts.size > 0 ? '' : '<p style="padding: 20px; font-size: 0.8rem; color: #444;">Нет активных диалогов</p>';
-        contacts.forEach((val, id) => {
-          let color = getStatusColor(val.name, val.status);
-          container.innerHTML += `
-          <div class="chat-item ${activeChatId === id ? 'active' : ''}" onclick="switchChat('${id}', '${val.name}', 'private')">
-            <div class="avatar-wrapper">
-              <div class="chat-avatar">${val.avatar ? `<img src="${val.avatar}">` : val.name[0]}</div>
-              <div class="status-dot" style="background: ${color};"></div>
-            </div>
-            <div class="chat-item-info">
-              <div style="font-weight: bold;">${val.name}</div>
-              <div style="font-size: 0.75rem; color: #666;">${val.lastMsg.substring(0, 20)}...</div>
-            </div>
-            ${val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : ''}
-          </div>`;
-        });
-      }
+      container.innerHTML = contacts.size > 0 ? '' : '<p style="padding: 20px; font-size: 0.8rem; color: #444;">Нет активных диалогов</p>';
+
+      contacts.forEach((val, id) => {
+        // ОПРЕДЕЛЯЕМ ЦВЕТ ТОЧКИ В РЕАЛЬНОМ ВРЕМЕНИ ЧЕРЕЗ РАДАР
+        const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[val.name] : null;
+
+        let dotColor = '#555'; // Offline
+        if (presence) {
+          const pData = presence[0];
+          const loc = pData.location;
+          const liveStatus = pData.status || 'ONLINE';
+
+          if (loc === 'chats.html') {
+            dotColor = '#ff4d4d'; // В чате (Красный)
+          } else if (liveStatus === 'IN GAME' || liveStatus === 'LOOKING FOR GAME') {
+            dotColor = 'var(--nfs-yellow)'; // В игре (Желтый)
+          } else {
+            dotColor = '#2ecc71'; // В сети (Зеленый)
+          }
+        }
+
+        container.innerHTML += `
+      <div class="chat-item ${activeChatId === id ? 'active' : ''}" onclick="switchChat('${id}', '${val.name}', 'private')">
+        <div class="avatar-wrapper">
+          <div class="chat-avatar">${val.avatar ? `<img src="${val.avatar}">` : val.name[0]}</div>
+          <div class="status-dot" style="background: ${dotColor}; ${presence ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
+        </div>
+        <div class="chat-item-info">
+          <div style="font-weight: bold; color: ${presence ? '#fff' : '#888'}">${val.name}</div>
+          <div style="font-size: 0.75rem; color: #666;">${val.lastMsg.substring(0, 20)}${val.lastMsg.length > 20 ? '...' : ''}</div>
+        </div>
+
+        ${val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : ''}
+      </div>`;
+      });
     } catch (err) {
       console.error("Ошибка загрузки DMs:", err);
-    } finally {
-      isDMsLoading = false; // Снимаем блокировку
     }
   }
 
