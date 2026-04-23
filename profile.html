@@ -157,11 +157,24 @@
       <button id="friendBtn" class="btn-nfs hidden">ДОБАВИТЬ В ДРУЗЬЯ</button>
     </div>
     <div class="info-area">
-      <h1><span id="badgeContainer"></span><span class="clan-tag" id="profClan">[...]</span><span id="profName">Loading...</span></h1>
+      <h1>
+        <span id="badgeContainer"></span>
+        <span class="clan-tag" id="profClan">[...]</span>
+        <span id="profName">Loading...</span>
+      </h1>
+
+      <div id="muteInfo"></div>
+
       <p id="profBio" style="color: #aaa; font-style: italic; margin: 10px 0; font-size: 1.1rem;">Загрузка данных...</p>
+
       <div id="statusIndicator" class="status-badge status-online">OFFLINE</div>
+
       <div class="stat-line">Рейтинг: <span class="highlight" id="profRating">★ 0</span></div>
       <div class="stat-line">Место в Лидерах: <span class="highlight" id="rankDisplay">#--</span></div>
+
+      <button id="adminMuteBtn" class="btn-nfs hidden" style="background: #c0392b; color: #fff; border: 1px solid #ff4d4d; margin-top: 5px;" onclick="openMuteModal()">
+        ⚠ ВЫДАТЬ МУТ
+      </button>
     </div>
   </div>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -297,7 +310,7 @@
   }
 
     function renderFullProfile(data, isMine) {
-      // 1. Очищаем надпись "ЗАГРУЗКА..." в шапке (если она еще там висит)
+      // 1. Очищаем надпись "ЗАГРУЗКА..." в шапке
       const topNick = document.getElementById('myNickTop');
       if (topNick && myProfile) topNick.innerText = myProfile.username;
 
@@ -315,7 +328,25 @@
         }
       }
 
-      // 2. Убираем "Загрузка данных..." из БИО
+      // --- ДОБАВЛЯЕМ ЛОГИКУ МУТА (БАНА) ---
+
+      // 2. Показываем плашку штрафа, если игрок замучен
+      if (typeof renderMuteStatus === 'function') {
+        renderMuteStatus(data);
+      }
+
+      // 3. Если МЫ — админы, а смотрим ЧУЖОЙ профиль — показываем кнопку наказания
+      const adminMuteBtn = document.getElementById('adminMuteBtn');
+      if (adminMuteBtn) {
+        if (myProfile && myProfile.is_admin && !isMine) {
+          adminMuteBtn.classList.remove('hidden');
+        } else {
+          adminMuteBtn.classList.add('hidden');
+        }
+      }
+
+      // --- ОСТАЛЬНАЯ ОТРИСОВКА ---
+
       document.getElementById('profBio').innerText = data.bio || "Элитный гонщик Рокпорта";
       document.getElementById('profRating').innerText = `★ ${data.rating.toLocaleString()}`;
 
@@ -327,7 +358,6 @@
 
       renderGarage(data.photos);
 
-      // Вызываем обновление статуса (ONLINE/OFFLINE/В ЧАТЕ)
       if (typeof window.updateLiveStatusUI === 'function') {
         window.updateLiveStatusUI();
       }
@@ -502,6 +532,101 @@
     async function sendFriendRequest(targetId) { await _supabase.from('friend_requests').insert([{ sender_id: myProfile.id, receiver_id: targetId, sender_name: myProfile.username }]); location.reload(); }
     async function acceptFriendRequest(requestId) { await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', requestId); location.reload(); }
     async function removeFriend(requestId) { await _supabase.from('friend_requests').delete().eq('id', requestId); location.reload(); }
+
+    async function openMuteModal() {
+      if (!myProfile || !myProfile.is_admin) return;
+
+      // Проверяем, загружены ли данные того, кого мутим
+      if (!profileData) {
+        nfsNotify('Ошибка: Данные игрока не загружены', 'error');
+        return;
+      }
+
+      const { value: minutes } = await Swal.fire({
+        title: 'ВЫДАТЬ МУТ',
+        input: 'select',
+        inputOptions: {
+          '15': '15 минут',
+          '60': '1 час',
+          '1440': '24 часа',
+          '10080': '7 дней'
+        },
+        inputPlaceholder: 'Выберите срок наказания',
+        showCancelButton: true,
+        background: '#0a0a0a',
+        color: '#ffffff',
+        confirmButtonColor: '#ff4d4d',
+        confirmButtonText: 'ЗАМУТИТЬ'
+      });
+
+      if (minutes) {
+        const mutedUntil = new Date(Date.now() + minutes * 60000).toISOString();
+
+        // ИСПРАВЛЕНО: используем profileData.id вместо несуществующей targetName
+        const { error } = await _supabase
+          .from('profiles')
+          .update({ muted_until: mutedUntil })
+          .eq('id', profileData.id);
+
+        if (!error) {
+          if (typeof nfsNotify === 'function') nfsNotify('НАРУШИТЕЛЬ ОШТРАФОВАН!');
+
+          // Чтобы плашка появилась сразу:
+          profileData.muted_until = mutedUntil;
+          if (typeof renderMuteStatus === 'function') renderMuteStatus(profileData);
+
+          setTimeout(() => location.reload(), 1200);
+        } else {
+          console.error("Ошибка Supabase:", error);
+          nfsNotify('Ошибка при обновлении базы данных', 'error');
+        }
+      }
+    }
+
+    function renderMuteStatus(profile) {
+      const container = document.getElementById('muteInfo');
+      if (!container) return;
+
+      // Если в базе пусто — выходим
+      if (!profile.muted_until) {
+        container.innerHTML = '';
+        return;
+      }
+
+      const now = new Date();
+      const muteDate = new Date(profile.muted_until);
+
+      // ЛОГ ДЛЯ ТЕБЯ (посмотри в консоль F12)
+      console.log("Текущее время:", now);
+      console.log("Мут до:", muteDate);
+
+      if (muteDate > now) {
+        // Вычисляем разницу
+        const diffMs = muteDate - now;
+        const diffMins = Math.ceil(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const remainingMins = diffMins % 60;
+
+        let timeText = diffHours > 0
+          ? `${diffHours} ч. ${remainingMins} мин.`
+          : `${diffMins} мин.`;
+
+        container.innerHTML = `
+      <div style="background: rgba(255, 77, 77, 0.2); border-left: 4px solid #ff4d4d; padding: 12px; margin: 15px 0; color: #ff4d4d; font-family: 'Segoe UI', sans-serif; box-shadow: 0 0 15px rgba(255, 77, 77, 0.1);">
+        <div style="font-weight: 900; letter-spacing: 1px; font-size: 0.85rem; text-transform: uppercase;">
+          ⚠ СТАТУС: ИГРОК В МУТЕ
+        </div>
+        <div style="color: #fff; font-size: 0.8rem; margin-top: 5px; font-style: italic;">
+          Доступ к радиосвязи ограничен. <br>
+          Срок истекает через: <span style="color: #ff4d4d; font-weight: bold;">${timeText}</span>
+        </div>
+      </div>
+    `;
+      } else {
+        // Если время вышло, просто очищаем блок
+        container.innerHTML = '';
+      }
+    }
 
     function goToChat() { window.location.href = `chats.html?to=${profileData.username}`; }
 

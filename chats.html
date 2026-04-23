@@ -485,13 +485,39 @@
   async function doSendMessage() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
+
     if (!text) return;
 
-    if (myProfile.muted_until && new Date(myProfile.muted_until) > new Date()) {
-      alert("ТЫ В МУТЕ!");
+    // 1. Проверка на лимит символов (то, что мы делали раньше)
+    if (text.length > 500) {
+      nfsNotify('СЛИШКОМ ДЛИННОЕ СООБЩЕНИЕ!', 'error');
       return;
     }
 
+    // 2. ПРОВЕРКА НА МУТ (БАН)
+    if (myProfile && myProfile.muted_until) {
+      const now = new Date();
+      const muteDate = new Date(myProfile.muted_until);
+
+      if (muteDate > now) {
+        // Считаем минуты до конца
+        const diffMins = Math.ceil((muteDate - now) / 60000);
+
+        // Используем стильный SweetAlert2 вместо обычного alert
+        Swal.fire({
+          title: 'РАДИОСВЯЗЬ ПРЕРВАНА',
+          html: `Твой доступ к чату заблокирован.<br>Мут истекает через: <b style="color:#f1c40f">${diffMins} мин.</b>`,
+          icon: 'error',
+          background: '#0a0a0a',
+          color: '#fff',
+          confirmButtonColor: '#f1c40f',
+          confirmButtonText: 'ПОНЯЛ'
+        });
+        return; // Прерываем отправку
+      }
+    }
+
+    // 3. ОТПРАВКА СООБЩЕНИЯ
     let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
     let payload = activeChatType === 'public'
       ? { sender_name: myProfile.username, text: text, room_id: 'global' }
@@ -504,10 +530,18 @@
       };
 
     const { data, error } = await _supabase.from(table).insert([payload]).select();
+
     if (!error && data) {
       renderSingleMessage(data[0]);
       input.value = '';
-      loadRecentDMs();
+
+      // Если это приватный чат, обновляем список контактов слева
+      if (activeChatType === 'private') {
+        loadRecentDMs();
+      }
+    } else if (error) {
+      console.error("Ошибка отправки:", error);
+      nfsNotify('ОШИБКА СВЯЗИ С СЕРВЕРОМ', 'error');
     }
   }
 
