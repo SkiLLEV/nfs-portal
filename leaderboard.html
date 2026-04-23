@@ -246,30 +246,36 @@
       const myNick = document.getElementById('myNick').innerText;
       const isMe = myNick === racer.username;
 
-      // --- ЖИВАЯ ПРОВЕРКА СТАТУСА ЧЕРЕЗ РАДАР ---
+      // --- ЖИВАЯ ПРОВЕРКА СТАТУСА ЧЕРЕЗ РАДАР (Presence) ---
       const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[racer.username] : null;
 
-      let statusText = racer.status || 'OFFLINE'; // По умолчанию из базы
-      let statusClass = 'offline';
-      let dotColor = '#555';
+      let statusText = "";
+      let statusClass = "offline";
+      let dotColor = "#555";
 
       if (presence) {
-        const pData = presence[0];
+        // Если игрок есть в радаре — он онлайн
         statusClass = 'online';
+        const pData = presence[0];
 
-        // Определяем текст и цвет
         if (pData.location === 'chats.html') {
           statusText = 'В ЧАТЕ';
-          dotColor = '#ff4d4d';
+          dotColor = '#ff4d4d'; // Красный
         } else if (pData.status === 'IN GAME' || pData.status === 'LOOKING FOR GAME') {
           statusText = pData.status;
-          dotColor = 'var(--nfs-yellow)';
+          dotColor = 'var(--nfs-yellow)'; // Желтый
         } else {
           statusText = 'В СЕТИ';
-          dotColor = '#2ecc71';
+          dotColor = '#2ecc71'; // Зеленый
         }
+      } else {
+        // Если игрока НЕТ в радаре — он 100% OFFLINE, даже если в базе другое
+        statusText = 'OFFLINE';
+        statusClass = 'offline';
+        dotColor = '#555'; // Серый
       }
 
+      // Стилизация топ-мест
       let crown = "";
       let nameStyle = "";
       let rowStyle = "";
@@ -304,7 +310,17 @@
         <td>
            <div style="position: relative; display: inline-block;">
               ${avatarHTML}
-              <div style="width:10px; height:10px; border-radius:50%; background:${dotColor}; position:absolute; bottom:0; right:0; border:2px solid #000; box-shadow: 0 0 5px ${dotColor};"></div>
+              <div style="
+                width:10px;
+                height:10px;
+                border-radius:50%;
+                background: ${dotColor};
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                border: 2px solid #000;
+                ${presence ? `box-shadow: 0 0 5px ${dotColor};` : ''}
+              "></div>
            </div>
         </td>
         <td>
@@ -317,7 +333,7 @@
           ${(racer.rating || 0).toLocaleString()}
         </td>
         <td>
-          <span class="racer-status ${statusClass}" style="border-color: ${dotColor}; color: ${dotColor};">
+          <span class="racer-status ${statusClass}" style="border-color: ${dotColor}; color: ${dotColor}; transition: 0.3s;">
             ${statusText}
           </span>
         </td>
