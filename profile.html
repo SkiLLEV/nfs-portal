@@ -370,22 +370,51 @@
   }
 
     async function addNewCarPhoto() {
-    const { value: url } = await Swal.fire({
-    title: 'ТЮНИНГ ГАРАЖА',
-    background: '#0a0a0a',
-    color: '#fff',
-    input: 'url',
-    inputPlaceholder: 'Вставь прямую ссылку на фото (.jpg, .png)',
-    confirmButtonText: 'ДОБАВИТЬ',
-    confirmButtonColor: '#f1c40f'
-  });
+      const { value: url } = await Swal.fire({
+        title: 'ТЮНИНГ ГАРАЖА',
+        background: '#0a0a0a',
+        color: '#fff',
+        input: 'url',
+        inputLabel: 'ШАГ 1: Залей фото на PostImages\nШАГ 2: Вставь ПРЯМУЮ ССЫЛКУ ниже (.jpg, .png)',
+        inputPlaceholder: 'https://i.postimg.cc/..../image.jpg',
+        confirmButtonText: 'В ГАРАЖ',
+        confirmButtonColor: '#f1c40f',
+        // Ссылка на сайт прямо в модальном окне:
+        footer: '<a href="https://postimages.org/" target="_blank" style="color: #f1c40f; font-weight: bold; text-decoration: underline;">ОТКРЫТЬ POSTIMAGES.ORG</a>',
+        showCancelButton: true,
+        cancelButtonText: 'ОТМЕНА'
+      });
 
-    if (url) {
-    const photos = [...(profileData.photos || []), url];
-    const { error } = await _supabase.from('profiles').update({ photos }).eq('id', currentUserId);
-    if (!error) location.reload();
-  }
-  }
+      if (url) {
+        // Проверка на прямую ссылку (чтобы не сломать верстку)
+        if (!url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+          Swal.fire({
+            title: 'ОШИБКА',
+            text: 'Это не прямая ссылка! Выбери на PostImages строку "Прямая ссылка"',
+            icon: 'error',
+            background: '#0a0a0a',
+            color: '#fff'
+          });
+          return;
+        }
+
+        // Сохраняем в массив photos таблицы profiles
+        const currentPhotos = Array.isArray(profileData.photos) ? profileData.photos : [];
+        const updatedPhotos = [...currentPhotos, url];
+
+        const { error } = await _supabase
+          .from('profiles')
+          .update({ photos: updatedPhotos })
+          .eq('id', currentUserId);
+
+        if (!error) {
+          if (typeof nfsNotify === 'function') nfsNotify('МАШИНА ДОБАВЛЕНА В ГАРАЖ!');
+          setTimeout(() => location.reload(), 1200);
+        } else {
+          console.error(error);
+        }
+      }
+    }
 
     async function updateUserStatus() {
       const s = document.getElementById('statusSelect').value;
