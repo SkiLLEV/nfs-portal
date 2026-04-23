@@ -165,6 +165,12 @@
 
   let currentUserId = null;
 
+  // Когда радар в utils.js ловит изменения, он дергает эту функцию
+  window.updateFriendsStatusOnly = function() {
+    console.log("Лидерборд: радар обновился, перерисовываю статусы...");
+    loadBlacklist(); // Просто вызываем перерисовку таблицы
+  };
+
   window.onload = async () => {
     const { data: { user } } = await _supabase.auth.getUser();
 
@@ -237,10 +243,32 @@
 
     data.forEach((racer, index) => {
       const rank = index + 1;
-      // Используем проверку статуса из базы (или можно добавить логику радара и сюда)
-      const isOnline = racer.status !== 'OFFLINE';
       const myNick = document.getElementById('myNick').innerText;
       const isMe = myNick === racer.username;
+
+      // --- ЖИВАЯ ПРОВЕРКА СТАТУСА ЧЕРЕЗ РАДАР ---
+      const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[racer.username] : null;
+
+      let statusText = racer.status || 'OFFLINE'; // По умолчанию из базы
+      let statusClass = 'offline';
+      let dotColor = '#555';
+
+      if (presence) {
+        const pData = presence[0];
+        statusClass = 'online';
+
+        // Определяем текст и цвет
+        if (pData.location === 'chats.html') {
+          statusText = 'В ЧАТЕ';
+          dotColor = '#ff4d4d';
+        } else if (pData.status === 'IN GAME' || pData.status === 'LOOKING FOR GAME') {
+          statusText = pData.status;
+          dotColor = 'var(--nfs-yellow)';
+        } else {
+          statusText = 'В СЕТИ';
+          dotColor = '#2ecc71';
+        }
+      }
 
       let crown = "";
       let nameStyle = "";
@@ -273,7 +301,12 @@
         <td class="rank-num ${rank <= 3 ? 'top-rank' : ''}" style="${rank <= 3 ? 'font-size: 2rem;' : ''}">
           #${rank}
         </td>
-        <td>${avatarHTML}</td>
+        <td>
+           <div style="position: relative; display: inline-block;">
+              ${avatarHTML}
+              <div style="width:10px; height:10px; border-radius:50%; background:${dotColor}; position:absolute; bottom:0; right:0; border:2px solid #000; box-shadow: 0 0 5px ${dotColor};"></div>
+           </div>
+        </td>
         <td>
           <span class="racer-name ${racer.is_admin ? 'admin-name' : ''}" style="${nameStyle}">
             ${crown}${racer.username} ${isMe ? '<small style="color:var(--nfs-yellow); font-size: 0.6rem;">(ВЫ)</small>' : ''}
@@ -284,8 +317,8 @@
           ${(racer.rating || 0).toLocaleString()}
         </td>
         <td>
-          <span class="racer-status ${isOnline ? 'online' : 'offline'}">
-            ${racer.status || 'OFFLINE'}
+          <span class="racer-status ${statusClass}" style="border-color: ${dotColor}; color: ${dotColor};">
+            ${statusText}
           </span>
         </td>
       `;
