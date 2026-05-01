@@ -20,6 +20,20 @@ function nfsNotify(title, icon = 'success') {
   });
 }
 
+function formatLastSeen(dateString) {
+  if (!dateString) return "Давно";
+
+  const now = new Date();
+  const lastSeen = new Date(dateString);
+  const diffInSeconds = Math.floor((now - lastSeen) / 1000);
+
+  if (diffInSeconds < 60) return "Только что";
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} мин. назад`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ч. назад`;
+
+  // Если прошло больше суток, показываем дату
+  return lastSeen.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+}
 /**
  * 2. Счетчик сообщений
  */
@@ -67,7 +81,7 @@ async function initGlobalStatus(supabase, profile) {
 
   const currentPage = window.location.pathname.split("/").pop() || 'index.html';
 
-  // Создаем канал
+  // Создаем канал для Realtime присутствия
   const statusChannel = supabase.channel('global-online', {
     config: {
       presence: {
@@ -76,7 +90,7 @@ async function initGlobalStatus(supabase, profile) {
     }
   });
 
-  // --- ШАГ 1: СНАЧАЛА НАСТРАИВАЕМ ОБРАБОТЧИКИ ---
+  // --- ШАГ 1: ОБРАБОТЧИКИ (Синхронизация радара) ---
   statusChannel.on('presence', { event: 'sync' }, () => {
     onlineUsers = statusChannel.presenceState();
 
@@ -87,7 +101,7 @@ async function initGlobalStatus(supabase, profile) {
     if (typeof window.updateLiveStatusUI === 'function') window.updateLiveStatusUI();
   });
 
-  // Глобальная функция для трекинга
+  // Глобальная функция для обновления статуса в радаре
   window.trackMyStatus = async (newStatus) => {
     if (!profile) return;
     await statusChannel.track({
@@ -97,17 +111,32 @@ async function initGlobalStatus(supabase, profile) {
     });
   };
 
-  // --- ШАГ 2: ТОЛЬКО ТЕПЕРЬ ПОДПИСЫВАЕМСЯ ---
+  // --- ШАГ 2: ПОДПИСКА И ОБНОВЛЕНИЕ ВРЕМЕНИ ---
   statusChannel.subscribe(async (status) => {
     if (status === 'SUBSCRIBED' && profile) {
       await window.trackMyStatus();
+
+      // ОБНОВЛЯЕМ ВРЕМЯ ВХОДА (last_seen) в базе данных
+      const now = new Date().toISOString();
+      await supabase
+        .from('profiles')
+        .update({ last_seen: now })
+        .eq('id', profile.id);
     }
   });
 
-  // Обработка оффлайна
+  // --- ШАГ 3: ОБРАБОТКА ВЫХОДА (OFFLINE) ---
   if (profile) {
     window.addEventListener('beforeunload', () => {
-      supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', profile.id);
+      const now = new Date().toISOString();
+      // При закрытии вкладки ставим статус OFFLINE и фиксируем финальное время
+      supabase
+        .from('profiles')
+        .update({
+          status: 'OFFLINE',
+          last_seen: now
+        })
+        .eq('id', profile.id);
     });
   }
 }

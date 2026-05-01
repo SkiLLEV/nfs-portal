@@ -172,6 +172,10 @@
       <div class="stat-line">Рейтинг: <span class="highlight" id="profRating">★ 0</span></div>
       <div class="stat-line">Место в Лидерах: <span class="highlight" id="rankDisplay">#--</span></div>
 
+      <div class="stat-line" style="font-size: 0.9rem; color: #777;">
+        Был в сети: <span id="lastSeenDisplay">...</span>
+      </div>
+
       <button id="adminMuteBtn" class="btn-nfs hidden" style="background: #c0392b; color: #fff; border: 1px solid #ff4d4d; margin-top: 5px;" onclick="openMuteModal()">
         ⚠ ВЫДАТЬ МУТ
       </button>
@@ -202,6 +206,21 @@
     'https://static.wikia.nocookie.net/needforspeed/images/e/ee/TazProfileIcon.png/revision/latest/scale-to-width-down/220?cb=20160105211008&path-prefix=ru',
     'https://static.wikia.nocookie.net/nfs/images/6/6f/Sonny.png/revision/latest/smart/width/250/height/250?cb=20150519180637&path-prefix=es'
     ];
+
+    function formatLastSeen(dateString) {
+      if (!dateString) return "Давно";
+
+      const now = new Date();
+      const lastSeen = new Date(dateString);
+      const diffInSeconds = Math.floor((now - lastSeen) / 1000);
+
+      if (diffInSeconds < 60) return "Только что";
+      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} мин. назад`;
+      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ч. назад`;
+
+      // Если прошло больше суток — показываем дату
+      return lastSeen.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    }
 
     let currentUserId = null, myProfile = null, profileData = null;
 
@@ -316,6 +335,24 @@
 
       const nameEl = document.getElementById('profName');
       const badgeEl = document.getElementById('badgeContainer');
+
+      // Находим блок в твоей функции renderFullProfile
+      const lastSeenEl = document.getElementById('lastSeenDisplay');
+      if (lastSeenEl) {
+        // 1. Проверяем наличие в радаре (onlineUsers заполняется в utils.js)
+        const isOnline = (typeof onlineUsers !== 'undefined' && onlineUsers[data.username]);
+
+        // 2. Проверяем, не твой ли это профиль (ты всегда онлайн для себя)
+        const isItMe = (myProfile && data.id === myProfile.id);
+
+        if (isOnline || isItMe) {
+          lastSeenEl.innerText = "Сейчас в сети";
+          lastSeenEl.style.color = "var(--nfs-yellow)"; // Подсветим желтым для красоты
+        } else {
+          lastSeenEl.innerText = formatLastSeen(data.last_seen);
+          lastSeenEl.style.color = "#777"; // Обычный серый для оффлайна
+        }
+      }
 
       if (nameEl) {
         nameEl.innerText = data.username;
