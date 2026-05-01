@@ -1,6 +1,20 @@
-# Include your project-specific ignores in this file
-# Read about how to use .gitignore: https://help.github.com/articles/ignoring-files
-# Useful .gitignore templates: https://github.com/github/gitignore
-node_modules
-dist
-.cache
+# Зависимости (уже есть у тебя)
+node_modules/
+dist/
+.cache/
+
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Редактор VS Code
+.vscode/
+
+# Системные файлы
+.DS_Store
+Thumbs.db
+
+# Логи
+*.log
+npm-debug.log*
