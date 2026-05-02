@@ -280,6 +280,13 @@
       to { filter: hue-rotate(360deg); }
     }
 
+    /* Класс для выбранной аватарки в окне выбора */
+    .swal-avatar-item.active-choice {
+      border-color: #f1c40f !important;
+      transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+    }
+
   </style>
 </head>
 <body>
@@ -316,8 +323,7 @@
   <div class="profile-card">
     <button id="editBtn" class="btn-tuning hidden" onclick="openEditProfile()">Редактировать профиль</button>
     <div class="avatar-area">
-      <!-- Контейнер для динамических рамок -->
-      <div id="avatarFrame" class="avatar-container">
+      <div id="avatarFrame" class="avatar-container" onclick="openAvatarPicker()" style="cursor: pointer; position: relative; z-index: 10;">
         <div class="avatar-big" id="avatarBox">
           <span class="avatar-letter">?</span>
         </div>
@@ -941,6 +947,59 @@
     await _supabase.auth.signOut();
     window.location.href = 'auth.html';
   }
+
+    async function openAvatarPicker() {
+      if (!myProfile || profileData.id !== myProfile.id) return;
+
+      // Генерируем HTML: убираем сложные стили из строк
+      let iconsHtml = '<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px; padding:10px;">';
+      AVATAR_OPTIONS.forEach(url => {
+        const isSelected = profileData.avatar_url === url;
+        iconsHtml += `
+      <img src="${url}"
+           class="swal-avatar-item ${isSelected ? 'active-choice' : ''}"
+           style="width:80px; height:80px; cursor:pointer; border:3px solid transparent; border-radius:5px; transition:0.2s;"
+           onclick="selectSwalAvatarOnly(this)">`;
+      });
+      iconsHtml += '</div>';
+
+      const { value: selectedUrl } = await Swal.fire({
+        title: 'ВЫБОР КАРТИНКИ',
+        background: '#0a0a0a',
+        color: '#fff',
+        html: `
+      <p style="font-size:0.9rem; color: #f1c40f; margin-bottom:15px;">ВЫБЕРИ НОВЫЙ ОБРАЗ:</p>
+      ${iconsHtml}
+    `,
+        showCancelButton: true,
+        confirmButtonText: 'УСТАНОВИТЬ',
+        confirmButtonColor: '#f1c40f',
+        preConfirm: () => {
+          return window.tempAvatarUrl || profileData.avatar_url;
+        }
+      });
+
+      if (selectedUrl) {
+        const { error } = await _supabase
+          .from('profiles')
+          .update({ avatar_url: selectedUrl })
+          .eq('id', currentUserId);
+
+        if (!error) location.reload();
+      }
+    }
+
+    // Исправленная функция клика
+    window.selectSwalAvatarOnly = (el) => {
+      // Убираем класс у всех
+      document.querySelectorAll('.swal-avatar-item').forEach(img => {
+        img.classList.remove('active-choice');
+      });
+
+      // Добавляем класс только нажатой картинке
+      el.classList.add('active-choice');
+      window.tempAvatarUrl = el.src;
+    };
 </script>
 </body>
 </html>
