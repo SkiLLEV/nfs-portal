@@ -178,6 +178,108 @@
       border: none; /* Убираем старую рамку */
       z-index: 2;
     }
+
+    /* 🟣 PURPLE GHOST (Фиолетовый неон с пульсацией) */
+    .frame-purple {
+      background: #a29bfe;
+      box-shadow: 0 0 15px #6c5ce7, inset 0 0 10px #000;
+      animation: purple-pulse 2s infinite alternate;
+    }
+
+    @keyframes purple-pulse {
+      from { box-shadow: 0 0 5px #6c5ce7; }
+      to { box-shadow: 0 0 20px #a29bfe; }
+    }
+
+    /* 🟢 TOXIC DRIFT (Ядовито-зеленый с эффектом "шума") */
+    .frame-toxic {
+      background: #55efc4;
+      border: 2px dashed #00b894;
+      box-shadow: 0 0 15px rgba(85, 239, 196, 0.5);
+    }
+
+    /* ⚡ NITRO SPARKS (Черная рамка с золотыми "частицами") */
+    .frame-sparks {
+      background: #111;
+      border: 2px solid #fdcb6e;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .frame-sparks::after {
+      content: "";
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: radial-gradient(circle, #fdcb6e 1px, transparent 1px);
+      background-size: 10px 10px;
+      animation: sparks-move 4s linear infinite;
+      opacity: 0.3;
+    }
+
+    @keyframes sparks-move {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ❄️ ICE COLD (Голубой лед с градиентом) */
+    .frame-ice {
+      background: linear-gradient(45deg, #74b9ff, #0984e3);
+      box-shadow: 0 0 15px #74b9ff;
+      border-radius: 10px; /* Скругленные углы для мягкости */
+    }
+
+    /* 🏎️ CARBON FIBER */
+    .frame-carbon {
+      background:
+        linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px,
+        linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0,
+        linear-gradient(27deg, #222 5px, transparent 5px) 0 10px,
+        linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px,
+        linear-gradient(90deg, #1b1b1b 10px, transparent 10px),
+        linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
+      background-size: 20px 20px;
+      border: 1px solid #444;
+    }
+
+    .frame-void {
+      background: #000;
+      border: 1px solid #333;
+      box-shadow: 0 0 20px #fff, inset 0 0 30px #4834d4;
+      outline: 1px solid #4834d4;
+      animation: void-pulse 4s infinite;
+    }
+    @keyframes void-pulse {
+      0% { box-shadow: 0 0 10px #fff, inset 0 0 20px #4834d4; }
+      50% { box-shadow: 0 0 25px #fff, inset 0 0 40px #686de0; }
+      100% { box-shadow: 0 0 10px #fff, inset 0 0 20px #4834d4; }
+    }
+
+    .frame-checker {
+      background-image:
+        linear-gradient(45deg, #222 25%, transparent 25%),
+        linear-gradient(-45deg, #222 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #222 75%),
+        linear-gradient(-45deg, transparent 75%, #222 75%);
+      background-size: 20px 20px;
+      background-color: #eee;
+      border: 3px solid var(--nfs-yellow);
+      box-shadow: 0 0 10px var(--nfs-yellow);
+    }
+
+    .frame-holo {
+      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 25%, #f093fb 50%, #f5576c 75%, #00f2fe 100%);
+      background-size: 400% 400%;
+      animation: holo-slide 3s linear infinite, rainbow-hue 10s linear infinite;
+      box-shadow: 0 0 20px rgba(79, 172, 254, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    @keyframes rainbow-hue {
+      from { filter: hue-rotate(0deg); }
+      to { filter: hue-rotate(360deg); }
+    }
+
   </style>
 </head>
 <body>
@@ -414,38 +516,37 @@
   }
 
     function renderFullProfile(data, isMine) {
-      // 1. Очищаем надпись "ЗАГРУЗКА..." в шапке
+      // 1. Обновляем ник в шапке
       const topNick = document.getElementById('myNickTop');
       if (topNick && myProfile) topNick.innerText = myProfile.username;
 
       const nameEl = document.getElementById('profName');
       const badgeEl = document.getElementById('badgeContainer');
 
-      // --- ЛОГИКА РАМОК (Обновлено) ---
+      // --- ЛОГИКА РАМОК ---
       const frameEl = document.getElementById('avatarFrame');
       if (frameEl) {
-        // Сбрасываем все лишние классы перед установкой нового
         frameEl.className = 'avatar-container';
 
-        // Приоритет: твоя кастомная рамка "Most Wanted"
-        if (data.username === 'Davenport' || data.username === 'test1') {
+        // 1. Если юзер САМ выбрал рамку в настройках — ставим её
+        if (data.selected_frame) {
+          frameEl.classList.add(data.selected_frame);
+        }
+        // 2. Иначе — автоматический выбор по нику или роли
+        else if (data.username === 'Davenport' || data.username === 'test1') {
           frameEl.classList.add('frame-mw');
-        }
-        else if (data.is_admin) {
+        } else if (data.is_admin) {
           frameEl.classList.add('frame-admin');
-        }
-        else if (data.is_mod) { // Добавляем поддержку модераторов
+        } else if (data.is_mod) {
           frameEl.classList.add('frame-mod');
-        }
-        else if (data.is_vip) {
+        } else if (data.is_vip) {
           frameEl.classList.add('frame-vip');
-        }
-        else {
+        } else {
           frameEl.classList.add('frame-default');
         }
       }
 
-      // --- ВРЕМЯ ПОСЛЕДНЕГО ВХОДА ---
+      // --- СТАТУС ONLINE / OFFLINE ---
       const lastSeenEl = document.getElementById('lastSeenDisplay');
       if (lastSeenEl) {
         const isOnline = (typeof onlineUsers !== 'undefined' && onlineUsers[data.username]);
@@ -460,6 +561,7 @@
         }
       }
 
+      // --- ИМЯ И БЕЙДЖИ ---
       if (nameEl) {
         nameEl.innerText = data.username;
         if (data.is_admin) {
@@ -468,10 +570,12 @@
         } else if (data.is_vip) {
           nameEl.classList.add('vip-glow');
           badgeEl.innerHTML = `<span class="badge badge-vip">VIP</span>`;
+        } else {
+          badgeEl.innerHTML = ''; // Очищаем, если обычный игрок
         }
       }
 
-      // --- ЛОГИКА МУТА ---
+      // --- МУТЫ И МОДЕРАЦИЯ ---
       if (typeof renderMuteStatus === 'function') {
         renderMuteStatus(data);
       }
@@ -485,13 +589,12 @@
         }
       }
 
-      // --- ОСТАЛЬНАЯ ОТРИСОВКА ДАННЫХ ---
+      // --- ОБЩАЯ ИНФОРМАЦИЯ ---
       document.getElementById('profBio').innerText = data.bio || "Элитный гонщик Рокпорта";
       document.getElementById('profRating').innerText = `★ ${data.rating.toLocaleString()}`;
 
       const box = document.getElementById('avatarBox');
       if (box) {
-        // Добавили object-fit:cover, чтобы картинка не сплющивалась внутри рамки
         box.innerHTML = data.avatar_url
           ? `<img src="${data.avatar_url}" style="width:100%; height:100%; object-fit:cover;">`
           : `<span class="avatar-letter">${data.username[0].toUpperCase()}</span>`;
@@ -502,47 +605,34 @@
 
       renderGarage(data.photos);
 
+      // Обновляем статус (В ЧАТЕ / В ИГРЕ)
       if (typeof window.updateLiveStatusUI === 'function') {
         window.updateLiveStatusUI();
       }
 
-      // Кнопки управления (своё/чужое)
-      if (isMine) {
-        document.getElementById('editBtn').classList.remove('hidden');
-        document.getElementById('statusSelect').classList.remove('hidden');
-        document.getElementById('addCarBtn').classList.remove('hidden');
-        document.getElementById('statusSelect').value = data.status || 'ONLINE';
-      } else {
-        document.getElementById('msgBtn').classList.remove('hidden');
-        document.getElementById('friendBtn').classList.remove('hidden');
-      }
-    }
-
-      // --- ОСТАЛЬНАЯ ОТРИСОВКА ---
-
-      document.getElementById('profBio').innerText = data.bio || "Элитный гонщик Рокпорта";
-      document.getElementById('profRating').innerText = `★ ${data.rating.toLocaleString()}`;
-
-      const box = document.getElementById('avatarBox');
-      if (box) box.innerHTML = data.avatar_url ? `<img src="${data.avatar_url}">` : `<span class="avatar-letter">${data.username[0].toUpperCase()}</span>`;
-
-      const clanEl = document.getElementById('profClan');
-      if (clanEl) clanEl.innerText = data.clan_tag || '[НЕТ]';
-
-      renderGarage(data.photos);
-
-      if (typeof window.updateLiveStatusUI === 'function') {
-        window.updateLiveStatusUI();
-      }
+      // --- КНОПКИ УПРАВЛЕНИЯ ---
+      const editBtn = document.getElementById('editBtn');
+      const statusSelect = document.getElementById('statusSelect');
+      const addCarBtn = document.getElementById('addCarBtn');
+      const msgBtn = document.getElementById('msgBtn');
+      const friendBtn = document.getElementById('friendBtn');
 
       if (isMine) {
-        document.getElementById('editBtn').classList.remove('hidden');
-        document.getElementById('statusSelect').classList.remove('hidden');
-        document.getElementById('addCarBtn').classList.remove('hidden');
-        document.getElementById('statusSelect').value = data.status || 'ONLINE';
+        if (editBtn) editBtn.classList.remove('hidden');
+        if (statusSelect) {
+          statusSelect.classList.remove('hidden');
+          statusSelect.value = data.status || 'ONLINE';
+        }
+        if (addCarBtn) addCarBtn.classList.remove('hidden');
+        if (msgBtn) msgBtn.classList.add('hidden');
+        if (friendBtn) friendBtn.classList.add('hidden');
       } else {
-        document.getElementById('msgBtn').classList.remove('hidden');
-        document.getElementById('friendBtn').classList.remove('hidden');
+        if (editBtn) editBtn.classList.add('hidden');
+        if (statusSelect) statusSelect.classList.add('hidden');
+        if (addCarBtn) addCarBtn.classList.add('hidden');
+        if (msgBtn) msgBtn.classList.remove('hidden');
+        if (friendBtn) friendBtn.classList.remove('hidden');
+      }
     }
 
     function renderGarage(photos) {
@@ -645,28 +735,72 @@
     }
 
     async function openEditProfile() {
-    let avatarHtml = '<div class="swal-avatar-list">';
-    AVATAR_OPTIONS.forEach(url => {
-    avatarHtml += `<img src="${url}" class="swal-avatar-item ${profileData.avatar_url === url ? 'selected' : ''}" onclick="selectSwalAvatar(this, '${url}')">`;
-  });
-    avatarHtml += '</div>';
+      // Список доступных рамок
+      const frames = [
+        // Базовые и Ролевые
+        { id: 'frame-default', name: 'Стандарт' },
+        { id: 'frame-mw', name: 'Most Wanted (Зебра)' },
+        { id: 'frame-admin', name: 'Админ (Red Neon)' },
 
-    const { value: formValues } = await Swal.fire({
-    title: 'ТЮНИНГ ПРОФИЛЯ',
-    background: '#0a0a0a', color: '#fff',
-    html: `<p style="font-size:0.8rem;">ИКОНКА:</p>${avatarHtml}<p style="margin-top:15px; font-size:0.8rem;">BIO:</p><input id="swal-bio" class="swal2-input" value="${profileData.bio || ''}" style="background:#111; color:#fff; width:80%;">`,
-    confirmButtonText: 'СОХРАНИТЬ',
-    preConfirm: () => ({
-    bio: document.getElementById('swal-bio').value,
-    avatar: document.querySelector('.swal-avatar-item.selected')?.src || profileData.avatar_url
-  })
-  });
+        // Эффекты стихий и частиц
+        { id: 'frame-purple', name: 'Ghost (Purple)' },
+        { id: 'frame-toxic', name: 'Toxic (Green)' },
+        { id: 'frame-sparks', name: 'Nitro Sparks' },
+        { id: 'frame-ice', name: 'Ice Cold' },
 
-    if (formValues) {
-    await _supabase.from('profiles').update({ bio: formValues.bio, avatar_url: formValues.avatar }).eq('id', currentUserId);
-    location.reload();
-  }
-  }
+        // Агрессивные и необычные (Твои новинки!)
+        { id: 'frame-void', name: 'Event Horizon (Дыра)' },
+        { id: 'frame-checker', name: 'Winner Check (Финиш)' },
+        { id: 'frame-carbon', name: 'Pro Carbon' },
+        { id: 'frame-holo', name: 'Cosmos Edge (Голо)' },
+      ];
+
+      let framesHtml = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">';
+      frames.forEach(f => {
+        const isSelected = profileData.selected_frame === f.id ? 'border: 2px solid var(--nfs-yellow);' : 'border: 1px solid #333;';
+        framesHtml += `
+      <div onclick="selectFrame('${f.id}')" id="${f.id}" class="frame-preview ${f.id}"
+           style="cursor:pointer; padding:10px; ${isSelected} background: rgba(0,0,0,0.5); font-size: 0.7rem;">
+        ${f.name.toUpperCase()}
+      </div>`;
+      });
+      framesHtml += '</div>';
+
+      const { value: formValues } = await Swal.fire({
+        title: 'ТЮНИНГ ПРОФИЛЯ',
+        background: '#0a0a0a', color: '#fff',
+        html: `
+      <p style="font-size:0.8rem;">BIO:</p>
+      <input id="swal-bio" class="swal2-input" value="${profileData.bio || ''}" style="background:#111; color:#fff; width:80%;">
+      <p style="margin-top:15px; font-size:0.8rem;">ВЫБОР РАМКИ:</p>
+      ${framesHtml}
+    `,
+        showCancelButton: true,
+        confirmButtonText: 'УСТАНОВИТЬ',
+        preConfirm: () => {
+          return {
+            bio: document.getElementById('swal-bio').value,
+            frame: window.tempSelectedFrame || profileData.selected_frame
+          }
+        }
+      });
+
+      if (formValues) {
+        const { error } = await _supabase
+          .from('profiles')
+          .update({ bio: formValues.bio, selected_frame: formValues.frame })
+          .eq('id', currentUserId);
+
+        if (!error) location.reload();
+      }
+    }
+
+    // Вспомогательная функция для выбора в модалке
+    window.selectFrame = (id) => {
+      window.tempSelectedFrame = id;
+      document.querySelectorAll('.frame-preview').forEach(el => el.style.border = '1px solid #333');
+      document.getElementById(id).style.border = '2px solid var(--nfs-yellow)';
+    };
 
     function selectSwalAvatar(el, url) {
     document.querySelectorAll('.swal-avatar-item').forEach(img => img.classList.remove('selected'));
