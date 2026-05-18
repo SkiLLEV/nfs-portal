@@ -55,29 +55,29 @@
 </head>
 <body>
 <div class="container">
-  <a href="forum.html" class="back-link">← Вернуться в архив обсуждений</a>
+  <a href="forum.html" class="back-link">← Return to Discussion Archive</a>
 
   <div id="topicDetail">
     <div class="main-topic">
-      <p style="color: #666;">Сканирование частоты...</p>
+      <p style="color: #666;">Frequency Scanning...</p>
     </div>
   </div>
 
   <div id="authorControls" class="hidden" style="margin-bottom: 40px; padding-left: 30px;">
-    <button class="btn btn-secondary" onclick="editTopic()">Редактировать</button>
-    <button class="btn btn-danger" onclick="confirmDeleteTopic()">Удалить тему</button>
+    <button class="btn btn-secondary" onclick="editTopic()">Edit</button>
+    <button class="btn btn-danger" onclick="confirmDeleteTopic()">Delete topic</button>
   </div>
 
   <hr style="border: 0; border-top: 1px solid #333; margin: 40px 0;">
 
   <div id="commentsList">
-    <h3>ОТВЕТЫ:</h3>
+    <h3>ANSWERS:</h3>
   </div>
 
   <div id="replyBox">
-    <h3 style="color: var(--nfs-yellow); font-style: italic;">ОТПРАВИТЬ ОТВЕТ</h3>
-    <textarea id="commentText" rows="3" placeholder="Введите ваше сообщение..."></textarea>
-    <button class="btn" onclick="postComment()">Отправить</button>
+    <h3 style="color: var(--nfs-yellow); font-style: italic;">Send Reply</h3>
+    <textarea id="commentText" rows="3" placeholder="Enter your message here..."></textarea>
+    <button class="btn" onclick="postComment()">Send</button>
   </div>
 </div>
 
@@ -111,7 +111,7 @@
   async function loadFullTopic() {
     const { data, error } = await _supabase.from('forum_topics').select('*').eq('id', topicId).single();
     if (error || !data) {
-      document.getElementById('topicDetail').innerHTML = "<h2>Тема не найдена или стерта полицией.</h2>";
+      document.getElementById('topicDetail').innerHTML = "<h2>Topic not found.</h2>";
       return;
     }
     topicData = data;
@@ -119,7 +119,7 @@
       <div class="main-topic">
         <h1 style="color:var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;">${data.title}</h1>
         <p style="font-size: 1.1rem; line-height: 1.6; color: #eee;">${data.content}</p>
-        <small style="color: #888;">Автор поста:
+        <small style="color: #888;">Post author:
            <span class="racer-link" onclick="window.location.href='profile.html?u=${data.author_name}'">
              ${data.author_name}
            </span>
@@ -138,7 +138,7 @@
       .order('created_at', {ascending: true});
 
     const list = document.getElementById('commentsList');
-    list.innerHTML = '<h3 style="border-bottom: 1px solid #222; padding-bottom: 10px; font-style: italic;">ПЕРЕХВАТ СООБЩЕНИЙ:</h3>';
+    list.innerHTML = '<h3 style="border-bottom: 1px solid #222; padding-bottom: 10px; font-style: italic;">MESSAGE INTERCEPT:</h3>';
 
     if (data && data.length > 0) {
       data.forEach(c => {
@@ -154,7 +154,7 @@
         `;
       });
     } else {
-      list.innerHTML += '<p style="color: #cfcfcf;">Здесь пока тихо...</p>';
+      list.innerHTML += '<p style="color: #cfcfcf;">It`s quiet here for now...</p>';
     }
   }
 
@@ -175,20 +175,20 @@
 
   async function confirmDeleteTopic() {
     const result = await Swal.fire({
-      title: 'УНИЧТОЖИТЬ УЛИКИ?',
-      text: "Это сообщение исчезнет из архивов навсегда!",
+      title: 'Are you sure to delete this topic?',
+      text: "This message will disappear from the archives forever!",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ff4d4d',
-      confirmButtonText: 'УДАЛИТЬ',
-      cancelButtonText: 'ОТМЕНА',
+      confirmButtonText: 'YES I`M SURE',
+      cancelButtonText: 'CANCEL',
       background: '#0a0a0a',
       color: '#fff'
     });
     if (result.isConfirmed) {
       const { error } = await _supabase.from('forum_topics').delete().eq('id', topicId);
       if (!error) {
-        nfsNotify("Тема удалена");
+        nfsNotify("Topic deleted");
         setTimeout(() => window.location.href = 'forum.html', 1000);
       }
     }
@@ -196,13 +196,13 @@
 
   async function editTopic() {
     const { value: formValues } = await Swal.fire({
-      title: 'ТЮНИНГ РАПОРТА',
+      title: 'EDIT THIS TOPIC',
       background: '#0a0a0a',
       color: '#fff',
       html:
-        `<input id="swal-title" class="swal2-input" placeholder="Заголовок" value="${topicData.title}" style="background:#111; color:#fff; border:1px solid #444">` +
-        `<textarea id="swal-content" class="swal2-textarea" placeholder="Содержание" style="background:#111; color:#fff; border:1px solid #444; height: 150px;">${topicData.content}</textarea>`,
-      confirmButtonText: 'СОХРАНИТЬ',
+        `<input id="swal-title" class="swal2-input" placeholder="Title" value="${topicData.title}" style="background:#111; color:#fff; border:1px solid #444">` +
+        `<textarea id="swal-content" class="swal2-textarea" placeholder="Content" style="background:#111; color:#fff; border:1px solid #444; height: 150px;">${topicData.content}</textarea>`,
+      confirmButtonText: 'SAVE CHANGES',
       confirmButtonColor: '#f1c40f',
       preConfirm: () => {
         return {
@@ -216,7 +216,7 @@
         .update({ title: formValues.title, content: formValues.content })
         .eq('id', topicId);
       if (!error) {
-        nfsNotify("Данные обновлены");
+        nfsNotify("Data updated");
         loadFullTopic();
       }
     }

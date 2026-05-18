@@ -128,26 +128,26 @@
 
 <aside class="main-sidebar">
   <nav>
-    <a href="index.html" class="nav-item">Главная</a>
-    <a href="forum.html" class="nav-item">Форум</a>
-    <a href="chats.html" class="nav-item">МЕССЕНДЖЕР <span id="msgBadge">0</span></a>
-    <a href="lobby.html" class="nav-item">ПОИСК ИГРЫ</a>
-    <a href="leaderboard.html" class="nav-item active">ЛИДЕРЫ</a>
-    <a href="profile.html" class="nav-item">Мой профиль</a>
+    <a href="index.html" class="nav-item">MAIN</a>
+    <a href="forum.html" class="nav-item">FORUM</a>
+    <a href="chats.html" class="nav-item">MESSENGER<span id="msgBadge">0</span></a>
+    <a href="lobby.html" class="nav-item">SEARCH THE GAME</a>
+    <a href="leaderboard.html" class="nav-item active">LEADERBOARD</a>
+    <a href="profile.html" class="nav-item">MY PROFILE</a>
   </nav>
 </aside>
 
 <div class="container">
-  <h1>СПИСОК ЛИДЕРОВ</h1>
+  <h1>LIST OF LEADER'S</h1>
   <table class="blacklist-table">
     <thead>
     <tr>
       <th>Место</th>
-      <th>Фото</th>
-      <th>Гонщик</th>
-      <th>Клан</th>
-      <th>Рейтинг</th>
-      <th>Статус</th>
+      <th>PHOTO</th>
+      <th>RACER</th>
+      <th>CLAN</th>
+      <th>RATING</th>
+      <th>STATUS</th>
     </tr>
     </thead>
     <tbody id="blacklistBody"></tbody>
@@ -155,7 +155,7 @@
 </div>
 
 <footer class="bottom-bar">
-  <div class="stats">ONLINE: <span class="highlight" id="footerOnline">0</span> | В ЗАЕЗДЕ: <span class="highlight" id="footerPlaying">0</span></div>
+  <div class="stats">ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight" id="footerPlaying">0</span></div>
 </footer>
 
 <script>
@@ -222,7 +222,7 @@
         total++;
         // Если в данных присутствия есть статус игры
         const s = state[key][0].status;
-        if (s === 'IN GAME' || s === 'LOOKING FOR GAME') playing++;
+        if (s === 'IN-GAME' || s === 'LOOKING FOR GAME') playing++;
       }
 
       document.getElementById('footerOnline').innerText = total;
@@ -259,13 +259,13 @@
         const pData = presence[0];
 
         if (pData.location === 'chats.html') {
-          statusText = 'В ЧАТЕ';
+          statusText = 'IN CHAT';
           dotColor = '#ff4d4d'; // Красный
-        } else if (pData.status === 'IN GAME' || pData.status === 'LOOKING FOR GAME') {
+        } else if (pData.status === 'IN-GAME' || pData.status === 'LOOKING FOR GAME') {
           statusText = pData.status;
           dotColor = 'var(--nfs-yellow)'; // Желтый
         } else {
-          statusText = 'В СЕТИ';
+          statusText = 'ONLINE';
           dotColor = '#2ecc71'; // Зеленый
         }
       } else {

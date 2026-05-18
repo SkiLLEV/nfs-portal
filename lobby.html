@@ -119,12 +119,12 @@
 
 <aside class="main-sidebar">
   <nav>
-    <a href="index.html" class="nav-item">Главная</a>
-    <a href="forum.html" class="nav-item">Форум</a>
-    <a href="chats.html" class="nav-item">Мессенджер</a>
-    <a href="lobby.html" class="nav-item active">Поиск игры</a>
-    <a href="leaderboard.html" class="nav-item">Лидеры</a>
-    <a href="profile.html" class="nav-item">Мой профиль</a>
+    <a href="index.html" class="nav-item">Main</a>
+    <a href="forum.html" class="nav-item">Forum</a>
+    <a href="chats.html" class="nav-item">Messenger</a>
+    <a href="lobby.html" class="nav-item active">Search the game</a>
+    <a href="leaderboard.html" class="nav-item">Leaderboard</a>
+    <a href="profile.html" class="nav-item">My profile</a>
   </nav>
 </aside>
 
@@ -133,9 +133,9 @@
     <div style="position: relative; z-index: 10; width: 100%; display: flex; justify-content: space-between; align-items: flex-end;">
       <div>
         <h1 style="margin:0; font-style: italic; text-transform: uppercase; font-size: 3rem; text-shadow: 4px 4px 0 #000;">FIND YOUR CREW</h1>
-        <p style="color: var(--nfs-yellow); font-size: 0.9rem; font-weight: bold; letter-spacing: 2px; text-shadow: 2px 2px 4px #000;">СОБЕРИ КОМАНДУ ДЛЯ ВЫЕЗДА В GAMERANGER</p>
+        <p style="color: var(--nfs-yellow); font-size: 0.9rem; font-weight: bold; letter-spacing: 2px; text-shadow: 2px 2px 4px #000;">ASSEMBLE A TEAM TO GO TO GAMERANGER</p>
       </div>
-      <button class="create-btn" onclick="createLobby()">+ СОЗДАТЬ ЛОББИ</button>
+      <button class="create-btn" onclick="createLobby()">+ CREATE LOBBY</button>
     </div>
   </div>
 
@@ -149,14 +149,14 @@
     <div class="lobby-players-side">
       <h2 id="modalLobbyTitle" style="margin:0; font-style:italic; text-transform:uppercase;">Lobby Name</h2>
       <div id="playerSlotContainer" style="margin-top:25px;"></div>
-      <button class="leave-btn" onclick="leaveLobby()">Покинуть комнату</button>
+      <button class="leave-btn" onclick="leaveLobby()">Leave this room</button>
     </div>
     <div class="lobby-chat-side">
       <div id="lobbyChatBox">
-        <div class="lobby-msg"><i>Система: Добро пожаловать в комнату. Ожидайте готовности всех гонщиков.</i></div>
+        <div class="lobby-msg"><i>System: Welcome to the room. Wait for all the riders to be ready!</i></div>
       </div>
       <div style="padding:20px; border-top:1px solid #222; display:flex; gap:10px;">
-        <input type="text" id="lobbyChatInput" placeholder="Написать команде..." style="flex-grow:1; background:#111; border:1px solid #333; color:#fff; padding:12px; outline:none;" onkeydown="if(event.key==='Enter') sendLobbyMsg()">
+        <input type="text" id="lobbyChatInput" placeholder="Write to the Team..." style="flex-grow:1; background:#111; border:1px solid #333; color:#fff; padding:12px; outline:none;" onkeydown="if(event.key==='Enter') sendLobbyMsg()">
         <button class="create-btn" style="padding:0 20px;" onclick="sendLobbyMsg()">ОК</button>
       </div>
     </div>
@@ -197,16 +197,16 @@
       data.forEach(lobby => {
         let dots = '';
         for(let i=1; i<=4; i++) dots += `<div class="dot ${i <= lobby.current_players ? 'filled' : ''}"></div>`;
-        container.innerHTML += `<div class="lobby-card"><div class="lobby-status">${lobby.status}</div><div class="lobby-title">${lobby.title}</div><div style="font-size: 0.8rem; color: #777; margin-bottom: 10px;">ОРГАНИЗАТОР: ${lobby.host_name}</div><div class="player-dots">${dots}</div><button class="join-btn" onclick="joinLobby('${lobby.id}')">${lobby.current_players >= 4 ? 'ПОЛНОЕ' : 'ВСТУПИТЬ'}</button></div>`;
+        container.innerHTML += `<div class="lobby-card"><div class="lobby-status">${lobby.status}</div><div class="lobby-title">${lobby.title}</div><div style="font-size: 0.8rem; color: #777; margin-bottom: 10px;">ORGANIZER: ${lobby.host_name}</div><div class="player-dots">${dots}</div><button class="join-btn" onclick="joinLobby('${lobby.id}')">${lobby.current_players >= 4 ? 'COMPLETE' : 'JOIN'}</button></div>`;
       });
     } else {
-      container.innerHTML = '<p style="color:#f1c40f;><strong>Активных комнат нет. Будь первым — создай лобби!</strong></p>';
+      container.innerHTML = '<p style="color:#f1c40f;><strong>There are no active rooms. Be the first—create a lobby!</strong></p>';
     }
   }
 
   async function createLobby() {
     const { value: title } = await Swal.fire({
-      title: 'НАЗВАНИЕ КОМНАТЫ', input: 'text', inputPlaceholder: 'Напр: Drag Race 1v1',
+      title: 'NAME FOR ROOM', input: 'text', inputPlaceholder: 'For exmpl: Drag Race 1v1',
       background: '#0a0a0a', color: '#fff', confirmButtonColor: '#f1c40f', inputAttributes: { maxlength: 25 }
     });
     if (title) {
@@ -223,7 +223,7 @@
     let players = lobby.players || [];
     const isAlreadyIn = players.find(p => p.id === myProfile.id);
     if (!isAlreadyIn) {
-      if (lobby.current_players >= 4) return Swal.fire("FULL", "Мест нет!", "error");
+      if (lobby.current_players >= 4) return Swal.fire("FULL", "No seats left!", "error");
       players.push({ id: myProfile.id, name: myProfile.username, avatar: myProfile.avatar_url });
       await _supabase.from('lobbies').update({ players: players, current_players: players.length, status: players.length >= 4 ? 'full' : 'open' }).eq('id', id);
     }

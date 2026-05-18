@@ -101,15 +101,15 @@
 
   <div id="authFields">
     <input type="email" id="email" placeholder="E-mail">
-    <input type="text" id="username" placeholder="Твой Никнейм" style="display: none;">
-    <input type="password" id="password" placeholder="Пароль">
+    <input type="text" id="username" placeholder="Your nickname" style="display: none;">
+    <input type="password" id="password" placeholder="Password">
   </div>
 
-  <button class="btn btn-primary" id="mainBtn" onclick="handleAuth()">Войти</button>
+  <button class="btn btn-primary" id="mainBtn" onclick="handleAuth()">Log in</button>
 
   <div style="text-align: center;">
     <button class="btn btn-secondary" id="toggleBtn" onclick="toggleForm()">
-      Нет аккаунта? Зарегистрироваться
+      No account? Sign up.
     </button>
   </div>
 </div>
@@ -126,11 +126,11 @@
     const errorEl = document.getElementById('errorMsg');
     errorEl.style.display = 'none';
 
-    document.getElementById('formTitle').innerText = isLogin ? "Войти в игру" : "Регистрация гонщика";
+    document.getElementById('formTitle').innerText = isLogin ? "Enter the game" : "Racer Registration";
     document.getElementById('username').style.display = isLogin ? "none" : "block";
-    document.getElementById('mainBtn').innerText = isLogin ? "Войти" : "Создать профиль";
+    document.getElementById('mainBtn').innerText = isLogin ? "Loh in" : "Create profile";
     document.getElementById('toggleBtn').innerText = isLogin ?
-      "Нет аккаунта? Зарегистрироваться" : "Уже есть профиль? Войти в систему";
+      "No account? Sign up." : "Already have a profile? Log in.";
   }
 
   async function handleAuth() {
@@ -139,7 +139,7 @@
     const username = document.getElementById('username').value.trim();
 
     if (!email || !password || (!isLogin && !username)) {
-      showError("Заполни все поля, гонщик!");
+      showError("Fill in all the fields.");
       return;
     }
 
@@ -163,8 +163,8 @@
         showError(error.message);
       } else {
         Swal.fire({
-          title: "ГОТОВО!",
-          text: "Проверь почту для подтверждения или попробуй войти.",
+          title: "DONE!",
+          text: "Check your email for confirmation, or try logging in.",
           icon: "success",
           background: "#111",
           color: "#fff",

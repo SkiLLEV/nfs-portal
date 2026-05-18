@@ -78,7 +78,7 @@
 
   <div id="myNickContainer" style="display: flex; align-items: center;">
     <span id="myNick" style="font-weight: bold; color: var(--nfs-yellow); text-shadow: 2px 2px 4px #000; font-size: 1.1rem;">
-      ЗАГРУЗКА...
+      Loading...
     </span>
     <button onclick="handleLogout()" style="background:rgba(0,0,0,0.6); border:1px solid #ff4444; color:#ff4444; cursor:pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase; margin-left: 15px;">
       EXIT
@@ -88,28 +88,28 @@
 
 <aside class="sidebar">
   <nav style="padding-top: 20px;">
-    <a href="index.html" class="nav-item">Главная</a>
-    <a href="forum.html" class="nav-item active">Форум</a>
-    <a href="chats.html" class="nav-item">МЕССЕНДЖЕР <span id="msgBadge">0</span></a>
-    <a href="lobby.html" class="nav-item">ПОИСК ИГРЫ</a>
-    <a href="leaderboard.html" class="nav-item">ЛИДЕРЫ</a>
-    <a href="profile.html" class="nav-item">Мой Профиль</a>
+    <a href="index.html" class="nav-item">MAIN</a>
+    <a href="forum.html" class="nav-item active">FORUM</a>
+    <a href="chats.html" class="nav-item">MESSENGER<span id="msgBadge">0</span></a>
+    <a href="lobby.html" class="nav-item">SEARCH THE GAME</a>
+    <a href="leaderboard.html" class="nav-item">LEADERBOARD</a>
+    <a href="profile.html" class="nav-item">MY PROFILE</a>
   </nav>
 </aside>
 
 <div class="container">
-  <h1>Игровые обсуждения</h1>
+  <h1>GAME DISCUSSIONS</h1>
   <div class="create-topic-box">
-    <h3 style="margin-top:0; color: var(--nfs-yellow); font-style: italic;">НОВОЕ ОБСУЖДЕНИЕ</h3>
-    <input type="text" id="topicTitle" placeholder="Заголовок темы...">
-    <textarea id="topicContent" rows="3" placeholder="Суть вопроса..."></textarea>
-    <button class="btn-create" onclick="createNewTopic()">Опубликовать</button>
+    <h3 style="margin-top:0; color: var(--nfs-yellow); font-style: italic;">NEW DISCUSSION</h3>
+    <input type="text" id="topicTitle" placeholder="Enter title here...">
+    <textarea id="topicContent" rows="3" placeholder="What we'll talk about?.."></textarea>
+    <button class="btn-create" onclick="createNewTopic()">Publish it!</button>
   </div>
   <div id="topicsList"></div>
 </div>
 
 <footer class="bottom-bar">
-  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | В ЗАЕЗДЕ: <span class="highlight" id="footerPlaying">0</span></div>
+  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight" id="footerPlaying">0</span></div>
 </footer>
 
 <script>
@@ -165,7 +165,7 @@
       for (const key in state) {
         total++;
         const s = state[key][0].status;
-        if (s === 'IN GAME' || s === 'LOOKING FOR GAME') playing++;
+        if (s === 'IN-GAME' || s === 'LOOKING FOR GAME') playing++;
       }
       document.getElementById('footerOnline').innerText = total;
       document.getElementById('footerPlaying').innerText = playing;
@@ -185,7 +185,7 @@
           <div class="topic-card" onclick="window.location.href='topic.html?id=${topic.id}'">
             <div class="topic-title">${topic.title}</div>
             <div style="margin-bottom: 10px; color: #ccc;">${topic.content.substring(0, 120)}${topic.content.length > 120 ? '...' : ''}</div>
-            <div class="topic-meta">Гонщик: <strong>${topic.author_name}</strong> • ${date}</div>
+            <div class="topic-meta">Autor: <strong>${topic.author_name}</strong> • ${date}</div>
           </div>
         `;
       });

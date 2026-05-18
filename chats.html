@@ -157,7 +157,7 @@
 
   <div id="myNickContainer" style="display: flex; align-items: center;">
     <span id="myNick" style="font-weight: bold; color: var(--nfs-yellow); text-shadow: 2px 2px 4px #000; font-size: 1.1rem;">
-      ЗАГРУЗКА...
+      LOADING...
     </span>
     <button onclick="handleLogout()" style="background:rgba(0,0,0,0.6); border:1px solid #ff4444; color:#ff4444; cursor:pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase; margin-left: 15px;">
       EXIT
@@ -167,33 +167,33 @@
 
 <aside class="main-sidebar">
   <nav>
-    <a href="index.html" class="nav-item">Главная</a>
-    <a href="forum.html" class="nav-item">Форум</a>
-    <a href="chats.html" class="nav-item active">Мои чаты</a>
-    <a href="lobby.html" class="nav-item">ПОИСК ИГРЫ</a>
-    <a href="leaderboard.html" class="nav-item">ЛИДЕРЫ</a>
-    <a href="profile.html" class="nav-item">Мой профиль</a>
+    <a href="index.html" class="nav-item">MAIN</a>
+    <a href="forum.html" class="nav-item">FORUM</a>
+    <a href="chats.html" class="nav-item active">MY CHATS</a>
+    <a href="lobby.html" class="nav-item">SEARCH THE GAME</a>
+    <a href="leaderboard.html" class="nav-item">LEADERBOARD</a>
+    <a href="profile.html" class="nav-item">MY PROFILE</a>
   </nav>
 </aside>
 
 <div class="app-container">
   <div class="chat-list">
-    <div class="chat-category">Каналы Рокпорта</div>
-    <div id="publicChatBtn" class="chat-item active" onclick="switchChat('global', 'ОБЩИЙ КАНАЛ', 'public')">
+    <div class="chat-category">CHANNELS OF ROCKPORT</div>
+    <div id="publicChatBtn" class="chat-item active" onclick="switchChat('global', 'GENERAL CHANNEL', 'public')">
       <div class="chat-avatar">G</div>
       <div class="chat-item-info">
-        <div style="font-weight: bold;">ОБЩИЙ КАНАЛ</div>
-        <div style="font-size: 0.8rem; color: var(--nfs-yellow);">Все гонщики</div>
+        <div style="font-weight: bold;">GENERAL CHANNEL</div>
+        <div style="font-size: 0.8rem; color: var(--nfs-yellow);">ALL RIDERS</div>
       </div>
     </div>
 
-    <div class="chat-category">Личные сообщения</div>
+    <div class="chat-category">PRIVATE MESSAGES</div>
     <div id="dmListContainer"></div>
   </div>
 
   <div class="chat-window">
     <div class="chat-header">
-      <div>Чат: <strong id="chatWithTitle" style="color: var(--nfs-yellow);">ОБЩИЙ КАНАЛ</strong></div>
+      <div>Чат: <strong id="chatWithTitle" style="color: var(--nfs-yellow);">GENERAL CHANNEL</strong></div>
       <div id="chatStatus" style="font-size: 0.7rem; color: #444;">PUBLIC SESSION</div>
     </div>
     <div class="messages-area" id="msgBox"></div>
@@ -201,8 +201,8 @@
     <div id="typingIndicator"></div>
 
     <div class="chat-input-area">
-      <input type="text" id="chatInput" placeholder="Введите сообщение..." onkeydown="if(event.key==='Enter') doSendMessage()">
-      <button class="send-btn" onclick="doSendMessage()">ОТПРАВИТЬ</button>
+      <input type="text" id="chatInput" placeholder="Enter a message..." onkeydown="if(event.key==='Enter') doSendMessage()">
+      <button class="send-btn" onclick="doSendMessage()">TO SEND</button>
     </div>
   </div>
 </div>
@@ -300,7 +300,7 @@
     const liveStatus = pData.status || 'ONLINE';
 
     if (userLocation === 'chats.html') return '#ff4d4d'; // Красный
-    if (liveStatus === 'IN GAME' || liveStatus === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
+    if (liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
 
     return '#2ecc71'; // Зеленый
   }
@@ -383,7 +383,7 @@
       </div>`;
       });
     } catch (err) {
-      console.error("Ошибка загрузки DMs:", err);
+      console.error("Error of uploading DMs:", err);
     }
   }
 
@@ -490,7 +490,7 @@
 
     // 1. Проверка на лимит символов (то, что мы делали раньше)
     if (text.length > 500) {
-      nfsNotify('СЛИШКОМ ДЛИННОЕ СООБЩЕНИЕ!', 'error');
+      nfsNotify('THE MESSAGE IS TOO LONG!', 'error');
       return;
     }
 
@@ -505,13 +505,13 @@
 
         // Используем стильный SweetAlert2 вместо обычного alert
         Swal.fire({
-          title: 'РАДИОСВЯЗЬ ПРЕРВАНА',
-          html: `Твой доступ к чату заблокирован.<br>Мут истекает через: <b style="color:#f1c40f">${diffMins} мин.</b>`,
+          title: 'OOOPS!',
+          html: `Your access to the chat is blocked.<br>Mute expires in: <b style="color:#f1c40f">${diffMins} min.</b>`,
           icon: 'error',
           background: '#0a0a0a',
           color: '#fff',
           confirmButtonColor: '#f1c40f',
-          confirmButtonText: 'ПОНЯЛ'
+          confirmButtonText: 'I GOT IT'
         });
         return; // Прерываем отправку
       }
@@ -540,8 +540,8 @@
         loadRecentDMs();
       }
     } else if (error) {
-      console.error("Ошибка отправки:", error);
-      nfsNotify('ОШИБКА СВЯЗИ С СЕРВЕРОМ', 'error');
+      console.error("Sending error:", error);
+      nfsNotify('Server connection error', 'error');
     }
   }
 

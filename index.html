@@ -188,7 +188,7 @@
         🔔 <span id="notifyCount">0</span>
       </div>
       <div id="notifyPopup">
-        <div class="notify-header">Запросы в друзья</div>
+        <div class="notify-header">Friend requests</div>
         <div id="notifyList"></div>
       </div>
     </div>
@@ -203,19 +203,19 @@
 
 <aside class="sidebar">
   <nav>
-    <a href="index.html" class="nav-item active">ГЛАВНАЯ</a>
-    <a href="forum.html" class="nav-item">ФОРУМ</a>
-    <a href="chats.html" class="nav-item">МЕССЕНДЖЕР <span id="msgBadge">0</span></a>
-    <a href="lobby.html" class="nav-item">ПОИСК ИГРЫ</a>
-    <a href="leaderboard.html" class="nav-item">ЛИДЕРЫ</a>
-    <a href="profile.html" class="nav-item">МОЙ ПРОФИЛЬ</a>
+    <a href="index.html" class="nav-item active">MAIN</a>
+    <a href="forum.html" class="nav-item">FORUM</a>
+    <a href="chats.html" class="nav-item">MESSENGER<span id="msgBadge">0</span></a>
+    <a href="lobby.html" class="nav-item">SEARCH THE GAME</a>
+    <a href="leaderboard.html" class="nav-item">LEADERBOARD</a>
+    <a href="profile.html" class="nav-item">MY PROFILE</a>
 
     <div style="margin-top: 30px; padding: 0 20px;">
       <div style="font-size: 0.7rem; color: #555; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; border-bottom: 1px solid #222; padding-bottom: 5px; margin-bottom: 15px;">
-        Мои друзья
+        MY FRIENDS
       </div>
       <div id="sidebarFriendsList">
-        <p style="color: #444; font-size: 0.8rem; font-style: italic;">Загрузка...</p>
+        <p style="color: #444; font-size: 0.8rem; font-style: italic;">Loading...</p>
       </div>
     </div>
   </nav>
@@ -224,25 +224,18 @@
 <main class="main-content">
   <div class="content-box">
     <h1 style="color: var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;">
-      Это не просто сайт...
+      Welcome to Need For Speed Portal!
     </h1>
     <p style="font-size: 1.2rem; color: #fff; line-height: 1.5; font-weight: 300;">
-      Ты в системе, гонщик. Это твой главный узел связи в городе, где репутация важнее правил.
-    </p>
-    <p style="color: #ccc; border-left: 2px solid var(--nfs-yellow); padding-left: 15px; margin: 20px 0;">
-      Мы создали это место для тех, кто ищет единомышленников. Здесь ты можешь найти напарников для заездов через систему радара, обсудить секреты тюнинга на форуме или собрать экипаж из лучших водителей.
-    </p>
-
-    <p style="font-size: 1.2rem; color: #fff; line-height: 1.5; font-weight: 300;">
-      Спасибо, что ты с нами!
+      Thank you for support! All of you.
     </p>
 
     <div class="radar-box" id="matchmakingRadar" style="margin-top: 40px;">
       <h2 style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 0.9rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; letter-spacing: 2px;">
-        ПЕРЕХВАТ ЧАСТОТЫ: ИЩУТ ИГРУ
+        FREQUENCY INTERCEPTION: LOOKING FOR A GAME
       </h2>
       <div id="radarList" style="margin-top: 15px;">
-        <p style="color: #444; font-size: 0.8rem;">Сканирование сигналов...</p>
+        <p style="color: #444; font-size: 0.8rem;">Signal scanning...</p>
       </div>
     </div>
   </div>
@@ -250,29 +243,29 @@
 
 <div class="search-widget">
   <div style="font-size: 0.65rem; color: #555; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
-    ПОИСК ИГРОКА ПО НИКУ:
+    Find a player by nickname:
   </div>
   <div style="display: flex; gap: 5px;">
-    <input type="text" id="globalSearchInput" placeholder="NICKNAME..." onkeypress="if(event.key === 'Enter') performGlobalSearch()" style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 6px; outline: none;">
+    <input type="text" id="globalSearchInput" placeholder="ENTER NICKNAME..." onkeypress="if(event.key === 'Enter') performGlobalSearch()" style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 6px; outline: none;">
     <button onclick="performGlobalSearch()" style="background: var(--nfs-yellow); border: none; font-weight: bold; cursor: pointer; padding: 0 12px;">></button>
   </div>
 </div>
 
 <footer class="bottom-bar">
-  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | В ЗАЕЗДЕ: <span class="highlight" id="footerPlaying">0</span></div>
+  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight" id="footerPlaying">0</span></div>
 </footer>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
 <div class="modal" id="loginModal">
-  <h2 style="color: var(--nfs-yellow); text-transform: uppercase;">Вход в систему</h2>
+  <h2 style="color: var(--nfs-yellow); text-transform: uppercase;">Login</h2>
   <input type="email" id="emailInput" placeholder="EMAIL">
   <input type="password" id="passInput" placeholder="ПАРОЛЬ">
-  <button class="btn-login" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">АВТОРИЗАЦИЯ</button>
+  <button class="btn-login" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">AUTHORIZATION</button>
 
   <div style="margin-top: 15px; font-size: 0.8rem;">
-    Нет аккаунта?
+    Don't have an account yet?
     <a href="auth.html" style="color: var(--nfs-yellow); text-decoration: none; font-weight: bold; text-transform: uppercase;">
-      Зарегистрироваться
+      Register Here
     </a>
   </div>
 </div>
@@ -315,7 +308,7 @@
         _supabase.channel('index-realtime')
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${myProfile.id}` }, (payload) => {
             updateGlobalMsgBadge(_supabase, myProfile.id);
-            if (typeof nfsNotify === 'function') nfsNotify('НОВОЕ СООБЩЕНИЕ!', 'info');
+            if (typeof nfsNotify === 'function') nfsNotify('YOU GOT A NEW MESSAGE!', 'info');
           })
           .subscribe();
       }
@@ -351,7 +344,7 @@
 
     if (data) {
       friendsCache = data;
-      renderFriendsUI(); // Рисуем список
+      renderFriendsUI(); // Рендерим список
     }
   }
 
@@ -371,16 +364,16 @@
       if (presence) {
         const pData = presence[0];
         const loc = pData.location;
-        const liveStatus = pData.status || 'В СЕТИ'; // Тот самый статус, который мы трекаем
+        const liveStatus = pData.status || 'ONLINE'; // Тот самый статус, который мы трекаем
 
         if (loc === 'chats.html') {
-          statusName = 'В ЧАТЕ';
+          statusName = 'IN CHAT';
           dotColor = '#ff4d4d';
         } else {
           // Проверяем актуальный статус из радара
           statusName = liveStatus;
 
-          if (liveStatus === 'IN GAME' || liveStatus === 'LOOKING FOR GAME') {
+          if (liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME') {
             dotColor = 'var(--nfs-yellow)';
           } else {
             dotColor = '#2ecc71'; // Обычный ONLINE
@@ -435,16 +428,16 @@
       requests.forEach(req => {
         listEl.innerHTML += `
                     <div class="notify-item">
-                        <b>${req.sender_name}</b> хочет в друзья
+                        <b>${req.sender_name}</b> wants to be friends
                         <div class="notify-btns">
                             <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button>
-                            <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">НЕТ</button>
+                            <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">NO</button>
                         </div>
                     </div>`;
       });
     } else {
       countEl.style.display = 'none'; // Прячем кружок, если запросов нет
-      listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">Запросов нет</div>';
+      listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">There are no requests</div>';
     }
   }
 
@@ -452,17 +445,17 @@
     try {
       if (status === 'accepted') {
         await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
-        if (typeof nfsNotify === 'function') nfsNotify('Гонщик добавлен в друзья!');
+        if (typeof nfsNotify === 'function') nfsNotify('Racer added to friends!');
       } else {
         await _supabase.from('friend_requests').delete().eq('id', reqId);
-        if (typeof nfsNotify === 'function') nfsNotify('Запрос отклонен', 'info');
+        if (typeof nfsNotify === 'function') nfsNotify('Your request has been reject', 'info');
       }
 
       // Мгновенно обновляем интерфейс
       await updateFriendNotifications();
       await loadSidebarFriends();
     } catch (err) {
-      console.error("Ошибка при ответе на запрос:", err);
+      console.error("Error when responding to a request:", err);
     }
   }
   async function performGlobalSearch() {
@@ -470,14 +463,14 @@
     if (!query) return;
     const { data } = await _supabase.from('profiles').select('username').ilike('username', query).maybeSingle();
     if (data) window.location.href = `profile.html?u=${data.username}`;
-    else Swal.fire({title:'ОШИБКА', text:'Гонщик не найден', icon:'error', background:'#111', color:'#fff', confirmButtonColor:'#f1c40f'});
+    else Swal.fire({title:'ERROR', text:'The racer was not found', icon:'error', background:'#111', color:'#fff', confirmButtonColor:'#f1c40f'});
   }
 
   async function scanForPlayers() {
     const { data } = await _supabase.from('profiles').select('*').eq('status', 'LOOKING FOR GAME');
     const list = document.getElementById('radarList');
     if (!data || data.length === 0) {
-      list.innerHTML = '<p style="color:#444; font-size:0.8rem;">В эфире тишина...</p>';
+      list.innerHTML = '<p style="color:#444; font-size:0.8rem;">It`s empty here for now...</p>';
       return;
     }
     list.innerHTML = '';
