@@ -5,13 +5,11 @@ let onlineUsers = {};
  * 0. ГЛОБАЛЬНЫЙ ЗВУК УВЕДОМЛЕНИЯ
  */
 function playNotificationSound() {
-  // Прямая ссылка на короткий аудиоэффект
-  const audio = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3');
-  audio.volume = 0.5; // Громкость 50%
+  const audio = new Audio('https://notificationsounds.com/storage/sounds/file-sounds-1150-ping-pong.mp3');
+  audio.volume = 0.6;
 
   audio.play().catch(err => {
-    // Браузеры иногда блокируют звук, если юзер еще ни разу не кликнул по экрану
-    console.log("Автозвук ожидает первого клика пользователя по сайту: ", err);
+    console.log("Браузер ждет клика по странице для активации звука:", err);
   });
 }
 
