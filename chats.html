@@ -559,11 +559,11 @@
     _supabase.channel('dms').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'direct_messages'}, async (p) => {
       if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
 
-        // ЕСЛИ МЫ В ЭТОМ ЧАТЕ СЕЙЧАС:
+        // 1. ЕСЛИ МЫ СЕЙЧАС В ДИАЛОГЕ С ЭТИМ ОТПРАВИТЕЛЕМ:
         if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
           renderSingleMessage(p.new);
 
-          // Автоматически помечаем как прочитанное
+          // Помечаем как прочитанное и ЖДЁМ ответа от базы данных (await)
           if (p.new.sender_id === activeChatId) {
             await _supabase.from('direct_messages')
               .update({ is_read: true })
@@ -571,8 +571,13 @@
           }
         }
 
-        // Перерисовываем список
-        loadRecentDMs();
+        // 2. Жёстко обновляем список контактов слева ТОЛЬКО после того, как статус прочитанного обновился
+        await loadRecentDMs();
+
+        // 3. Синхронизируем главный счётчик MESSENGER [0] в сайдбаре
+        if (typeof updateGlobalMsgBadge === 'function') {
+          updateGlobalMsgBadge(_supabase, myProfile.id);
+        }
       }
     }).subscribe();
   }
