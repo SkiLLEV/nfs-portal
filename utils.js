@@ -139,19 +139,29 @@ async function initGlobalStatus(supabase, profile) {
 
   // --- ШАГ 2.5: 🔔 ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК СООБЩЕНИЙ СО ЗВУКОМ ---
   if (profile) {
+    supabase.removeChannel(supabase.channel('global-audio-messages'));
+
     supabase.channel('global-audio-messages')
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'direct_messages',
-        filter: `receiver_id=eq.${profile.id}`
+        filter: `receiver_id=eq.'${profile.id}'`
       }, (payload) => {
+        console.log("🔊 Глобальный Realtime перехватил сообщение:", payload);
 
         playNotificationSound();
 
         updateGlobalMsgBadge(supabase, profile.id);
+
+        // Если мы сидим в мессенджере — мгновенно перерисовываем список диалогов
+        if (currentPage === 'chats.html' && typeof window.loadMyChatsList === 'function') {
+          window.loadMyChatsList();
+        }
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`Статус аудио-канала для ${profile.username}:`, status);
+      });
   }
 
   // --- ШАГ 3: ОБРАБОТКА ВЫХОДА (OFFLINE) ---
