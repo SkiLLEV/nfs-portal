@@ -2,6 +2,20 @@
 let onlineUsers = {};
 
 /**
+ * 0. ГЛОБАЛЬНЫЙ ЗВУК УВЕДОМЛЕНИЯ
+ */
+function playNotificationSound() {
+  // Прямая ссылка на короткий аудиоэффект
+  const audio = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3');
+  audio.volume = 0.5; // Громкость 50%
+
+  audio.play().catch(err => {
+    // Браузеры иногда блокируют звук, если юзер еще ни разу не кликнул по экрану
+    console.log("Автозвук ожидает первого клика пользователя по сайту: ", err);
+  });
+}
+
+/**
  * 1. Уведомления NFS
  */
 function nfsNotify(title, icon = 'success') {
@@ -124,6 +138,23 @@ async function initGlobalStatus(supabase, profile) {
         .eq('id', profile.id);
     }
   });
+
+  // --- ШАГ 2.5: 🔔 ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК СООБЩЕНИЙ СО ЗВУКОМ ---
+  if (profile) {
+    supabase.channel('global-audio-messages')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'direct_messages',
+        filter: `receiver_id=eq.${profile.id}`
+      }, (payload) => {
+
+        playNotificationSound();
+
+        updateGlobalMsgBadge(supabase, profile.id);
+      })
+      .subscribe();
+  }
 
   // --- ШАГ 3: ОБРАБОТКА ВЫХОДА (OFFLINE) ---
   if (profile) {

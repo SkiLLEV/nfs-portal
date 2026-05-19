@@ -304,10 +304,13 @@
           });
         }
 
-        // Твой Realtime канал для сообщений (у него другое имя, он не мешает)
         _supabase.channel('index-realtime')
           .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${myProfile.id}` }, (payload) => {
             updateGlobalMsgBadge(_supabase, myProfile.id);
+
+            // 🔔 Вызываем функцию звука при получении нового сообщения
+            playNotificationSound();
+
             if (typeof nfsNotify === 'function') nfsNotify('YOU GOT A NEW MESSAGE!', 'info');
           })
           .subscribe();
@@ -500,6 +503,20 @@
   window.loadSidebarFriends = loadSidebarFriends;
 
   setInterval(scanForPlayers, 15000);
+
+  function playNotificationSound() {
+    // Создаем объект аудио с прямой ссылкой на файл
+    const audio = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3');
+
+    // Устанавливаем комфортную громкость (от 0.0 до 1.0)
+    audio.volume = 0.5;
+
+    // Запускаем воспроизведение
+    audio.play().catch(err => {
+      // Браузеры иногда блокируют автозвук, если пользователь еще ни разу не кликнул по сайту
+      console.log("Автозвук заблокирован браузером до первого клика: ", err);
+    });
+  }
 </script>
 </body>
 </html>
