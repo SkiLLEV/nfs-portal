@@ -5,7 +5,7 @@ let onlineUsers = {};
  * 0. ГЛОБАЛЬНЫЙ ЗВУК УВЕДОМЛЕНИЯ
  */
 function playNotificationSound() {
-  const audio = new Audio('https://notificationsounds.com/storage/sounds/file-sounds-1150-ping-pong.mp3');
+  const audio = new Audio('https://cdn.pixabay.com/audio/2026/03/01/audio_4182fd0ce7.mp3');
   audio.volume = 0.6;
 
   audio.play().catch(err => {
