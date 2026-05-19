@@ -335,14 +335,25 @@
         data.forEach(m => {
           const otherId = (m.sender_id === myProfile.id) ? m.receiver_id : m.sender_id;
           const otherName = (m.sender_id === myProfile.id) ? m.receiver_name : m.sender_name;
-          if (otherId && otherId !== myProfile.id && !contacts.has(otherId)) {
-            const uData = specialUsers[otherName] || { avatar: null, status: 'OFFLINE' };
-            contacts.set(otherId, {
-              name: otherName, avatar: uData.avatar, status: uData.status, lastMsg: m.text, unreadCount: 0
-            });
-          }
-          if (m.receiver_id === myProfile.id && m.is_read === false) {
-            if (contacts.has(otherId)) contacts.get(otherId).unreadCount++;
+
+          if (otherId && otherId !== myProfile.id) {
+            // 1. Если этого человека ещё нет в списке, создаём его структуру
+            if (!contacts.has(otherId)) {
+              const uData = specialUsers[otherName] || { avatar: null, status: 'OFFLINE' };
+              contacts.set(otherId, {
+                name: otherName,
+                avatar: uData.avatar,
+                status: uData.status,
+                lastMsg: m.text,
+                unreadCount: 0
+              });
+            }
+
+            // 2. Счётчик непрочитанных (работает для ЛЮБОГО сообщения в цикле)
+            // Если получатель — я, и сообщение не прочитано, и этот чат сейчас НЕ открыт прямо на экране
+            if (m.receiver_id === myProfile.id && m.is_read === false && activeChatId !== otherId) {
+              contacts.get(otherId).unreadCount++;
+            }
           }
         });
       }
