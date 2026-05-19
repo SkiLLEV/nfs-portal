@@ -504,19 +504,6 @@
 
   setInterval(scanForPlayers, 15000);
 
-  function playNotificationSound() {
-    // Создаем объект аудио с прямой ссылкой на файл
-    const audio = new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3');
-
-    // Устанавливаем комфортную громкость (от 0.0 до 1.0)
-    audio.volume = 0.5;
-
-    // Запускаем воспроизведение
-    audio.play().catch(err => {
-      // Браузеры иногда блокируют автозвук, если пользователь еще ни разу не кликнул по сайту
-      console.log("Автозвук заблокирован браузером до первого клика: ", err);
-    });
-  }
 </script>
 </body>
 </html>
