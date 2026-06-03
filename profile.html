@@ -58,10 +58,28 @@
     .info-area h1 { margin: 0; font-size: 2.5rem; text-transform: uppercase; display: flex; align-items: center; }
     .clan-tag { color: var(--nfs-yellow); margin-right: 15px; }
 
-    .status-badge { display: inline-block; padding: 5px 15px; background: #222; font-size: 0.8rem; font-weight: bold; margin: 15px 0; text-transform: uppercase; letter-spacing: 1px; }
-    .status-online { color: #2ecc71; border: 1px solid #2ecc71; }
-    .status-ingame { color: var(--nfs-yellow); border: 1px solid var(--nfs-yellow); }
-    .status-offline { color: #888; border: 1px solid #444; background: #111; }
+    .status-badge {
+      display: inline-block;
+      padding: 5px 15px; background: #222;
+      font-size: 0.8rem;
+      font-weight: bold;
+      margin: 15px 0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    border-radius: 3px; }
+
+    .status-online {
+      color: #5ac0ff;
+      border: 1px solid #5ac0ff;
+      border-radius: 8px; }
+
+    .status-ingame {
+      color: var(--nfs-yellow);
+      border: 1px solid var(--nfs-yellow); }
+
+    .status-offline {
+      color: #888; border: 1px solid #444;
+      background: #111; }
 
     .stat-line { font-size: 1.2rem; color: #ccc; margin: 10px 0; }
     .highlight { color: var(--nfs-yellow); font-weight: bold; }
@@ -302,7 +320,9 @@
 
   <div style="display: flex; align-items: center; gap: 15px;">
     <span id="myNickTop" style="font-weight: bold; color: var(--nfs-yellow); text-shadow: 2px 2px 4px #000;">Loading...</span>
-    <button onclick="handleLogout()" style="background:rgba(0,0,0,0.6); border:1px solid #ff4444; color:#ff4444; cursor:pointer; font-size:0.7rem; padding:4px 10px; font-weight: bold;">EXIT</button>
+    <button onclick="handleLogout()" style="background:rgba(0,0,0,0.6); border-radius: 5px; color:#ff4444; cursor:pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
+      EXIT
+    </button>
   </div>
 </header>
 
@@ -329,7 +349,7 @@
 
       <select id="statusSelect" class="hidden" onchange="updateUserStatus()">
         <option value="ONLINE">ONLINE</option>
-        <option value="IN GAME">IN-GAME</option>
+        <option value="IN-GAME">IN-GAME</option>
         <option value="LOOKING FOR GAME">LOOKING FOR GAME</option>
         <option value="OFFLINE">OFFLINE</option>
       </select>
@@ -347,7 +367,7 @@
 
       <div id="muteInfo"></div>
 
-      <p id="profBio" style="color: #aaa; font-style: italic; margin: 10px 0; font-size: 1.1rem;">Загрузка данных...</p>
+      <p id="profBio" style="color: #aaa; font-style: italic; margin: 10px 0; font-size: 1.1rem;">Loading...</p>
 
       <div id="statusIndicator" class="status-badge status-online">OFFLINE</div>
 
