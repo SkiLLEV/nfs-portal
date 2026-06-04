@@ -417,8 +417,13 @@
         <option value="LOOKING FOR GAME">LOOKING FOR GAME</option>
         <option value="OFFLINE">OFFLINE</option>
       </select>
-      <button id="msgBtn" class="btn-nfs hidden" onclick="goToChat()">✉ TO WRITE</button>
-      <button id="friendBtn" class="btn-nfs hidden">ADD TO FRIENDS</button>
+      <button id="msgBtn"
+              class="btn-nfs hidden"
+              style="border-radius: 6px"
+              onclick="goToChat()">✉ TO WRITE</button>
+      <button id="friendBtn"
+              style="border-radius: 6px"
+              class="btn-nfs hidden">ADD TO FRIENDS</button>
     </div>
     <div class="info-area">
       <div style="display: flex; align-items: center; gap: 10px;">
@@ -929,12 +934,10 @@
         }
       } else if (request.status === 'accepted') {
         btn.innerText = "REMOVE FROM FRIENDS";
-        // Применяем стиль опасности
-        btn.style.background = "#e74c3c"; // Насыщенный красный
+        btn.style.background = "#e74c3c";
         btn.style.color = "#fff";
         btn.style.border = "2px solid #c0392b";
         btn.style.boxShadow = "0 0 10px rgba(231, 76, 60, 0.4)";
-
         btn.onclick = () => removeFriend(request.id);
       }
     }
