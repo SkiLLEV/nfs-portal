@@ -21,7 +21,7 @@
       background: var(--nfs-bg) no-repeat center center fixed;
       background-size: cover;
       color: #fff;
-      font-family: 'Segoe UI', Arial, sans-serif;
+      font-family: "Garamond", "Baskerville", "Playfair Display", Georgia, serif;
       overflow-x: hidden;
     }
 
@@ -472,6 +472,7 @@
       console.error("Error when responding to a request:", err);
     }
   }
+
   async function performGlobalSearch() {
     const query = document.getElementById('globalSearchInput').value.trim();
     if (!query) return;

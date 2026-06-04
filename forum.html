@@ -14,7 +14,9 @@
 
     body {
       margin: 0; background: url('https://cdn.gracza.pl/i/h/22/426884066.jpg') no-repeat center center fixed;
-      background-size: cover; color: #ffffff; font-family: 'Segoe UI', sans-serif;
+      background-size: cover;
+      color: #ffffff;
+      font-family: "Garamond", "Baskerville", "Playfair Display", Georgia, serif;
       overflow-x: hidden;
       padding-bottom: 60px;
     }
@@ -243,6 +245,11 @@
     }
   }
 
+  function toggleNotifyPopup() {
+    const p = document.getElementById('notifyPopup');
+    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+  }
+
   async function updateFriendNotifications() {
     if (!myProfile) return;
     const { data: requests } = await _supabase.from('friend_requests')
@@ -255,7 +262,7 @@
 
     if (requests && requests.length > 0) {
       countEl.innerText = requests.length;
-      countEl.style.display = 'block';
+      countEl.style.display = 'block'; // Показываем красный кружок с цифрой
       listEl.innerHTML = '';
       requests.forEach(req => {
         listEl.innerHTML += `
@@ -268,7 +275,7 @@
                     </div>`;
       });
     } else {
-      countEl.style.display = 'none';
+      countEl.style.display = 'none'; // Прячем кружок, если запросов нет
       listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">There are no requests</div>';
     }
   }
@@ -283,16 +290,12 @@
         if (typeof nfsNotify === 'function') nfsNotify('Your request has been reject', 'info');
       }
 
+      // Мгновенно обновляем интерфейс
       await updateFriendNotifications();
       await loadSidebarFriends();
     } catch (err) {
       console.error("Error when responding to a request:", err);
     }
-  }
-
-  function toggleNotifyPopup() {
-    const p = document.getElementById('notifyPopup');
-    if (p) p.style.display = p.style.display === 'block' ? 'none' : 'block';
   }
 
   async function createNewTopic() {

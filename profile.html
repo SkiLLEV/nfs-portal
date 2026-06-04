@@ -20,7 +20,8 @@
       margin: 0; padding: 0;
       background: var(--nfs-bg) no-repeat center center fixed;
       background-size: cover;
-      color: #fff; font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      font-family: "Garamond", "Baskerville", "Playfair Display", Georgia, serif;
       min-height: 100vh;
       padding-bottom: 60px;
     }
@@ -1130,7 +1131,6 @@
           if (typeof nfsNotify === 'function') nfsNotify('Your request has been reject', 'info');
         }
 
-        // Мгновенно обновляем интерфейс
         await updateFriendNotifications();
         await loadSidebarFriends();
       } catch (err) {
@@ -1138,14 +1138,11 @@
       }
     }
 
-    // Исправленная функция клика
     window.selectSwalAvatarOnly = (el) => {
-      // Убираем класс у всех
       document.querySelectorAll('.swal-avatar-item').forEach(img => {
         img.classList.remove('active-choice');
       });
 
-      // Добавляем класс только нажатой картинке
       el.classList.add('active-choice');
       window.tempAvatarUrl = el.src;
     };
