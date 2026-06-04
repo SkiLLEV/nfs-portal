@@ -144,7 +144,9 @@
     <h3 style="margin-top:0; color: var(--nfs-yellow); font-style: italic;">NEW DISCUSSION</h3>
     <input type="text" id="topicTitle" placeholder="Enter title here...">
     <textarea id="topicContent" rows="3" placeholder="What we'll talk about?.."></textarea>
-    <button class="btn-create" onclick="createNewTopic()">Publish it!</button>
+    <button class="btn-create"
+            style="border-radius: 6px"
+            onclick="createNewTopic()">Publish it!</button>
   </div>
   <div id="topicsList"></div>
 </div>
@@ -253,7 +255,7 @@
 
     if (requests && requests.length > 0) {
       countEl.innerText = requests.length;
-      countEl.style.display = 'block'; // Показываем красный кружок с цифрой
+      countEl.style.display = 'block';
       listEl.innerHTML = '';
       requests.forEach(req => {
         listEl.innerHTML += `
@@ -266,7 +268,7 @@
                     </div>`;
       });
     } else {
-      countEl.style.display = 'none'; // Прячем кружок, если запросов нет
+      countEl.style.display = 'none';
       listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">There are no requests</div>';
     }
   }
@@ -281,14 +283,12 @@
         if (typeof nfsNotify === 'function') nfsNotify('Your request has been reject', 'info');
       }
 
-      // Мгновенно обновляем интерфейс
       await updateFriendNotifications();
       await loadSidebarFriends();
     } catch (err) {
       console.error("Error when responding to a request:", err);
     }
   }
-
 
   function toggleNotifyPopup() {
     const p = document.getElementById('notifyPopup');
