@@ -12,6 +12,7 @@
       --nfs-yellow: #f1c40f;
       --nfs-dark: rgba(15, 15, 15, 0.98);
       --nfs-border: #333;
+      --admin-red: #e74c3c;
       --nfs-bg: url('https://images7.alphacoders.com/517/thumb-1920-517466.jpg');
     }
 
@@ -39,6 +40,26 @@
       position: fixed; top: 70px; left: 0;
       border-right: 2px solid var(--nfs-border); padding-top: 20px; z-index: 999;
     }
+
+    /* УВЕДОМЛЕНИЯ */
+    .notifications-wrapper { position: relative; margin-right: 20px; display: flex; align-items: center; }
+    #notifyBell { cursor: pointer; position: relative; font-size: 22px; transition: 0.2s; }
+    #notifyBell:hover { transform: scale(1.1); }
+    #notifyCount {
+      position: absolute; top: -5px; right: -8px; background: var(--admin-red);
+      color: white; border-radius: 50%; padding: 1px 6px; font-size: 10px;
+      font-weight: bold; border: 1px solid white; display: none;
+    }
+    #notifyPopup {
+      display: none; position: absolute; right: 0; top: 45px;
+      width: 280px; background: #0a0a0a; border: 2px solid var(--nfs-yellow);
+      z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    }
+    .notify-header { padding: 10px; background: #1a1a1a; border-bottom: 1px solid #333; font-size: 11px; font-weight: bold; color: var(--nfs-yellow); text-transform: uppercase; }
+    .notify-item { padding: 12px; border-bottom: 1px solid #222; }
+    .notify-btns { display: flex; gap: 5px; margin-top: 8px; }
+    .btn-acc { flex: 1; background: var(--nfs-yellow); border: none; padding: 5px; cursor: pointer; font-weight: bold; font-size: 10px; text-transform: uppercase; }
+    .btn-rej { flex: 1; background: #333; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; text-transform: uppercase; }
 
     .nav-item { display: block; padding: 20px 30px; color: #bbb; text-decoration: none; text-transform: uppercase; transition: 0.3s; }
     .nav-item:hover, .nav-item.active { color: #fff; background: rgba(241, 196, 15, 0.1); border-left: 5px solid var(--nfs-yellow); }
@@ -464,46 +485,54 @@
     let currentUserId = null, myProfile = null, profileData = null;
 
     window.onload = async () => {
-    // 1. Проверка авторизации
-    const { data: { user } } = await _supabase.auth.getUser();
-    if (!user) { window.location.href = 'auth.html'; return; }
-    currentUserId = user.id;
+      // 1. Проверка авторизации
+      const { data: { user } } = await _supabase.auth.getUser();
+      if (!user) { window.location.href = 'auth.html'; return; }
+      currentUserId = user.id;
 
-    // 2. Загрузка личных данных (для шапки и статуса)
-    const { data: me } = await _supabase.from('profiles').select('*').eq('id', currentUserId).single();
-    if (me) {
-    myProfile = me;
-    const nickEl = document.getElementById('myNickTop');
-    if (nickEl) nickEl.innerText = me.username;
+      // 2. Загрузка личных данных (для шапки и статуса)
+      const { data: me } = await _supabase.from('profiles').select('*').eq('id', currentUserId).single();
+      if (me) {
+        myProfile = me;
 
-    // Запускаем глобальный маяк из utils.js
-    if (typeof initGlobalStatus === 'function') {
-    initGlobalStatus(_supabase, me);
-  }
+        // ИСПРАВЛЕНИЕ ДЛЯ ШАПКИ: ищем именно тот ID, который у тебя в HTML панели профиля
+        // На всякий случай проверяем и старый 'myNickTop', и новый 'displayNick'
+        const nickEl = document.getElementById('myNickTop') || document.getElementById('displayNick');
+        if (nickEl) nickEl.innerText = me.username;
 
-    if (typeof updateGlobalMsgBadge === 'function') {
-    updateGlobalMsgBadge(_supabase, me.id);
-  }
-  }
+        // КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Запускаем проверку френд-реквестов для красного кружка
+        if (typeof updateFriendNotifications === 'function') {
+          updateFriendNotifications();
+        }
 
-    // 3. Логика отображения профиля
-    const urlParams = new URLSearchParams(window.location.search);
-    const targetName = urlParams.get('u');
+        // Запускаем глобальный маяк из utils.js
+        if (typeof initGlobalStatus === 'function') {
+          initGlobalStatus(_supabase, me);
+        }
 
-    if (targetName) {
-    const { data } = await _supabase.from('profiles').select('*').ilike('username', targetName).maybeSingle();
-    if (data) {
-    profileData = data;
-    renderFullProfile(data, data.id === currentUserId);
-    updateRacerRank(data.id);
-    if (data.id !== currentUserId) checkFriendshipStatus(data.id);
-  } else {
-    loadMyOwnProfile(user.id);
-  }
-  } else {
-    loadMyOwnProfile(user.id);
-  }
-  };
+        if (typeof updateGlobalMsgBadge === 'function') {
+          updateGlobalMsgBadge(_supabase, me.id);
+        }
+      }
+
+      // 3. Логика отображения профиля
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetName = urlParams.get('u');
+
+      if (targetName) {
+        const { data } = await _supabase.from('profiles').select('*').ilike('username', targetName).maybeSingle();
+        if (data) {
+          profileData = data;
+          renderFullProfile(data, data.id === currentUserId);
+          updateRacerRank(data.id);
+          if (data.id !== currentUserId) checkFriendshipStatus(data.id);
+        } else {
+          loadMyOwnProfile(user.id);
+        }
+      } else {
+        loadMyOwnProfile(user.id);
+      }
+    };
 
     window.updateLiveStatusUI = function() {
       const el = document.getElementById('statusIndicator');
@@ -1031,6 +1060,47 @@
 
         if (!error) location.reload();
       }
+    }
+
+    async function updateFriendNotifications() {
+      if (!myProfile) return;
+
+      const { data: requests } = await _supabase.from('friend_requests')
+        .select('*')
+        .eq('receiver_id', myProfile.id)
+        .eq('status', 'pending');
+
+      const countEl = document.getElementById('notifyCount');
+      const listEl = document.getElementById('notifyList');
+
+      if (requests && requests.length > 0) {
+        countEl.innerText = requests.length;
+        countEl.style.display = 'block'; // Показываем красный кружок
+        listEl.innerHTML = '';
+        requests.forEach(req => {
+          listEl.innerHTML += `
+        <div class="notify-item" style="padding:10px; border-bottom:1px solid #222; color:#fff; font-size:0.8rem;">
+          <b>${req.sender_name}</b> wants to be friends
+          <div class="notify-btns" style="display:flex; gap:5px; margin-top:5px;">
+            <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')" style="flex:1; background:#f1c40f; border:none; cursor:pointer; font-weight:bold; font-size:10px;">OK</button>
+            <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')" style="flex:1; background:#333; color:#fff; border:none; cursor:pointer; font-size:10px;">NO</button>
+          </div>
+        </div>`;
+        });
+      } else {
+        countEl.style.display = 'none'; // Прячем, если пусто
+        listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">No requests</div>';
+      }
+    }
+
+    // Также добавь функцию обработки ответа (принять/отклонить)
+    async function respondFriend(reqId, status) {
+      if (status === 'accepted') {
+        await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
+      } else {
+        await _supabase.from('friend_requests').delete().eq('id', reqId);
+      }
+      updateFriendNotifications(); // Перерисовать список сразу
     }
 
     // Исправленная функция клика

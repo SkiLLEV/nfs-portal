@@ -12,6 +12,7 @@
       --nfs-yellow: #f1c40f;
       --nfs-dark: rgba(15, 15, 15, 0.98);
       --nfs-border: #333;
+      --admin-red: #e74c3c;
       --nfs-bg: url('https://i.playground.ru//i/screenshot/108305/nfs_most_wanted_2005.jpg');
     }
 
@@ -45,6 +46,16 @@
         );
       border-bottom: 2px solid var(--nfs-yellow);
       box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+    }
+
+    /* УВЕДОМЛЕНИЯ */
+    .notifications-wrapper { position: relative; margin-right: 20px; display: flex; align-items: center; }
+    #notifyBell { cursor: pointer; position: relative; font-size: 22px; transition: 0.2s; }
+    #notifyBell:hover { transform: scale(1.1); }
+    #notifyCount {
+      position: absolute; top: -5px; right: -8px; background: var(--admin-red);
+      color: white; border-radius: 50%; padding: 1px 6px; font-size: 10px;
+      font-weight: bold; border: 1px solid white; display: none;
     }
 
     .main-sidebar {
@@ -184,11 +195,12 @@
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let currentUserId = null;
+  let myUsername = ""; // Сюда сохраняем имя, чтобы использовать везде
 
   // Когда радар в utils.js ловит изменения, он дергает эту функцию
   window.updateFriendsStatusOnly = function() {
     console.log("Лидерборд: радар обновился, перерисовываю статусы...");
-    loadBlacklist(); // Просто вызываем перерисовку таблицы
+    loadBlacklist();
   };
 
   window.onload = async () => {
@@ -199,18 +211,25 @@
       const { data: p } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
 
       if (p) {
-        document.getElementById('myNick').innerText = p.username;
+        myUsername = p.username;
 
-        // 1. Твой личный статус (из utils.js)
+        // Обращаемся к существующему displayNick в шапке
+        const nickEl = document.getElementById('displayNick');
+        if (nickEl) nickEl.innerText = p.username;
+
+        // Показываем панель пользователя
+        document.getElementById('loginBtn').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'flex';
+
         initGlobalStatus(_supabase, p);
-
-        // 2. Счетчик сообщений (из utils.js)
         updateGlobalMsgBadge(_supabase, user.id);
 
-        // 3. Запускаем счетчик людей в футере
+        // ВЫЗЫВАЕМ ПРОВЕРКУ УВЕДОМЛЕНИЙ ТУТ (теперь сработает)
+        if (typeof updateFriendNotifications === 'function') {
+          updateFriendNotifications();
+        }
         initFooterStats();
 
-        // REALTIME: Слушаем новые сообщения для бейджа
         _supabase.channel('leaderboard-msg-updates')
           .on('postgres_changes', {
             event: 'INSERT',
@@ -226,13 +245,12 @@
       console.log("Вход в режиме гостя");
     }
 
+    // Загружаем саму таблицу лидеров
     await loadBlacklist();
   };
 
-  // ФУНКЦИЯ ДЛЯ ЦИФР В ФУТЕРЕ (живое обновление)
   function initFooterStats() {
     const presenceChannel = _supabase.channel('online-stats');
-
     presenceChannel.on('presence', { event: 'sync' }, () => {
       const state = presenceChannel.presenceState();
       let total = 0;
@@ -240,9 +258,10 @@
 
       for (const key in state) {
         total++;
-        // Если в данных присутствия есть статус игры
-        const s = state[key][0].status;
-        if (s === 'IN-GAME' || s === 'LOOKING FOR GAME') playing++;
+        if (state[key][0]) {
+          const s = state[key][0].status;
+          if (s === 'IN-GAME' || s === 'LOOKING FOR GAME') playing++;
+        }
       }
 
       document.getElementById('footerOnline').innerText = total;
@@ -263,39 +282,33 @@
 
     data.forEach((racer, index) => {
       const rank = index + 1;
-      const myNick = document.getElementById('myNick').innerText;
-      const isMe = myNick === racer.username;
 
-      // --- ЖИВАЯ ПРОВЕРКА СТАТУСА ЧЕРЕЗ РАДАР (Presence) ---
+      // ИСПРАВЛЕНО: Вместо document.getElementById('myNick').innerText используем myUsername!
+      // Прошлая строка валила весь скрипт в ошибку, потому что 'myNick' не существовал в HTML!
+      const isMe = myUsername === racer.username;
+
       const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[racer.username] : null;
 
-      let statusText = "";
+      let statusText = "OFFLINE";
       let statusClass = "offline";
       let dotColor = "#555";
 
-      if (presence) {
-        // Если игрок есть в радаре — он онлайн
+      if (presence && presence[0]) {
         statusClass = 'online';
         const pData = presence[0];
 
         if (pData.location === 'chats.html') {
           statusText = 'IN CHAT';
-          dotColor = '#ff4d4d'; // Красный
+          dotColor = '#ff4d4d';
         } else if (pData.status === 'IN-GAME' || pData.status === 'LOOKING FOR GAME') {
           statusText = pData.status;
-          dotColor = 'var(--nfs-yellow)'; // Желтый
+          dotColor = 'var(--nfs-yellow)';
         } else {
           statusText = 'ONLINE';
-          dotColor = '#2ecc71'; // Зеленый
+          dotColor = '#2ecc71';
         }
-      } else {
-        // Если игрока НЕТ в радаре — он 100% OFFLINE, даже если в базе другое
-        statusText = 'OFFLINE';
-        statusClass = 'offline';
-        dotColor = '#555'; // Серый
       }
 
-      // Стилизация топ-мест
       let crown = "";
       let nameStyle = "";
       let rowStyle = "";
@@ -314,7 +327,7 @@
 
       const avatarHTML = racer.avatar_url
         ? `<img src="${racer.avatar_url}" class="racer-avatar" style="${rank <= 3 ? 'border-color: var(--nfs-yellow);' : ''}">`
-        : `<div class="racer-avatar" style="display:flex; align-items:center; justify-content:center; color:#555; font-weight:900;">?</div>`;
+        : `<div class="racer-avatar" style="display:flex; align-items:center; justify-content:center; color:#555; font-weight:900; background:#111; border: 2px solid #444;">?</div>`;
 
       const row = document.createElement('tr');
       row.className = 'blacklist-row';
@@ -362,8 +375,52 @@
     });
   }
 
+  function toggleNotifyPopup() {
+    const p = document.getElementById('notifyPopup');
+    if (p) p.style.display = p.style.display === 'block' ? 'none' : 'block';
+  }
+
+  // Сама функция отрисовки уведомлений в шапке (переключает на flex)
+  async function updateFriendNotifications() {
+    if (!currentUserId) return;
+    const { data: requests } = await _supabase.from('friend_requests')
+      .select('*')
+      .eq('receiver_id', currentUserId)
+      .eq('status', 'pending');
+
+    const countEl = document.getElementById('notifyCount');
+    const listEl = document.getElementById('notifyList');
+
+    if (requests && requests.length > 0) {
+      countEl.innerText = requests.length;
+      countEl.style.display = 'flex'; // Делаем flex, чтобы цифра встала ровно по центру
+      listEl.innerHTML = '';
+      requests.forEach(req => {
+        listEl.innerHTML += `
+          <div class="notify-item" style="padding:10px; border-bottom:1px solid #222; color:#fff; font-size:0.8rem;">
+            <b>${req.sender_name}</b> wants to be friends
+            <div class="notify-btns" style="display:flex; gap:5px; margin-top:5px;">
+              <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')" style="flex:1; background:#f1c40f; border:none; cursor:pointer; font-weight:bold; font-size:10px;">OK</button>
+              <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')" style="flex:1; background:#333; color:#fff; border:none; cursor:pointer; font-size:10px;">NO</button>
+            </div>
+          </div>`;
+      });
+    } else {
+      countEl.style.display = 'none';
+      listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">No requests</div>';
+    }
+  }
+
+  async function respondFriend(reqId, status) {
+    if (status === 'accepted') {
+      await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
+    } else {
+      await _supabase.from('friend_requests').delete().eq('id', reqId);
+    }
+    updateFriendNotifications();
+  }
+
   async function handleLogout() {
-    // При выходе ставим оффлайн
     if (currentUserId) {
       await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', currentUserId);
     }
