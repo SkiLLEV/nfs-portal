@@ -109,8 +109,25 @@
 
     .stat-line { font-size: 1.2rem; color: #ccc; margin: 10px 0; }
     .highlight { color: var(--nfs-yellow); font-weight: bold; }
-    .btn-tuning { position: absolute; top: 30px; right: 30px; background: none; border: 1px solid var(--nfs-yellow); color: var(--nfs-yellow); padding: 8px 20px; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: 0.3s; font-size: 0.75rem; }
-    .btn-tuning:hover { background: var(--nfs-yellow); color: #000; }
+    .btn-tuning {
+      position: absolute;
+      top: 30px;
+      right: 30px;
+      background-color: #222222;
+      border: 2px solid var(--nfs-yellow);
+      color: var(--nfs-yellow);
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: bold;
+      font-size: 0.75rem;
+      transition: all 0.3s ease;
+    }
+    .btn-tuning:hover {
+      background-color: var(--nfs-yellow);
+      color: #000000;
+    }
     .btn-nfs { background: var(--nfs-yellow); color: #000; border: none; margin-top: 10px; font-size: 0.8rem; padding: 10px 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; display: block; width: 100%; transition: 0.2s; }
     .btn-nfs:hover:not(:disabled) { background: #fff; transform: scale(1.05); }
 
@@ -388,7 +405,8 @@
 
 <div class="container">
   <div class="profile-card">
-    <button id="editBtn" class="btn-tuning hidden" onclick="openEditProfile()">EDIT PROFILE</button>
+    <button id="editBtn"
+            class="btn-tuning hidden" onclick="openEditProfile()">EDIT PROFILE</button>
     <div class="avatar-area">
       <div id="avatarFrame" class="avatar-container" onclick="openAvatarPicker()" style="cursor: pointer; position: relative; z-index: 10;">
         <div class="avatar-big" id="avatarBox">
@@ -443,7 +461,17 @@
   </div>
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div class="gallery-title" id="garageTitle">RACER'S GARAGE</div>
-    <button id="addCarBtn" class="btn-tuning hidden" style="position: static;" onclick="addNewCarPhoto()">+ ADD A CAR</button>
+    <button id="addCarBtn"
+            class="btn-tuning hidden"
+            style="position: static;
+            background-color: #222222;
+            color: #f1c40f;
+            border: 2px solid #f1c40f;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;"
+            onclick="addNewCarPhoto()">+ ADD A CAR
+    </button>
   </div>
   <div class="gallery" id="garageContainer"></div>
 </div>
