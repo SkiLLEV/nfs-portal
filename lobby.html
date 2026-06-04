@@ -327,6 +327,11 @@
     input.value = '';
   }
 
+  function toggleNotifyPopup() {
+    const p = document.getElementById('notifyPopup');
+    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+  }
+
   async function updateFriendNotifications() {
     if (!myProfile) return;
     const { data: requests } = await _supabase.from('friend_requests')
@@ -339,31 +344,40 @@
 
     if (requests && requests.length > 0) {
       countEl.innerText = requests.length;
-      countEl.style.display = 'flex';
+      countEl.style.display = 'block'; // Показываем красный кружок с цифрой
       listEl.innerHTML = '';
       requests.forEach(req => {
         listEl.innerHTML += `
-          <div class="notify-item" style="padding:10px; border-bottom:1px solid #222; color:#fff; font-size:0.8rem;">
-            <b>${req.sender_name}</b> wants to be friends
-            <div class="notify-btns" style="display:flex; gap:5px; margin-top:5px;">
-              <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')" style="flex:1; background:#f1c40f; border:none; cursor:pointer; font-weight:bold; font-size:10px;">OK</button>
-              <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')" style="flex:1; background:#333; color:#fff; border:none; cursor:pointer; font-size:10px;">NO</button>
-            </div>
-          </div>`;
+                    <div class="notify-item">
+                        <b>${req.sender_name}</b> wants to be friends
+                        <div class="notify-btns">
+                            <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button>
+                            <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">NO</button>
+                        </div>
+                    </div>`;
       });
     } else {
-      countEl.style.display = 'none';
+      countEl.style.display = 'none'; // Прячем кружок, если запросов нет
       listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">There are no requests</div>';
     }
   }
 
   async function respondFriend(reqId, status) {
-    if (status === 'accepted') {
-      await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
-    } else {
-      await _supabase.from('friend_requests').delete().eq('id', reqId);
+    try {
+      if (status === 'accepted') {
+        await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
+        if (typeof nfsNotify === 'function') nfsNotify('Racer added to friends!');
+      } else {
+        await _supabase.from('friend_requests').delete().eq('id', reqId);
+        if (typeof nfsNotify === 'function') nfsNotify('Your request has been reject', 'info');
+      }
+
+      // Мгновенно обновляем интерфейс
+      await updateFriendNotifications();
+      await loadSidebarFriends();
+    } catch (err) {
+      console.error("Error when responding to a request:", err);
     }
-    updateFriendNotifications();
   }
 
   function subscribeToUpdates() {
