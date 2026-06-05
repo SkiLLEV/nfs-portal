@@ -253,12 +253,28 @@
 </main>
 
 <div class="search-widget">
-  <div style="font-size: 0.65rem; color: #555; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
+  <div style="
+  border-radius: 6px;
+  font-size: 0.80rem;
+  color: #555;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;">
     Find a player by nickname:
   </div>
-  <div style="display: flex; gap: 5px;">
+  <div style="
+  display: flex;
+  border-radius: 6px;
+  gap: 5px;">
     <input type="text" id="globalSearchInput" placeholder="ENTER NICKNAME..." onkeypress="if(event.key === 'Enter') performGlobalSearch()" style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 6px; outline: none;">
-    <button onclick="performGlobalSearch()" style="background: var(--nfs-yellow); border: none; font-weight: bold; cursor: pointer; padding: 0 12px;">></button>
+    <button onclick="performGlobalSearch()"
+            style="
+            background: var(--nfs-yellow);
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0 12px;">></button>
   </div>
 </div>
 
