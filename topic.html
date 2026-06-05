@@ -8,7 +8,10 @@
   <script src="utils.js"></script>
 
   <style>
-    :root { --nfs-yellow: #f1c40f; --nfs-dark: #0a0a0a; }
+    :root { --nfs-yellow: #f1c40f;
+      --nfs-dark: #0a0a0a;
+    }
+
     body {
       margin: 0;
       background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
@@ -22,7 +25,7 @@
 
     .main-topic { background: rgba(255,255,255,0.05); padding: 30px; border-left: 5px solid var(--nfs-yellow); margin-bottom: 20px; }
     .comment { background: #151515; padding: 15px; margin-bottom: 10px; border: 1px solid #333; }
-    .comment-meta { font-size: 0.8rem; color: var(--nfs-yellow); margin-bottom: 5px; }
+    .comment-meta { font-size: 1.2rem; color: var(--nfs-yellow); margin-bottom: 5px; }
 
     /* ОБНОВЛЕННЫЙ ТЕКСТАРЕА */
     textarea {
@@ -36,13 +39,16 @@
       resize: none; /* изменение размера окна для сообщений */
       box-sizing: border-box; /* Фикс ширины */
     }
-    textarea:focus { border-color: var(--nfs-yellow); }
+
+    textarea:focus {
+      border-color: var(--nfs-yellow);
+    }
 
     .btn { background: var(--nfs-yellow); border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
     .btn-secondary { background: #333; color: #fff; margin-right: 10px; }
     .btn-danger { background: #ff4d4d; color: #fff; }
 
-    .back-link { color: #888; text-decoration: none; display: block; margin-bottom: 20px; font-size: 0.9rem; }
+    .back-link { color: #888; text-decoration: none; display: block; margin-bottom: 20px; font-size: 1.5rem; }
     .back-link:hover { color: var(--nfs-yellow); }
 
     .hidden { display: none !important; }
@@ -83,8 +89,12 @@
   </div>
 
   <div id="replyBox">
-    <h3 style="color: var(--nfs-yellow); font-style: italic;">Send Reply</h3>
-    <textarea id="commentText" rows="3" placeholder="Enter your message here..."></textarea>
+    <h3 style="color:
+    var(--nfs-yellow);
+    font-style: italic;">Send Reply</h3>
+    <textarea id="commentText"
+              rows="3"
+              placeholder="Enter your message here..."></textarea>
     <button class="btn"
             style="border-radius: 6px"
             onclick="postComment()">Send</button>
@@ -92,7 +102,6 @@
 </div>
 
 <script>
-  // Твой JS код остается таким же
   const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -128,8 +137,10 @@
     document.getElementById('topicDetail').innerHTML = `
       <div class="main-topic">
         <h1 style="color:var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;">${data.title}</h1>
-        <p style="font-size: 1.1rem; line-height: 1.6; color: #eee;">${data.content}</p>
-        <small style="color: #888;">Post author:
+        <p style="font-size: 1.5rem; line-height: 1.6; color: #eee;">${data.content}</p>
+        <small style="
+        font-size: 20px;
+        color: #888;">Post author:
            <span class="racer-link" onclick="window.location.href='profile.html?u=${data.author_name}'">
              ${data.author_name}
            </span>
@@ -159,7 +170,9 @@
                  ${c.author_name}
                </span> • ${new Date(c.created_at).toLocaleString()}
             </div>
-            <div style="color: #ddd; line-height: 1.4;">${c.content}</div>
+            <div style="color: #ddd;
+            font-size: 25px;
+            line-height: 1.4;">${c.content}</div>
           </div>
         `;
       });
