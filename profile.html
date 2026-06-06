@@ -554,6 +554,10 @@
         const { data } = await _supabase.from('profiles').select('*').ilike('username', targetName).maybeSingle();
         if (data) {
           window.profileData = data;
+
+          // ВОТ ТУТ ВКЛЮЧАЕМ РЕАЛТАЙМ ДЛЯ ЧУЖОГО ПРОФИЛЯ
+          setupProfileRealtimeListener();
+
           renderFullProfile(data, data.id === window.currentUserId);
           updateRacerRank(data.id);
           if (data.id !== window.currentUserId) checkFriendshipStatus(data.id);
@@ -565,16 +569,16 @@
       }
     };
 
-    // 🌟 ЖИВОЙ НАДПИСЬ-ОБРАБОТЧИК ДЛЯ ВЫЗОВА ИЗ UTILS.JS
     window.updateLiveStatusUI = function() {
       const el = document.getElementById('statusIndicator');
       if (!el || !window.profileData) return;
 
+      // 1. Проверяем радар
       const presence = (typeof onlineUsers !== 'undefined' ? onlineUsers[window.profileData.username] : null);
       const isItMe = (window.myProfile && window.profileData.id === window.myProfile.id);
 
       if (!presence && !isItMe) {
-        // ОФФЛАЙН: Две строки
+        // 🔴 ОФФЛАЙН: Две строки (теперь last_seen будет прилетать в реалтайме)
         let lastSeenTime = "long ago";
         if (window.profileData.last_seen) {
           lastSeenTime = formatLastSeen(window.profileData.last_seen);
@@ -586,8 +590,17 @@
         `;
         el.className = 'status-badge status-offline';
       } else {
-        // ОНЛАЙН: На сайте или в игре
-        const s = window.profileData.status || 'ONLINE';
+        // 🔵 ОНЛАЙН: Берем СТАТУС НАПРЯМУЮ ИЗ РАДАРА, а не из замороженного кэша базы!
+        let s = 'ONLINE';
+        if (presence && presence[0] && presence[0].status) {
+          s = presence[0].status; // Вот она, живая смена статуса!
+        } else {
+          s = window.profileData.status || 'ONLINE';
+        }
+
+        // Нормализуем написание игры
+        if (s === 'IN GAME') s = 'IN-GAME';
+
         const loc = presence ? presence[0].location : '';
 
         if (loc === 'chats.html') {
@@ -611,6 +624,10 @@
         if (error) throw error;
         if (data) {
           window.profileData = data;
+
+          // 🌟 И ВОТ ТУТ ВКЛЮЧАЕМ РЕАЛТАЙМ ДЛЯ СВОЕГО ПРОФИЛЯ
+          setupProfileRealtimeListener();
+
           renderFullProfile(data, true);
           updateRacerRank(data.id);
         }
@@ -914,6 +931,27 @@
           setTimeout(() => location.reload(), 1200);
         }
       }
+    }
+
+    // ⚡ Функция живой подписки: следит за обновлением строки этого игрока в БД
+    function setupProfileRealtimeListener() {
+      if (!window.profileData) return;
+
+      // Удаляем старый канал, если он был, чтобы не плодить дубли
+      _supabase.removeChannel(_supabase.channel(`profile-db-changes-${window.profileData.id}`));
+
+      _supabase.channel(`profile-db-changes-${window.profileData.id}`)
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${window.profileData.id}`
+        }, (payload) => {
+          console.log("⚡ Живой профиль поймал изменение в БД:", payload.new);
+          window.profileData = payload.new; // Перезаписываем старый кэш новыми данными из базы
+          window.updateLiveStatusUI(); // Мгновенно перерисовываем плашку на экране!
+        })
+        .subscribe();
     }
 
     function renderMuteStatus(profile) {
