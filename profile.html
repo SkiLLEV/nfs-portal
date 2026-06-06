@@ -86,27 +86,38 @@
     .clan-tag { color: var(--nfs-yellow); margin-right: 15px; }
 
     .status-badge {
-      display: inline-block;
-      padding: 5px 15px; background: #222;
-      font-size: 0.8rem;
-      font-weight: bold;
-      margin: 15px 0;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    border-radius: 3px; }
+      background: none !important;
+      border: none !important;
+      padding: 0 !important;
+      font-size: 1.4rem !important;
+      font-weight: bold !important;
+      text-transform: none !important;
+
+      display: flex !important;
+      flex-direction: column;
+      gap: 5px;
+
+      margin-top: 12px !important;
+      margin-bottom: 15px !important;
+    }
 
     .status-online {
-      color: #5ac0ff;
-      border: 1px solid #5ac0ff;
-      border-radius: 8px; }
+      color: #57cbde !important;
+      background: none !important;
+      border: none !important;
+    }
 
     .status-ingame {
-      color: var(--nfs-yellow);
-      border: 1px solid var(--nfs-yellow); border-radius: 6px}
+      color: #90ba3c !important;
+      background: none !important;
+      border: none !important;
+    }
 
     .status-offline {
-      color: #888; border: 1px solid #444; border-radius: 6px;
-      background: #111; }
+      color: #8f98a0 !important;
+      background: none !important;
+      border: none !important;
+    }
 
     .stat-line { font-size: 1.2rem; color: #ccc; margin: 10px 0; }
     .highlight { color: var(--nfs-yellow); font-weight: bold; }
@@ -448,10 +459,6 @@
         </div>
       </div>
 
-      <div style="margin-top: 15px; font-size: 0.9rem; color: #777;">
-        Last seen: <span id="lastSeenDisplay">...</span>
-      </div>
-
       <button id="adminMuteBtn" class="btn-nfs hidden" style="background: #c0392b; color: #fff; border: 1px solid #ff4d4d; margin-top: 15px;" onclick="openMuteModal()">
         ⚠ ISSUE A MUT
       </button>
@@ -564,35 +571,39 @@
       const el = document.getElementById('statusIndicator');
       if (!el || !profileData) return;
 
-      // 1. Проверяем, видит ли радар этого пользователя в сети
-      const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[profileData.username] : null;
-
-      // 2. Если это твой профиль — ты точно в сети, даже если радар тупит
+      // 1. Проверяем радар
+      const presence = (typeof onlineUsers !== 'undefined' ? onlineUsers[profileData.username] : null);
       const isItMe = (myProfile && profileData.id === myProfile.id);
 
       if (!presence && !isItMe) {
-        // Юзер реально оффлайн
-        el.innerText = 'OFFLINE';
+        // 🌟 ОФФЛАЙН: Две строки в стиле Steam
+        let lastSeenTime = "long ago";
+        if (profileData.last_seen) {
+          lastSeenTime = formatLastSeen(profileData.last_seen);
+        }
+
+        // Рендерим верхнюю строку "Currently Offline", а под ней "Last Online ..."
+        el.innerHTML = `
+          <div>Currently Offline</div>
+          <div style="font-size: 1.05rem; font-weight: normal; color: #8f98a0;">Last Online ${lastSeenTime}</div>
+        `;
         el.className = 'status-badge status-offline';
       } else {
-        // Юзер ОНЛАЙН — теперь выбираем, какой именно статус показать
+        // 🌟 ОНЛАЙН: Всё в одну строчку, как и было
         const s = profileData.status || 'ONLINE';
         const loc = presence ? presence[0].location : '';
 
-        // Приоритет 1: Если юзер в мессенджере
         if (loc === 'chats.html') {
-          el.innerText = 'IN CHAT';
+          el.innerHTML = '<div>IN CHAT</div>';
           el.className = 'status-badge status-ingame';
         }
-        // Приоритет 2: Тот статус, который ты выбрала в списке (В ИГРЕ / ИЩУ ИГРУ)
+        else if (s === 'IN-GAME' || s === 'LOOKING FOR GAME') {
+          el.innerHTML = `<div>${s}</div>`;
+          el.className = 'status-badge status-ingame';
+        }
         else {
-          el.innerText = s;
-          // Если статус боевой (игра/поиск), красим в желтый, если просто онлайн — в зеленый
-          if (s === 'IN-GAME' || s === 'LOOKING FOR GAME') {
-            el.className = 'status-badge status-ingame';
-          } else {
-            el.className = 'status-badge status-online';
-          }
+          el.innerHTML = '<div>Currently Online</div>';
+          el.className = 'status-badge status-online';
         }
       }
     };
