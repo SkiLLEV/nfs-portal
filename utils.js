@@ -179,12 +179,11 @@ async function initGlobalStatus(supabase, profile) {
   }
 
   /**
-   * 5. СТИЛЬНЫЙ ВИДЖЕТ ДРУЗЕЙ В СТИЛЕ STEAM OVERLAY (Внутри маяка, чтобы видеть supabase и profile)
+   * 5. СТИЛЬНЫЙ ВИДЖЕТ ДРУЗЕЙ В СТИЛЕ STEAM OVERLAY
    */
   function injectSteamFriendsWidget(supabaseClient, myProfile) {
     if (!supabaseClient || !myProfile) return;
 
-    // Проверяем, чтобы кнопка не создавалась по сто раз при переходах
     if (document.getElementById('steamFriendsWin')) return;
 
     const style = document.createElement('style');
@@ -333,7 +332,6 @@ async function initGlobalStatus(supabase, profile) {
     const body = document.getElementById('steamFriendsBody');
     if (!body) return;
 
-    // Тянем только подтвержденных друзей
     const { data: friendships } = await supabaseClient.from('friend_requests')
       .select('*')
       .eq('status', 'accepted')
@@ -346,7 +344,6 @@ async function initGlobalStatus(supabase, profile) {
 
     const friendIds = friendships.map(f => f.sender_id === myProfile.id ? f.receiver_id : f.sender_id);
 
-    // Загружаем профили друзей и их точное время из базы
     const { data: profiles } = await supabaseClient.from('profiles')
       .select('id, username, avatar_url, status, last_seen')
       .in('id', friendIds);
@@ -373,7 +370,7 @@ async function initGlobalStatus(supabase, profile) {
         const liveStatus = pData.status || 'ONLINE';
         const avatarSrc = friend.avatar_url || 'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png';
 
-        // 🌟 ВАРИАНТ 1: ДРУГ ИГРАЕТ ИЛИ ИЩЕТ ИГРУ (Уходит в категорию PLAYING)
+        // 🟢 ИГРАЕТ ИЛИ ИЩЕТ ИГРУ
         if (liveStatus === 'IN GAME' || liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME' || pData.location === 'chats.html') {
           playingCount++;
           dotColorClass = 'steam-text-ingame';
@@ -393,7 +390,7 @@ async function initGlobalStatus(supabase, profile) {
             </div>
           `;
         }
-        // 🌟 ВАРИАНТ 2: ДРУГ ПРОСТО НА САЙТЕ (Уходит в категорию ONLINE FRIENDS)
+        // 🔵 ПРОСТО НА САЙТЕ (Online)
         else {
           onlineCount++;
           dotColorClass = 'steam-text-online';
@@ -410,7 +407,7 @@ async function initGlobalStatus(supabase, profile) {
           `;
         }
       } else {
-        // 🌟 ВАРИАНТ 3: ДРУГ ОФФЛАЙН (Уходит в категорию OFFLINE)
+        // ⚫ ОФФЛАЙН (Только время захода)
         offlineCount++;
         let lastSeenText = "Last online long ago";
         if (friend.last_seen) {
@@ -431,7 +428,6 @@ async function initGlobalStatus(supabase, profile) {
       }
     });
 
-    // Собираем весь HTML-код. Категория Playing рендерится только если в ней КТО-ТО ЕСТЬ!
     let finalHTML = '';
 
     if (playingCount > 0) {
@@ -451,14 +447,6 @@ async function initGlobalStatus(supabase, profile) {
 
     body.innerHTML = finalHTML;
   }
-
-    body.innerHTML = `
-      <div class="steam-cat-title">Online Friends (${onlineCount})</div>
-      ${onlineHTML || '<p style="color:#444; font-size:0.75rem; margin-left:5px;">Никого нет в сети</p>'}
-
-      <div class="steam-cat-title" style="margin-top:20px;">Offline (${offlineCount})</div>
-      ${offlineHTML || '<p style="color:#444; font-size:0.75rem; margin-left:5px;">Список пуст</p>'}
-    `;
 
   // Привязываем внутреннюю функцию регенерации к глобальному триггеру
   window.updateSteamFriendsWidgetOnly = function() {

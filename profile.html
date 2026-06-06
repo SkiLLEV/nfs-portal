@@ -494,10 +494,10 @@
 
     // Константы
     const AVATAR_OPTIONS = [
-    'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEveKMVakzm3H74-BgFH8JGuoTkavsfgIAaw&s',
-    'https://static.wikia.nocookie.net/needforspeed/images/e/ee/TazProfileIcon.png/revision/latest/scale-to-width-down/220?cb=20160105211008&path-prefix=ru',
-    'https://static.wikia.nocookie.net/nfs/images/6/6f/Sonny.png/revision/latest/smart/width/250/height/250?cb=20150519180637&path-prefix=es'
+      'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png',
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEveKMVakzm3H74-BgFH8JGuoTkavsfgIAaw&s',
+      'https://static.wikia.nocookie.net/needforspeed/images/e/ee/TazProfileIcon.png/revision/latest/scale-to-width-down/220?cb=20160105211008&path-prefix=ru',
+      'https://static.wikia.nocookie.net/nfs/images/6/6f/Sonny.png/revision/latest/smart/width/250/height/250?cb=20150519180637&path-prefix=es'
     ];
 
     function formatLastSeen(dateString) {
@@ -511,34 +511,32 @@
       if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min. ago`;
       if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} h. ago`;
 
-      // Если прошло больше суток — показываем дату
       return lastSeen.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
     }
 
-    let currentUserId = null, myProfile = null, profileData = null;
+    // Делаем переменные железно доступными везде
+    window.currentUserId = null;
+    window.myProfile = null;
+    window.profileData = null;
 
     window.onload = async () => {
       // 1. Проверка авторизации
       const { data: { user } } = await _supabase.auth.getUser();
       if (!user) { window.location.href = 'auth.html'; return; }
-      currentUserId = user.id;
+      window.currentUserId = user.id;
 
-      // 2. Загрузка личных данных (для шапки и статуса)
-      const { data: me } = await _supabase.from('profiles').select('*').eq('id', currentUserId).single();
+      // 2. Загрузка личных данных
+      const { data: me } = await _supabase.from('profiles').select('*').eq('id', window.currentUserId).single();
       if (me) {
-        myProfile = me;
+        window.myProfile = me;
 
-        // ИСПРАВЛЕНИЕ ДЛЯ ШАПКИ: ищем именно тот ID, который у тебя в HTML панели профиля
-        // На всякий случай проверяем и старый 'myNickTop', и новый 'displayNick'
         const nickEl = document.getElementById('myNickTop') || document.getElementById('displayNick');
         if (nickEl) nickEl.innerText = me.username;
 
-        // КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Запускаем проверку френд-реквестов для красного кружка
         if (typeof updateFriendNotifications === 'function') {
           updateFriendNotifications();
         }
 
-        // Запускаем глобальный маяк из utils.js
         if (typeof initGlobalStatus === 'function') {
           initGlobalStatus(_supabase, me);
         }
@@ -555,10 +553,10 @@
       if (targetName) {
         const { data } = await _supabase.from('profiles').select('*').ilike('username', targetName).maybeSingle();
         if (data) {
-          profileData = data;
-          renderFullProfile(data, data.id === currentUserId);
+          window.profileData = data;
+          renderFullProfile(data, data.id === window.currentUserId);
           updateRacerRank(data.id);
-          if (data.id !== currentUserId) checkFriendshipStatus(data.id);
+          if (data.id !== window.currentUserId) checkFriendshipStatus(data.id);
         } else {
           loadMyOwnProfile(user.id);
         }
@@ -567,30 +565,29 @@
       }
     };
 
+    // 🌟 ЖИВОЙ НАДПИСЬ-ОБРАБОТЧИК ДЛЯ ВЫЗОВА ИЗ UTILS.JS
     window.updateLiveStatusUI = function() {
       const el = document.getElementById('statusIndicator');
-      if (!el || !profileData) return;
+      if (!el || !window.profileData) return;
 
-      // 1. Проверяем радар
-      const presence = (typeof onlineUsers !== 'undefined' ? onlineUsers[profileData.username] : null);
-      const isItMe = (myProfile && profileData.id === myProfile.id);
+      const presence = (typeof onlineUsers !== 'undefined' ? onlineUsers[window.profileData.username] : null);
+      const isItMe = (window.myProfile && window.profileData.id === window.myProfile.id);
 
       if (!presence && !isItMe) {
-        // 🌟 ОФФЛАЙН: Две строки в стиле Steam
+        // ОФФЛАЙН: Две строки
         let lastSeenTime = "long ago";
-        if (profileData.last_seen) {
-          lastSeenTime = formatLastSeen(profileData.last_seen);
+        if (window.profileData.last_seen) {
+          lastSeenTime = formatLastSeen(window.profileData.last_seen);
         }
 
-        // Рендерим верхнюю строку "Currently Offline", а под ней "Last Online ..."
         el.innerHTML = `
           <div>Currently Offline</div>
-          <div style="font-size: 1.05rem; font-weight: normal; color: #8f98a0;">Last Online ${lastSeenTime}</div>
+          <div style="font-size: 1.05rem; font-weight: normal; color: #8f98a0; margin-top: 2px;">Last Online ${lastSeenTime}</div>
         `;
         el.className = 'status-badge status-offline';
       } else {
-        // 🌟 ОНЛАЙН: Всё в одну строчку, как и было
-        const s = profileData.status || 'ONLINE';
+        // ОНЛАЙН: На сайте или в игре
+        const s = window.profileData.status || 'ONLINE';
         const loc = presence ? presence[0].location : '';
 
         if (loc === 'chats.html') {
@@ -613,45 +610,39 @@
         const { data, error } = await _supabase.from('profiles').select('*').eq('id', userId).single();
         if (error) throw error;
         if (data) {
-          profileData = data;
+          window.profileData = data;
           renderFullProfile(data, true);
           updateRacerRank(data.id);
         }
       } catch (err) {
         console.error("Error loading your profile:", err);
-        // Если даже база упала, хоть имя покажем из кеша авторизации
         document.getElementById('profName').innerText = "ERROR!";
       }
     }
 
     async function updateRacerRank(targetUserId) {
-    const { data: racers } = await _supabase.from('profiles').select('id').order('rating', { ascending: false });
-    if (racers) {
-    const rank = racers.findIndex(r => r.id === targetUserId) + 1;
-    const rankEl = document.getElementById('rankDisplay');
-    if (rankEl) rankEl.innerText = `#${rank}`;
-  }
-  }
+      const { data: racers } = await _supabase.from('profiles').select('id').order('rating', { ascending: false });
+      if (racers) {
+        const rank = racers.findIndex(r => r.id === targetUserId) + 1;
+        const rankEl = document.getElementById('rankDisplay');
+        if (rankEl) rankEl.innerText = `#${rank}`;
+      }
+    }
 
     function renderFullProfile(data, isMine) {
-      // 1. Обновляем ник в шапке
       const topNick = document.getElementById('myNickTop');
-      if (topNick && myProfile) topNick.innerText = myProfile.username;
+      if (topNick && window.myProfile) topNick.innerText = window.myProfile.username;
 
       const nameEl = document.getElementById('profName');
       const badgeEl = document.getElementById('badgeContainer');
 
-      // --- ЛОГИКА РАМОК ---
+      // Логика рамок
       const frameEl = document.getElementById('avatarFrame');
       if (frameEl) {
         frameEl.className = 'avatar-container';
-
-        // 1. Если юзер САМ выбрал рамку в настройках — ставим её
         if (data.selected_frame) {
           frameEl.classList.add(data.selected_frame);
-        }
-        // 2. Иначе — автоматический выбор по нику или роли
-        else if (data.username === 'Davenport' || data.username === 'test1') {
+        } else if (data.username === 'Davenport' || data.username === 'test1') {
           frameEl.classList.add('frame-mw');
         } else if (data.is_admin) {
           frameEl.classList.add('frame-admin');
@@ -664,22 +655,7 @@
         }
       }
 
-      // --- СТАТУС ONLINE / OFFLINE ---
-      const lastSeenEl = document.getElementById('lastSeenDisplay');
-      if (lastSeenEl) {
-        const isOnline = (typeof onlineUsers !== 'undefined' && onlineUsers[data.username]);
-        const isItMe = (myProfile && data.id === myProfile.id);
-
-        if (isOnline || isItMe) {
-          lastSeenEl.innerText = "Online now";
-          lastSeenEl.style.color = "var(--nfs-yellow)";
-        } else {
-          lastSeenEl.innerText = formatLastSeen(data.last_seen);
-          lastSeenEl.style.color = "#777";
-        }
-      }
-
-      // --- ИМЯ И БЕЙДЖИ ---
+      // Имя и бейджи
       if (nameEl) {
         nameEl.innerText = data.username;
         if (data.is_admin) {
@@ -689,25 +665,23 @@
           nameEl.classList.add('vip-glow');
           badgeEl.innerHTML = `<span class="badge badge-vip">VIP</span>`;
         } else {
-          badgeEl.innerHTML = ''; // Очищаем, если обычный игрок
+          badgeEl.innerHTML = '';
         }
       }
 
-      // --- МУТЫ И МОДЕРАЦИЯ ---
       if (typeof renderMuteStatus === 'function') {
         renderMuteStatus(data);
       }
 
       const adminMuteBtn = document.getElementById('adminMuteBtn');
       if (adminMuteBtn) {
-        if (myProfile && myProfile.is_admin && !isMine) {
+        if (window.myProfile && window.myProfile.is_admin && !isMine) {
           adminMuteBtn.classList.remove('hidden');
         } else {
           adminMuteBtn.classList.add('hidden');
         }
       }
 
-      // --- ОБЩАЯ ИНФОРМАЦИЯ ---
       document.getElementById('profBio').innerText = data.bio || "Elite racer of Rockport";
       document.getElementById('profRating').innerText = `★ ${data.rating.toLocaleString()}`;
 
@@ -723,12 +697,10 @@
 
       renderGarage(data.photos);
 
-      // Обновляем статус (В ЧАТЕ / В ИГРЕ)
-      if (typeof window.updateLiveStatusUI === 'function') {
-        window.updateLiveStatusUI();
-      }
+      // Первичный пинок рендеринга статуса
+      window.updateLiveStatusUI();
 
-      // --- КНОПКИ УПРАВЛЕНИЯ ---
+      // Кнопки управления
       const editBtn = document.getElementById('editBtn');
       const statusSelect = document.getElementById('statusSelect');
       const addCarBtn = document.getElementById('addCarBtn');
@@ -754,29 +726,29 @@
     }
 
     function renderGarage(photos) {
-    const container = document.getElementById('garageContainer');
-    if (!container) return;
-    container.innerHTML = photos?.length ? '' : '<p style="color:#555">Avoid...</p>';
-    photos?.forEach((url, i) => {
-    container.innerHTML += `
-        <div class="car-card" onclick="viewFullImage('${url}')">
-          <img src="${url}">
-          <div style="padding:10px; display:flex; justify-content:space-between; background:rgba(0,0,0,0.8);">
-            <span style="color:var(--nfs-yellow); font-size:0.8rem; font-weight:bold;">PHOTO #${i+1}</span>
-          </div>
-        </div>`;
-  });
-  }
+      const container = document.getElementById('garageContainer');
+      if (!container) return;
+      container.innerHTML = photos?.length ? '' : '<p style="color:#555">Avoid...</p>';
+      photos?.forEach((url, i) => {
+        container.innerHTML += `
+          <div class="car-card" onclick="viewFullImage('${url}')">
+            <img src="${url}">
+            <div style="padding:10px; display:flex; justify-content:space-between; background:rgba(0,0,0,0.8);">
+              <span style="color:var(--nfs-yellow); font-size:0.8rem; font-weight:bold;">PHOTO #${i+1}</span>
+            </div>
+          </div>`;
+      });
+    }
 
     function viewFullImage(url) {
-    Swal.fire({
-      imageUrl: url,
-      background: 'rgba(0,0,0,0.9)',
-      showConfirmButton: false,
-      showCloseButton: true,
-      width: 'auto'
-    });
-  }
+      Swal.fire({
+        imageUrl: url,
+        background: 'rgba(0,0,0,0.9)',
+        showConfirmButton: false,
+        showCloseButton: true,
+        width: 'auto'
+      });
+    }
 
     async function addNewCarPhoto() {
       const { value: url } = await Swal.fire({
@@ -788,63 +760,43 @@
         inputPlaceholder: 'https://i.postimg.cc/..../image.jpg',
         confirmButtonText: 'IN GARAGE',
         confirmButtonColor: '#f1c40f',
-
         footer: '<a href="https://postimages.org/" target="_blank" style="color: #f1c40f; font-weight: bold; text-decoration: underline;">TO OPEN POSTIMAGES.ORG</a>',
         showCancelButton: true,
         cancelButtonText: 'CANCEL'
       });
 
       if (url) {
-        // Проверка на прямую ссылку (чтобы не сломать верстку)
         if (!url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-          Swal.fire({
-            title: 'ERROR',
-            text: 'That`s not direct link! Choose on PostImages a line "Direct link"',
-            icon: 'error',
-            background: '#0a0a0a',
-            color: '#fff'
-          });
+          Swal.fire({ title: 'ERROR', text: 'That`s not direct link!', icon: 'error', background: '#0a0a0a', color: '#fff' });
           return;
         }
 
-        // Сохраняем в массив photos таблицы profiles
-        const currentPhotos = Array.isArray(profileData.photos) ? profileData.photos : [];
+        const currentPhotos = Array.isArray(window.profileData.photos) ? window.profileData.photos : [];
         const updatedPhotos = [...currentPhotos, url];
 
-        const { error } = await _supabase
-          .from('profiles')
-          .update({ photos: updatedPhotos })
-          .eq('id', currentUserId);
-
+        const { error } = await _supabase.from('profiles').update({ photos: updatedPhotos }).eq('id', window.currentUserId);
         if (!error) {
           if (typeof nfsNotify === 'function') nfsNotify('Your auto has been added!');
           setTimeout(() => location.reload(), 1200);
-        } else {
-          console.error(error);
         }
       }
     }
 
     async function updateUserStatus() {
       const s = document.getElementById('statusSelect').value;
-
-      // 1. Сохраняем в базу навсегда
-      const { error } = await _supabase.from('profiles').update({ status: s }).eq('id', currentUserId);
+      const { error } = await _supabase.from('profiles').update({ status: s }).eq('id', window.currentUserId);
 
       if (!error) {
-        // 2. Обновляем локальные данные профиля
-        if (profileData) profileData.status = s;
-        if (myProfile) myProfile.status = s;
+        if (window.profileData) window.profileData.status = s;
+        if (window.myProfile) window.myProfile.status = s;
 
-        // 3. Вещаем новый статус в радар (Presence) через utils.js
         if (typeof window.trackMyStatus === 'function') {
           await window.trackMyStatus(s);
         }
 
-        // 4. Мгновенно обновляем плашку на странице без перезагрузки
+        // 🌟 Фикс: мгновенно перерисовываем свой статус на экране при выборе
         window.updateLiveStatusUI();
 
-        // Фирменное уведомление
         if (typeof nfsNotify === 'function') {
           nfsNotify('Статус обновлен: ' + s);
         }
@@ -852,20 +804,14 @@
     }
 
     async function openEditProfile() {
-      // Список доступных рамок
       const frames = [
-        // Базовые и Ролевые
         { id: 'frame-default', name: 'Stardart' },
         { id: 'frame-mw', name: 'Most Wanted' },
         { id: 'frame-admin', name: 'Red Neon' },
-
-        // Эффекты стихий и частиц
         { id: 'frame-purple', name: 'Ghost Purple' },
         { id: 'frame-toxic', name: 'Toxic Green' },
         { id: 'frame-sparks', name: 'Nitro Sparks' },
         { id: 'frame-ice', name: 'Ice Cold' },
-
-        // Агрессивные и необычные
         { id: 'frame-void', name: 'Event Horizon' },
         { id: 'frame-checker', name: 'Winner Check' },
         { id: 'frame-carbon', name: 'Pro Carbon' },
@@ -874,57 +820,46 @@
 
       let framesHtml = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">';
       frames.forEach(f => {
-        const isSelected = profileData.selected_frame === f.id ? 'border: 2px solid var(--nfs-yellow);' : 'border: 1px solid #333;';
+        const isSelected = window.profileData.selected_frame === f.id ? 'border: 2px solid var(--nfs-yellow);' : 'border: 1px solid #333;';
         framesHtml += `
-      <div onclick="selectFrame('${f.id}')" id="${f.id}" class="frame-preview ${f.id}"
-           style="cursor:pointer; padding:10px; ${isSelected} background: rgba(0,0,0,0.5); font-size: 0.7rem;">
-        ${f.name.toUpperCase()}
-      </div>`;
+          <div onclick="selectFrame('${f.id}')" id="${f.id}" class="frame-preview ${f.id}" style="cursor:pointer; padding:10px; ${isSelected} background: rgba(0,0,0,0.5); font-size: 0.7rem;">
+            ${f.name.toUpperCase()}
+          </div>`;
       });
       framesHtml += '</div>';
 
       const { value: formValues } = await Swal.fire({
         background: '#0a0a0a', color: '#fff',
         html: `
-      <p style="font-size:0.8rem;">BIO:</p>
-      <input id="swal-bio" class="swal2-input" value="${profileData.bio || ''}" style="background:#111; color:#fff; width:80%;">
-      <p style="margin-top:15px; font-size:0.8rem;">FRAME SELECTION:</p>
-      ${framesHtml}
-    `,
+          <p style="font-size:0.8rem;">BIO:</p>
+          <input id="swal-bio" class="swal2-input" value="${window.profileData.bio || ''}" style="background:#111; color:#fff; width:80%;">
+          <p style="margin-top:15px; font-size:0.8rem;">FRAME SELECTION:</p>
+          ${framesHtml}
+        `,
         showCancelButton: true,
         confirmButtonText: 'TO SET IT!',
         preConfirm: () => {
           return {
             bio: document.getElementById('swal-bio').value,
-            frame: window.tempSelectedFrame || profileData.selected_frame
+            frame: window.tempSelectedFrame || window.profileData.selected_frame
           }
         }
       });
 
       if (formValues) {
-        const { error } = await _supabase
-          .from('profiles')
-          .update({ bio: formValues.bio, selected_frame: formValues.frame })
-          .eq('id', currentUserId);
-
+        const { error } = await _supabase.from('profiles').update({ bio: formValues.bio, selected_frame: formValues.frame }).eq('id', window.currentUserId);
         if (!error) location.reload();
       }
     }
 
-    // Вспомогательная функция для выбора в модалке
     window.selectFrame = (id) => {
       window.tempSelectedFrame = id;
       document.querySelectorAll('.frame-preview').forEach(el => el.style.border = '1px solid #333');
       document.getElementById(id).style.border = '2px solid var(--nfs-yellow)';
     };
 
-    function selectSwalAvatar(el, url) {
-    document.querySelectorAll('.swal-avatar-item').forEach(img => img.classList.remove('selected'));
-    el.classList.add('selected');
-  }
-
     async function checkFriendshipStatus(targetUserId) {
-      const {data: request} = await _supabase.from('friend_requests').select('*').or(`and(sender_id.eq.${myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${myProfile.id})`).maybeSingle();
+      const {data: request} = await _supabase.from('friend_requests').select('*').or(`and(sender_id.eq.${window.myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${window.myProfile.id})`).maybeSingle();
       const btn = document.getElementById('friendBtn');
       if (!btn) return;
       btn.classList.remove('hidden');
@@ -932,7 +867,7 @@
         btn.innerText = "ADD TO FRIENDS";
         btn.onclick = () => sendFriendRequest(targetUserId);
       } else if (request.status === 'pending') {
-        if (request.sender_id === myProfile.id) {
+        if (request.sender_id === window.myProfile.id) {
           btn.innerText = "THE REQUEST HAS BEEN SENT";
           btn.disabled = true;
         } else {
@@ -949,28 +884,17 @@
       }
     }
 
-    async function sendFriendRequest(targetId) { await _supabase.from('friend_requests').insert([{ sender_id: myProfile.id, receiver_id: targetId, sender_name: myProfile.username }]); location.reload(); }
+    async function sendFriendRequest(targetId) { await _supabase.from('friend_requests').insert([{ sender_id: window.myProfile.id, receiver_id: targetId, sender_name: window.myProfile.username }]); location.reload(); }
     async function acceptFriendRequest(requestId) { await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', requestId); location.reload(); }
     async function removeFriend(requestId) { await _supabase.from('friend_requests').delete().eq('id', requestId); location.reload(); }
 
     async function openMuteModal() {
-      if (!myProfile || !myProfile.is_admin) return;
-
-      // Проверяем, загружены ли данные того, кого мутим
-      if (!profileData) {
-        nfsNotify('ERROR: Player data is not uploaded', 'error');
-        return;
-      }
+      if (!window.myProfile || !window.myProfile.is_admin || !window.profileData) return;
 
       const { value: minutes } = await Swal.fire({
         title: 'ВЫДАТЬ МУТ',
         input: 'select',
-        inputOptions: {
-          '15': '15 минут',
-          '60': '1 час',
-          '1440': '24 часа',
-          '10080': '7 дней'
-        },
+        inputOptions: { '15': '15 минут', '60': '1 час', '1440': '24 часа', '10080': '7 дней' },
         inputPlaceholder: 'Выберите срок наказания',
         showCancelButton: true,
         background: '#0a0a0a',
@@ -981,118 +905,68 @@
 
       if (minutes) {
         const mutedUntil = new Date(Date.now() + minutes * 60000).toISOString();
-
-        // ИСПРАВЛЕНО: используем profileData.id вместо несуществующей targetName
-        const { error } = await _supabase
-          .from('profiles')
-          .update({ muted_until: mutedUntil })
-          .eq('id', profileData.id);
+        const { error } = await _supabase.from('profiles').update({ muted_until: mutedUntil }).eq('id', window.profileData.id);
 
         if (!error) {
           if (typeof nfsNotify === 'function') nfsNotify('НАРУШИТЕЛЬ ОШТРАФОВАН!');
-
-          // Чтобы плашка появилась сразу:
-          profileData.muted_until = mutedUntil;
-          if (typeof renderMuteStatus === 'function') renderMuteStatus(profileData);
-
+          window.profileData.muted_until = mutedUntil;
+          renderMuteStatus(window.profileData);
           setTimeout(() => location.reload(), 1200);
-        } else {
-          console.error("ERROR Supabase:", error);
-          nfsNotify('Error when updating the database', 'error');
         }
       }
     }
 
     function renderMuteStatus(profile) {
       const container = document.getElementById('muteInfo');
-      if (!container) return;
-
-      // Если в базе пусто — выходим
-      if (!profile.muted_until) {
-        container.innerHTML = '';
-        return;
-      }
+      if (!container || !profile.muted_until) { if(container) container.innerHTML = ''; return; }
 
       const now = new Date();
       const muteDate = new Date(profile.muted_until);
 
-      // ЛОГ F12
-      console.log("Текущее время:", now);
-      console.log("Мут до:", muteDate);
-
       if (muteDate > now) {
-        // Вычисляем разницу
-        const diffMs = muteDate - now;
-        const diffMins = Math.ceil(diffMs / 60000);
+        const diffMins = Math.ceil((muteDate - now) / 60000);
         const diffHours = Math.floor(diffMins / 60);
         const remainingMins = diffMins % 60;
-
-        let timeText = diffHours > 0
-          ? `${diffHours} h. ${remainingMins} min.`
-          : `${diffMins} min.`;
+        let timeText = diffHours > 0 ? `${diffHours} h. ${remainingMins} min.` : `${diffMins} min.`;
 
         container.innerHTML = `
-      <div style="background: rgba(255, 77, 77, 0.2); border-left: 4px solid #ff4d4d; padding: 12px; margin: 15px 0; color: #ff4d4d; font-family: 'Segoe UI', sans-serif; box-shadow: 0 0 15px rgba(255, 77, 77, 0.1);">
-        <div style="font-weight: 900; letter-spacing: 1px; font-size: 0.85rem; text-transform: uppercase;">
-          ⚠ STATUS: PLAYER IN MUTE
-        </div>
-        <div style="color: #fff; font-size: 0.8rem; margin-top: 5px; font-style: italic;">
-          ACCESS IS LIMITED. <br>
-          The term expires in: <span style="color: #ff4d4d; font-weight: bold;">${timeText}</span>
-        </div>
-      </div>
-    `;
+          <div style="background: rgba(255, 77, 77, 0.2); border-left: 4px solid #ff4d4d; padding: 12px; margin: 15px 0; color: #ff4d4d; font-family: 'Segoe UI', sans-serif; box-shadow: 0 0 15px rgba(255, 77, 77, 0.1);">
+            <div style="font-weight: 900; letter-spacing: 1px; font-size: 0.85rem; text-transform: uppercase;">⚠ STATUS: PLAYER IN MUTE</div>
+            <div style="color: #fff; font-size: 0.8rem; margin-top: 5px; font-style: italic;">ACCESS IS LIMITED. <br>The term expires in: <span style="color: #ff4d4d; font-weight: bold;">${timeText}</span></div>
+          </div>`;
       } else {
-        // Если время вышло, просто очищаем блок
         container.innerHTML = '';
       }
     }
 
-    function goToChat() { window.location.href = `chats.html?to=${profileData.username}`; }
+    function goToChat() { window.location.href = `chats.html?to=${window.profileData.username}`; }
 
     async function handleLogout() {
-    if (currentUserId) await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', currentUserId);
-    await _supabase.auth.signOut();
-    window.location.href = 'auth.html';
-  }
+      if (window.currentUserId) await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', window.currentUserId);
+      await _supabase.auth.signOut();
+      window.location.href = 'auth.html';
+    }
 
     async function openAvatarPicker() {
-      if (!myProfile || profileData.id !== myProfile.id) return;
+      if (!window.myProfile || window.profileData.id !== window.myProfile.id) return;
 
-      // Генерируем HTML: убираем сложные стили из строк
       let iconsHtml = '<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px; padding:10px;">';
       AVATAR_OPTIONS.forEach(url => {
-        const isSelected = profileData.avatar_url === url;
-        iconsHtml += `
-      <img src="${url}"
-           class="swal-avatar-item ${isSelected ? 'active-choice' : ''}"
-           style="width:80px; height:80px; cursor:pointer; border:3px solid transparent; border-radius:5px; transition:0.2s;"
-           onclick="selectSwalAvatarOnly(this)">`;
+        const isSelected = window.profileData.avatar_url === url;
+        iconsHtml += `<img src="${url}" class="swal-avatar-item ${isSelected ? 'active-choice' : ''}" style="width:80px; height:80px; cursor:pointer; border:3px solid transparent; border-radius:5px; transition:0.2s;" onclick="selectSwalAvatarOnly(this)">`;
       });
       iconsHtml += '</div>';
 
       const { value: selectedUrl } = await Swal.fire({
         title: 'IMAGE SELECTION',
-        background: '#0a0a0a',
-        color: '#fff',
-        html: `
-      <p style="font-size:0.9rem; color: #f1c40f; margin-bottom:15px;">CHOOSE A NEW IMAGE:</p>
-      ${iconsHtml}
-    `,
-        showCancelButton: true,
-        confirmButtonText: 'TO SET IT!',
-        confirmButtonColor: '#f1c40f',
-        preConfirm: () => {
-          return window.tempAvatarUrl || profileData.avatar_url;
-        }
+        background: '#0a0a0a', color: '#fff',
+        html: `<p style="font-size:0.9rem; color: #f1c40f; margin-bottom:15px;">CHOOSE A NEW IMAGE:</p>${iconsHtml}`,
+        showCancelButton: true, confirmButtonText: 'TO SET IT!', confirmButtonColor: '#f1c40f',
+        preConfirm: () => window.tempAvatarUrl || window.profileData.avatar_url
       });
 
       if (selectedUrl) {
-        const { error } = await _supabase
-          .from('profiles')
-          .update({ avatar_url: selectedUrl })
-          .eq('id', currentUserId);
-
+        const { error } = await _supabase.from('profiles').update({ avatar_url: selectedUrl }).eq('id', window.currentUserId);
         if (!error) location.reload();
       }
     }
@@ -1103,32 +977,18 @@
     }
 
     async function updateFriendNotifications() {
-      if (!myProfile) return;
-      const { data: requests } = await _supabase.from('friend_requests')
-        .select('*')
-        .eq('receiver_id', myProfile.id)
-        .eq('status', 'pending');
-
+      if (!window.myProfile) return;
+      const { data: requests } = await _supabase.from('friend_requests').select('*').eq('receiver_id', window.myProfile.id).eq('status', 'pending');
       const countEl = document.getElementById('notifyCount');
       const listEl = document.getElementById('notifyList');
 
       if (requests && requests.length > 0) {
-        countEl.innerText = requests.length;
-        countEl.style.display = 'block'; // Показываем красный кружок с цифрой
-        listEl.innerHTML = '';
+        countEl.innerText = requests.length; countEl.style.display = 'block'; listEl.innerHTML = '';
         requests.forEach(req => {
-          listEl.innerHTML += `
-                    <div class="notify-item">
-                        <b>${req.sender_name}</b> wants to be friends
-                        <div class="notify-btns">
-                            <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button>
-                            <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">NO</button>
-                        </div>
-                    </div>`;
+          listEl.innerHTML += `<div class="notify-item"><b>${req.sender_name}</b> wants to be friends<div class="notify-btns"><button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button><button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">NO</button></div></div>`;
         });
       } else {
-        countEl.style.display = 'none'; // Прячем кружок, если запросов нет
-        listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">There are no requests</div>';
+        countEl.style.display = 'none'; listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">There are no requests</div>';
       }
     }
 
@@ -1141,21 +1001,20 @@
           await _supabase.from('friend_requests').delete().eq('id', reqId);
           if (typeof nfsNotify === 'function') nfsNotify('Your request has been reject', 'info');
         }
-
         await updateFriendNotifications();
-        await loadSidebarFriends();
-      } catch (err) {
-        console.error("Error when responding to a request:", err);
-      }
+        if (typeof loadSidebarFriends === 'function') await loadSidebarFriends();
+      } catch (err) { console.error(err); }
     }
 
     window.selectSwalAvatarOnly = (el) => {
-      document.querySelectorAll('.swal-avatar-item').forEach(img => {
-        img.classList.remove('active-choice');
-      });
+      document.querySelectorAll('.swal-avatar-item').forEach(img => img.classList.remove('active-choice'));
+      el.classList.add('active-choice'); window.tempAvatarUrl = el.src;
+    };
 
-      el.classList.add('active-choice');
-      window.tempAvatarUrl = el.src;
+    window.updateSteamFriendsWidgetOnly = function() {
+      if (typeof refreshSteamFriendsList === 'function' && window.myProfile) {
+        refreshSteamFriendsList(_supabase, window.myProfile);
+      }
     };
 </script>
 </body>
