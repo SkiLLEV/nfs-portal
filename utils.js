@@ -205,11 +205,6 @@ async function initGlobalStatus(supabase, profile) {
         box-shadow: 0 0 10px rgba(0,0,0,0.5);
         transition: 0.2s;
       }
-      .steam-friends-toggle-btn:hover {
-        color: #fff;
-        background: #2a475e;
-        box-shadow: 0 0 10px #f1c40f;
-      }
 
       .steam-friends-window {
         display: none;
@@ -390,7 +385,7 @@ async function initGlobalStatus(supabase, profile) {
             </div>
           `;
         }
-        // 🔵 ПРОСТО НА САЙТЕ (Online)
+        // 🔵 Online
         else {
           onlineCount++;
           dotColorClass = 'steam-text-online';
