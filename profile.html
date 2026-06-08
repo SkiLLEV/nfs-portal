@@ -80,18 +80,20 @@
       display: flex;
       flex-direction: column;
       align-items: center; /* Выравнивает ВСЕ элементы строго по центру по горизонтали */
-      gap: 15px;           /* Делает аккуратный одинаковый отступ между аватаркой, селектом и кнопками */
+      gap: 8px;           /* Делает аккуратный одинаковый отступ между аватаркой, селектом и кнопками */
       width: fit-content;  /* Сжимает контейнер под ширину аватарки */
     }
 
-    .avatar-area #statusSelect {
-      width: 100%;            /* Заставляет селект быть строго ширины аватарки */
-      margin: 0;              /* Сбрасывает дефолтные левые/правые сдвиги браузера */
-      box-sizing: border-box; /* Чтобы внутренние паддинги и рамка селекта не раздували его ширину */
+    .avatar-area .btn-nfs,
+    .avatar-area .btn-tuning,
+    #statusSelect {
+      width: 100%;         /* Кнопки будут строго ширины аватарки */
+      margin: 0;           /* Убираем дефолтные сдвиги */
+      box-sizing: border-box;
     }
 
-    .avatar-container {
-      margin: 0;              /* На всякий случай сбрасываем маргины и у самого контейнера аватарки */
+    .avatar-area button + button {
+      margin-top: 2px;     /* Красная кнопка встанет почти впритык к желтой, будет очень аккуратно */
     }
 
     .avatar-big { width: 180px; height: 180px; background: #111; border: 3px solid var(--nfs-yellow); display: flex; align-items: center; justify-content: center; overflow: hidden; }
