@@ -716,6 +716,35 @@
     updateFriendNotifications();
   }
 
+  // Функция автоматического открытия чата по URL-параметру (?to=nickname)
+  async function openChatFromURL(targetName) {
+    if (!targetName) return;
+    console.log('Перехват сигнала! Пытаемся открыть чат с:', targetName);
+
+    // Ждем небольшую паузу, чтобы объект specialUsers точно успел заполниться данными из базы
+    if (Object.keys(specialUsers).length === 0) {
+      await fetchSpecialRoles();
+    }
+
+    // Ищем гонщика в нашем списке пользователей по его никнейму
+    const racer = specialUsers[targetName];
+
+    if (racer) {
+      console.log(`Нашли гонщика ${targetName} с ID: ${racer.id}. Переключаю сессию...`);
+      // Вызываем нашу рабочую функцию переключения чата
+      switchChat(racer.id, racer.username, 'private');
+    } else {
+      console.warn(`[Радар]: Гонщик с ником "${targetName}" не найден в локальной базе.`);
+      // Если в кэше specialUsers его вдруг нет, делаем точечный запрос в Supabase для подстраховки
+      const { data } = await _supabase.from('profiles').select('id, username').eq('username', targetName).maybeSingle();
+      if (data) {
+        switchChat(data.id, data.username, 'private');
+      } else {
+        if (typeof nfsNotify === 'function') nfsNotify('RACER NOT FOUND', 'error');
+      }
+    }
+  }
+
   function toggleNotifyPopup() {
     const p = document.getElementById('notifyPopup');
     if (p) p.style.display = p.style.display === 'block' ? 'none' : 'block';
