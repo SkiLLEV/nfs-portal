@@ -76,7 +76,24 @@
     .container { margin-left: 280px; padding: 110px 40px 40px 40px; }
     .profile-card { background: rgba(0,0,0,0.85); padding: 40px; border-left: 5px solid var(--nfs-yellow); display: flex; gap: 40px; align-items: flex-start; margin-bottom: 50px; position: relative; box-shadow: 10px 10px 0px rgba(0,0,0,0.5); }
 
-    .avatar-area { text-align: center; }
+    .avatar-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Выравнивает ВСЕ элементы строго по центру по горизонтали */
+      gap: 15px;           /* Делает аккуратный одинаковый отступ между аватаркой, селектом и кнопками */
+      width: fit-content;  /* Сжимает контейнер под ширину аватарки */
+    }
+
+    .avatar-area #statusSelect {
+      width: 100%;            /* Заставляет селект быть строго ширины аватарки */
+      margin: 0;              /* Сбрасывает дефолтные левые/правые сдвиги браузера */
+      box-sizing: border-box; /* Чтобы внутренние паддинги и рамка селекта не раздували его ширину */
+    }
+
+    .avatar-container {
+      margin: 0;              /* На всякий случай сбрасываем маргины и у самого контейнера аватарки */
+    }
+
     .avatar-big { width: 180px; height: 180px; background: #111; border: 3px solid var(--nfs-yellow); display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .avatar-big img { width: 100%; height: 100%; object-fit: cover; }
     .avatar-letter { font-size: 4rem; font-weight: 900; color: var(--nfs-yellow); }
@@ -221,13 +238,6 @@
       background: linear-gradient(135deg, #f1c40f 0%, #9b7b00 50%, #f1c40f 100%);
       border: 2px solid #444;
       box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
-    }
-
-    /* 🔵 MODERATOR */
-    .frame-mod {
-      background: #3498db;
-      box-shadow: 0 0 15px #2980b9;
-      border: 2px dashed #fff;
     }
 
     /* ⚪️ NEWBIE */
@@ -418,7 +428,8 @@
         </div>
       </div>
 
-      <select id="statusSelect" class="hidden" onchange="updateUserStatus()">
+      <select id="statusSelect"
+              class="hidden" onchange="updateUserStatus()">
         <option value="ONLINE">ONLINE</option>
         <option value="IN-GAME">IN-GAME</option>
         <option value="LOOKING FOR GAME">LOOKING FOR GAME</option>
@@ -586,7 +597,11 @@
 
         el.innerHTML = `
           <div>Currently Offline</div>
-          <div style="font-size: 1.05rem; font-weight: normal; color: #8f98a0; margin-top: 2px;">Last Online ${lastSeenTime}</div>
+          <div style="
+               font-size: 1.05rem;
+               font-weight: normal;
+               color: #8f98a0;
+               margin-top: 2px;">Last Online ${lastSeenTime}</div>
         `;
         el.className = 'status-badge status-offline';
       } else {
