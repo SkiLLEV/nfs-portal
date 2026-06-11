@@ -162,6 +162,7 @@
   const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  let myProfile = null;
   let userProfile = null;
 
   window.onload = async () => {
@@ -169,6 +170,7 @@
     if (!user) { window.location.href = 'auth.html'; return; }
 
     const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+
     if (profile) {
       userProfile = profile;
 
