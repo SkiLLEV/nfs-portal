@@ -51,7 +51,6 @@
 
     .sidebar { width: 280px; background: rgba(0,0,0,0.95); height: calc(100vh - 70px); position: fixed; top: 70px; border-right: 2px solid #333; z-index: 1000; }
     .nav-item { display: block; padding: 20px 30px; color: #bbb; text-decoration: none; text-transform: uppercase; font-size: 0.9rem; transition: 0.3s; }
-    .nav-item:hover, .nav-item.active { color: #ffffff; border-left: 5px solid var(--nfs-yellow); background: rgba(241,196,15,0.1); }
 
     /* СТИЛЬ ДЛЯ БЕЙДЖА СООБЩЕНИЙ */
     #msgBadge {
@@ -69,8 +68,14 @@
     input:focus, textarea:focus { border-color: var(--nfs-yellow); }
     .btn-create { background: var(--nfs-yellow); color: #000; border: none; padding: 12px 25px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
-    .topic-card { background: rgba(15,15,15,0.95); border-left: 6px solid #444; padding: 25px; margin-bottom: 20px; transition: 0.3s; cursor: pointer; box-shadow: 5px 5px 15px rgba(0,0,0,0.5); }
-    .topic-card:hover { border-color: var(--nfs-yellow); transform: translateX(10px); background: rgba(40,40,40,0.9); }
+    .topic-card {
+      background: rgba(15,15,15,0.95);
+      padding: 25px;
+      margin-bottom: 20px;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
     .topic-title { font-size: 1.8rem; color: var(--nfs-yellow); margin: 0 0 10px; text-transform: uppercase; font-weight: 900; font-style: italic; letter-spacing: 1px; text-shadow: 2px 2px 0px #000; }
     .topic-meta { font-size: 0.8rem; color: #777; }
 
@@ -237,9 +242,11 @@
       data.forEach(topic => {
         const date = new Date(topic.created_at).toLocaleDateString();
         list.innerHTML += `
-          <div class="topic-card" onclick="window.location.href='topic.html?id=${topic.id}'">
+          <div class="topic-card"
+          onclick="window.location.href='topic.html?id=${topic.id}'">
             <div class="topic-title">${topic.title}</div>
-            <div style="margin-bottom: 10px; color: #ccc;">${topic.content.substring(0, 120)}${topic.content.length > 120 ? '...' : ''}</div>
+            <div style="margin-bottom: 10px;
+            color: #ccc;">${topic.content.substring(0, 120)}${topic.content.length > 120 ? '...' : ''}</div>
             <div class="topic-meta">Autor: <strong>${topic.author_name}</strong> • ${date}</div>
           </div>
         `;

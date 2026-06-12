@@ -106,7 +106,6 @@
     .main-content { margin-left: 250px; margin-top: 70px; padding: 50px; min-height: 100vh; }
     .content-box {
       background: rgba(0, 0, 0, 0.85); padding: 40px;
-      border-radius: 2px; border-left: 4px solid var(--nfs-yellow);
       max-width: 800px; line-height: 1.8;
     }
 
@@ -524,15 +523,6 @@
   window.loadSidebarFriends = loadSidebarFriends;
 
   setInterval(scanForPlayers, 15000);
-
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      // Регистрируем наш фоновый скрипт из корня проекта
-      navigator.serviceWorker.register('./service-worker.js')
-        .then(reg => console.log('PWA Радар: Сервис-воркер успешно запущен !', reg.scope))
-        .catch(err => console.error('Ошибка инициализации PWA-модуля:', err));
-    });
-  }
 
 </script>
 </body>
