@@ -7,10 +7,6 @@ let onlineUsers = {};
 function playNotificationSound() {
   const audio = new Audio('https://codesandbox.io/api/v1/sandboxes/github/codesandbox/sandbox-template/files/contents/public/success.mp3');
   audio.volume = 0.6;
-
-  audio.play().catch(err => {
-    console.log("Браузер ждет клика по странице для активации звука:", err);
-  });
 }
 
 /**
@@ -43,7 +39,7 @@ function formatLastSeen(dateString) {
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min. ago`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} h. ago`;
 
-  return lastSeen.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+  return lastSeen.toLocaleDateString('en-EN', { day: 'numeric', month: 'short' });
 }
 
 /**
@@ -153,7 +149,7 @@ async function initGlobalStatus(supabase, profile) {
         table: 'direct_messages',
         filter: `receiver_id=eq.'${profile.id}'`
       }, (payload) => {
-        console.log("🔊 Глобальный Realtime перехватил сообщение:", payload);
+        console.log("🔊 Realtime:", payload);
 
         playNotificationSound();
         updateGlobalMsgBadge(supabase, profile.id);
@@ -434,10 +430,10 @@ async function initGlobalStatus(supabase, profile) {
 
     finalHTML += `
       <div class="steam-cat-title" style="${playingCount > 0 ? 'margin-top:20px;' : ''}">Online Friends (${onlineCount})</div>
-      ${onlineHTML || '<p style="color:#444; font-size:0.75rem; margin-left:5px;">Никого нет в сети</p>'}
+      ${onlineHTML || '<p style="color:#444; font-size:0.75rem; margin-left:5px;">There is no one online</p>'}
 
       <div class="steam-cat-title" style="margin-top:20px;">Offline (${offlineCount})</div>
-      ${offlineHTML || '<p style="color:#444; font-size:0.75rem; margin-left:5px;">Список пуст</p>'}
+      ${offlineHTML || '<p style="color:#444; font-size:0.75rem; margin-left:5px;">The list is empty</p>'}
     `;
 
     body.innerHTML = finalHTML;
