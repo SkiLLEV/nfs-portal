@@ -7,13 +7,14 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="utils.js"></script>
   <title>NFS Portal | Main</title>
+
   <style>
     :root {
       --nfs-yellow: #cca609;
       --nfs-dark: rgba(15, 15, 15, 0.98);
       --nfs-border: #333;
       --admin-red: #e74c3c;
-      --nfs-bg: url('https://a.d-cd.net/89b5ea2s-960.jpg');
+      --nfs-bg: url('https://i.postimg.cc/Hxy3cdkT/IMG-4381.jpg');
     }
 
     body {
@@ -523,6 +524,15 @@
   window.loadSidebarFriends = loadSidebarFriends;
 
   setInterval(scanForPlayers, 15000);
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // Регистрируем наш фоновый скрипт из корня проекта
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(reg => console.log('PWA Радар: Сервис-воркер успешно запущен !', reg.scope))
+        .catch(err => console.error('Ошибка инициализации PWA-модуля:', err));
+    });
+  }
 
 </script>
 </body>
