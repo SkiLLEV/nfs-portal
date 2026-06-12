@@ -62,7 +62,17 @@
     .main-sidebar {
       width: 250px; background: var(--nfs-dark); height: 100vh; position: fixed; top: 70px; border-right: 2px solid #333; z-index: 900;
     }
-    .nav-item { display: block; padding: 20px 30px; color: #bbb; text-decoration: none; text-transform: uppercase; transition: 0.3s; font-size: 0.85rem; }
+    .nav-item {
+      display: block;
+      padding: 20px 30px;
+      color: #bbb;
+      text-decoration: none;
+      text-transform: uppercase;
+      border-bottom: 1px solid #222;
+      transition: 0.3s;
+      font-size: 0.85rem;
+    }
+
     .nav-item:hover, .nav-item.active { color: #fff; background: rgba(241,196,15,0.1); border-left: 5px solid var(--nfs-yellow); }
 
     /* СТИЛЬ ДЛЯ БЕЙДЖА СООБЩЕНИЙ */
