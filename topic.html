@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8">
   <title>NFS Portal | Topic</title>
+
+  <link rel="shortcut icon" href="/IMG_3707.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/style.css">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="utils.js"></script>
@@ -21,16 +25,30 @@
       color: #fff;
       font-family: "Garamond", "Baskerville", "Playfair Display", Georgia, serif;
     }
-    .container { max-width: 900px; margin: 0 auto; padding: 40px; }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px;
+    }
 
     .main-topic {
       background: rgba(255,255,255,0.05);
       padding: 30px;
-      margin-bottom: 20px; 
+      margin-bottom: 20px;
     }
 
-    .comment { background: #151515; padding: 15px; margin-bottom: 10px; border: 1px solid #333; }
-    .comment-meta { font-size: 1.2rem; color: var(--nfs-yellow); margin-bottom: 5px; }
+    .comment {
+      background: #151515;
+      padding: 15px;
+      margin-bottom: 10px;
+      border: 1px solid #333;
+    }
+
+    .comment-meta {
+      font-size: 1.2rem;
+      color: var(--nfs-yellow);
+      margin-bottom: 5px;
+    }
 
     /* ОБНОВЛЕННЫЙ ТЕКСТАРЕА */
     textarea {
@@ -49,18 +67,70 @@
       border-color: var(--nfs-yellow);
     }
 
-    .btn { background: var(--nfs-yellow); border: none; padding: 10px 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-    .btn-secondary { background: #333; color: #fff; margin-right: 10px; }
-    .btn-danger { background: #ff4d4d; color: #fff; }
+    .btn {
+      background: var(--nfs-yellow);
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: 0.2s;
+    }
 
-    .back-link { color: #888; text-decoration: none; display: block; margin-bottom: 20px; font-size: 1.5rem; }
-    .back-link:hover { color: var(--nfs-yellow); }
+    .btn:hover {
+      background-color: #c1970e;
+    }
 
-    .hidden { display: none !important; }
-    .nfs-swal-popup { border: 2px solid var(--nfs-yellow) !important; }
+    .btn-secondary {
+      background: #333;
+      color: #fff;
+      margin-right: 10px;
+    }
 
-    .racer-link { color: var(--nfs-yellow); cursor: pointer; text-decoration: underline; font-weight: bold; }
-    .racer-link:hover { color: #fff; }
+    .btn-secondary:hover {
+      background-color: #252525;
+    }
+
+    .btn-danger {
+      background: #ff4d4d;
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background-color: #dc3333;
+    }
+
+    .back-link {
+      color: #888;
+      text-decoration: none;
+      display: block;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+
+    .back-link:hover {
+      color: var(--nfs-yellow);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .nfs-swal-popup {
+      border: 2px solid var(--nfs-yellow) !important;
+    }
+
+    .racer-link {
+      color: var(--nfs-yellow);
+      cursor: pointer;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+
+    .racer-link:hover {
+      color: #ff0000;
+    }
+
   </style>
 </head>
 <body>
