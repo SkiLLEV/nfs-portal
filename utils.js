@@ -165,12 +165,16 @@ async function initGlobalStatus(supabase, profile) {
 
   // --- ШАГ 3: ОБРАБОТКА ВЫХОДА (OFFLINE) ---
   if (profile) {
-    window.addEventListener('beforeunload', () => {
-      const now = new Date().toISOString();
-      supabase
-        .from('profiles')
-        .update({ status: 'OFFLINE', last_seen: now })
-        .eq('id', profile.id);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        const now = new Date().toISOString();
+        // Используем специальный быстрый запрос, который сработает даже при закрытии приложения
+        supabase
+          .from('profiles')
+          .update({ status: 'OFFLINE', last_seen: now })
+          .eq('id', profile.id)
+          .then();
+      }
     });
   }
 
@@ -446,4 +450,43 @@ async function initGlobalStatus(supabase, profile) {
       refreshSteamFriendsList(supabase, profile);
     }
   };
+
+  /**
+   * ГЛОБАЛЬНОЕ ОКНО АВТОРИЗАЦИИ
+   */
+  async function openModal() {
+    const { value: formValues } = await Swal.fire({
+      title: 'RACE AUTHORIZATION',
+      background: '#0a0a0a',
+      color: '#fff',
+      confirmButtonColor: '#f1c40f',
+      html:
+        '<input id="swal-email" class="swal2-input" placeholder="Email" type="email" style="background:#111; color:#fff;">' +
+        '<input id="swal-password" class="swal2-input" placeholder="Password" type="password" style="background:#111; color:#fff;">',
+      focusConfirm: false,
+      preConfirm: () => {
+        return {
+          email: document.getElementById('swal-email').value,
+          password: document.getElementById('swal-password').value
+        }
+      }
+    });
+
+    if (formValues) {
+      // Вызываем авторизацию Supabase
+      const { error } = await _supabase.auth.signInWithPassword({
+        email: formValues.email,
+        password: formValues.password,
+      });
+
+      if (error) {
+        Swal.fire({ icon: 'error', title: 'ERROR', text: error.message, background: '#0a0a0a', color: '#fff' });
+      } else {
+        nfsNotify('Welcome back to Rockport!');
+        setTimeout(() => location.reload(), 1000);
+      }
+    }
+  }
+// Ссылаем глобальное окно, чтобы HTML его увидел
+  window.openModal = openModal;
 }
