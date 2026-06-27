@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8">
   <title>NFS Portal | Leaderboard</title>
+
+  <link rel="shortcut icon" href="/IMG_3707.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/style.css">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="utils.js"></script>
@@ -123,7 +127,120 @@
       text-transform: uppercase; letter-spacing: 1px;
     }
 
-    .highlight { color: var(--nfs-yellow); font-weight: bold; }
+    .highlight {
+      color: var(--nfs-yellow);
+      font-weight: bold;
+    }
+
+    /* ==========================================================================
+   АДАПТИВНАЯ ВЕРСТКА ДЛЯ LEADERBOARD (ЭКРАНЫ МЕНЬШЕ 768px)
+   ========================================================================== */
+    @media screen and (max-width: 768px) {
+
+      /* 1. ШАПКА САЙТА */
+      .top-navbar {
+        padding: 0 15px !important;
+      }
+
+      .logo {
+        font-size: 1.1rem !important;
+      }
+
+      #displayNick {
+        max-width: 80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* 2. ЖЕСТКИЙ ПЕРЕНОС САЙДБАРА НАВЕРХ */
+      .main-sidebar {
+        position: relative !important; /* Убираем fixed положение слева */
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        margin-top: 70px !important; /* Ставим аккуратно под шапку */
+        border-right: none !important;
+        border-bottom: 2px solid var(--nfs-border) !important;
+        z-index: 999 !important;
+      }
+
+      .main-sidebar nav {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-around !important;
+      }
+
+      .nav-item {
+        flex: 1 1 30% !important; /* Ссылки встанут красивыми рядами */
+        min-width: 95px !important;
+        padding: 12px 5px !important;
+        font-size: 0.75rem !important;
+        text-align: center !important;
+        border-bottom: 1px solid #222 !important;
+        box-sizing: border-box !important;
+      }
+
+      .nav-item:hover, .nav-item.active {
+        border-left: none !important;
+        border-bottom: 3px solid var(--nfs-yellow) !important; /* Эффект активной вкладки снизу */
+      }
+
+      /* 3. ОСНОВНОЙ КОНТЕНТ И ТАБЛИЦА ЛИДЕРОВ */
+      .container {
+        margin-left: 0 !important; /* Полностью убираем десктопный сдвиг */
+        padding: 20px 10px 100px 10px !important; /* Мягкие мобильные отступы */
+        box-sizing: border-box !important;
+        width: 100% !important;
+        overflow-x: auto; /* Позволяет таблице скроллиться по горизонтали, если экран совсем узкий */
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        display: block;
+        text-align: center;
+      }
+
+      /* Включаем горизонтальный скролл только для таблицы, чтобы верстка не ломалась */
+      .blacklist-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap; /* Не дает тексту переноситься, сохраняя структуру строк */
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .blacklist-table th,
+      .blacklist-table td {
+        padding: 10px 8px !important; /* Делаем ячейки компактнее на мобильных */
+        font-size: 0.85rem;
+      }
+
+      .rank-num {
+        font-size: 1.1rem !important;
+        width: 35px !important;
+      }
+
+      .rank-num.top-rank {
+        font-size: 1.4rem !important;
+      }
+
+      .racer-avatar {
+        width: 35px !important; /* Чуть уменьшаем аватарки лидеров */
+        height: 35px !important;
+      }
+
+      .racer-name {
+        font-size: 0.95rem !important;
+      }
+
+      /* 4. НИЖНЯЯ ПАНЕЛЬ */
+      .bottom-bar {
+        font-size: 0.75rem !important;
+        padding: 12px 0 !important;
+      }
+    }
   </style>
 </head>
 <body>

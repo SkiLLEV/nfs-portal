@@ -3,6 +3,11 @@
 <head>
   <meta charset="utf-8">
   <title>NFS Portal | Player Profile</title>
+
+  <link rel="shortcut icon" href="/IMG_3707.ico" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="utils.js"></script>
@@ -28,8 +33,16 @@
 
     /* ШАПКА В ПОЛОСКУ */
     .top-navbar {
-      height: 70px; position: fixed; top: 0; width: 100%; z-index: 1100;
-      display: flex; justify-content: space-between; align-items: center; padding: 0 40px; box-sizing: border-box;
+      height: 70px;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      box-sizing: border-box;
       background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
       repeating-linear-gradient(-45deg, #0a0a0a, #0a0a0a 40px, rgba(241, 196, 15, 0.4) 40px, rgba(241, 196, 15, 0.4) 80px);
 
@@ -37,7 +50,6 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.7);
     }
 
-    .title-container { font-size: 1.5rem; font-weight: 900; font-style: italic; text-transform: uppercase; text-shadow: 2px 2px 5px #000; }
     .sidebar {
       width: 250px; background: var(--nfs-dark); height: 100vh;
       position: fixed; top: 70px; left: 0;
@@ -45,24 +57,91 @@
     }
 
     /* УВЕДОМЛЕНИЯ */
-    .notifications-wrapper { position: relative; margin-right: 20px; display: flex; align-items: center; }
-    #notifyBell { cursor: pointer; position: relative; font-size: 22px; transition: 0.2s; }
-    #notifyBell:hover { transform: scale(1.1); }
+    .notifications-wrapper {
+      position: relative;
+      margin-right: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    #notifyBell {
+      cursor: pointer;
+      position: relative;
+      font-size: 22px;
+      transition: 0.2s;
+    }
+
+    #notifyBell:hover {
+      transform: scale(1.1);
+    }
+
     #notifyCount {
-      position: absolute; top: -5px; right: -8px; background: var(--admin-red);
-      color: white; border-radius: 50%; padding: 1px 6px; font-size: 10px;
-      font-weight: bold; border: 1px solid white; display: none;
+      position: absolute;
+      top: -5px;
+      right: -8px;
+      background: var(--admin-red);
+      color: white;
+      border-radius: 50%;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: bold;
+      border: 1px solid white;
+      display: none;
     }
+
     #notifyPopup {
-      display: none; position: absolute; right: 0; top: 45px;
-      width: 280px; background: #0a0a0a; border: 2px solid var(--nfs-yellow);
-      z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      display: none;
+      position: absolute;
+      right: 0; top: 45px;
+      width: 280px;
+      background: #0a0a0a;
+      border: 2px solid var(--nfs-yellow);
+      z-index: 1000;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
-    .notify-header { padding: 10px; background: #1a1a1a; border-bottom: 1px solid #333; font-size: 11px; font-weight: bold; color: var(--nfs-yellow); text-transform: uppercase; }
-    .notify-item { padding: 12px; border-bottom: 1px solid #222; }
-    .notify-btns { display: flex; gap: 5px; margin-top: 8px; }
-    .btn-acc { flex: 1; background: var(--nfs-yellow); border: none; padding: 5px; cursor: pointer; font-weight: bold; font-size: 10px; text-transform: uppercase; }
-    .btn-rej { flex: 1; background: #333; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; text-transform: uppercase; }
+
+    .notify-header {
+      padding: 10px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--nfs-yellow);
+      text-transform: uppercase;
+    }
+
+    .notify-item {
+      padding: 12px;
+      border-bottom: 1px solid #222;
+    }
+
+    .notify-btns {
+      display: flex;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .btn-acc {
+      flex: 1;
+      background: var(--nfs-yellow);
+      border: none;
+      padding: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .btn-rej {
+      flex: 1;
+      background: #333;
+      color: white;
+      border: none;
+      padding: 5px;
+      cursor: pointer;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
 
     .nav-item {
       display: block;
@@ -74,17 +153,29 @@
       transition: 0.3s;
     }
 
-    .nav-item:hover, .nav-item.active { color: #fff; background: rgba(241, 196, 15, 0.1); border-left: 5px solid var(--nfs-yellow); }
+    .nav-item:hover, .nav-item.active {
+      color: #fff;
+      background: rgba(241, 196, 15, 0.1);
+      border-left: 5px solid var(--nfs-yellow);
+    }
 
     /* БЕЙДЖ СООБЩЕНИЙ */
     #msgBadge {
-      background: var(--nfs-yellow); color: #000; padding: 2px 6px;
-      font-size: 0.7rem; font-weight: 900; border-radius: 2px;
-      margin-left: 8px; box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+      background: var(--nfs-yellow);
+      color: #000;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      border-radius: 2px;
+      margin-left: 8px;
+      box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
       display: none;
     }
 
-    .container { margin-left: 280px; padding: 110px 40px 40px 40px; }
+    .container {
+      margin-left: 280px;
+      padding: 110px 40px 40px 40px;
+    }
 
     .profile-card {
       background: rgba(0,0,0,0.85);
@@ -115,13 +206,55 @@
       margin-top: 2px;     /* Красная кнопка встанет почти впритык к желтой, будет очень аккуратно */
     }
 
-    .avatar-big { width: 180px; height: 180px; background: #111; border: 3px solid var(--nfs-yellow); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .avatar-big img { width: 100%; height: 100%; object-fit: cover; }
-    .avatar-letter { font-size: 4rem; font-weight: 900; color: var(--nfs-yellow); }
+    .avatar-big {
+      width: 180px;
+      height: 180px;
+      background: #111;
+      border: 3px solid var(--nfs-yellow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
 
-    select { background: #111; color: #fff; border: 1px solid var(--nfs-yellow); padding: 12px 18px; font-size: 1.1rem; font-weight: bold; cursor: pointer; outline: none; margin-top: 15px; width: 100%; text-transform: uppercase; }
-    .info-area h1 { margin: 0; font-size: 2.5rem; text-transform: uppercase; display: flex; align-items: center; }
-    .clan-tag { color: var(--nfs-yellow); margin-right: 15px; }
+    .avatar-big img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-letter {
+      font-size: 4rem;
+      font-weight: 900;
+      color: var(--nfs-yellow);
+    }
+
+    select {
+      background: #111;
+      color: #fff;
+      border: 1px solid var(--nfs-yellow);
+      padding: 12px 18px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      outline: none;
+      margin-top: 15px;
+      width: 100%;
+      text-transform: uppercase;
+    }
+
+    .info-area h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+    }
+
+    .clan-tag {
+      color: var(--nfs-yellow);
+      margin-right: 15px;
+    }
 
     .status-badge {
       background: none !important;
@@ -157,8 +290,17 @@
       border: none !important;
     }
 
-    .stat-line { font-size: 1.2rem; color: #ccc; margin: 10px 0; }
-    .highlight { color: var(--nfs-yellow); font-weight: bold; }
+    .stat-line {
+      font-size: 1.2rem;
+      color: #ccc;
+      margin: 10px 0;
+    }
+
+    .highlight {
+      color: var(--nfs-yellow);
+      font-weight: bold;
+    }
+
     .btn-tuning {
       position: absolute;
       top: 30px;
@@ -175,10 +317,35 @@
       transition: all 0.3s ease;
     }
 
-    .btn-nfs { background: var(--nfs-yellow); color: #000; border: none; margin-top: 10px; font-size: 0.8rem; padding: 10px 20px; font-weight: bold; cursor: pointer; text-transform: uppercase; display: block; width: 100%; transition: 0.2s; }
+    .btn-nfs {
+      background: var(--nfs-yellow);
+      color: #000;
+      border: none;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      padding: 10px 20px;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      display: block;
+      width: 100%;
+      transition: 0.2s;
+    }
 
-    .gallery-title { font-size: 1.5rem; font-weight: 900; padding-left: 10px; border-left: 4px solid var(--nfs-yellow); text-transform: uppercase; }
-    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; }
+    .gallery-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      padding-left: 10px;
+      border-left: 4px solid var(--nfs-yellow);
+      text-transform: uppercase;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 30px;
+    }
+
     .car-card {
       background: #0a0a0a;
       border: 1px solid #333;
@@ -189,22 +356,60 @@
       overflow: hidden;
     }
 
-    /* ТОТ САМЫЙ ЭФФЕКТ НАВЕДЕНИЯ */
+    /* ЭФФЕКТ НАВЕДЕНИЯ НА КАРТОЧКИ */
     .car-card:hover {
       border-color: var(--nfs-yellow);
       transform: scale(1.05) translateY(-5px);
       box-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 0 15px rgba(241, 196, 15, 0.3);
       z-index: 10;
     }
-    .car-card img { width: 100%; height: 180px; object-fit: cover; transition: 0.3s; }
-    .car-card:hover img { filter: brightness(1.1); }
-    .car-card img { width: 100%; height: 180px; object-fit: cover; }
 
-    .admin-glow { color: #ff4d4d !important; text-shadow: 0 0 10px #ff0000; }
-    .vip-glow { color: #f1c40f !important; text-shadow: 0 0 8px #f1c40f; }
-    .badge { font-size: 0.9rem; padding: 2px 6px; border-radius: 3px; margin-right: 8px; font-weight: bold; }
-    .badge-admin { background: #ff4d4d; color: white; border: 2px solid #da0000; }
-    .badge-vip { background: var(--nfs-yellow); color: black; border: 2px solid #000; }
+    .car-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      transition: 0.3s;
+    }
+
+    .car-card:hover img {
+      filter: brightness(1.1);
+    }
+
+    .car-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+
+    .admin-glow {
+      color: #ff4d4d !important;
+      text-shadow: 0 0 10px #ff0000;
+    }
+
+    .vip-glow {
+      color: #f1c40f !important;
+      text-shadow: 0 0 8px #f1c40f;
+    }
+
+    .badge {
+      font-size: 0.9rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-right: 8px;
+      font-weight: bold;
+    }
+
+    .badge-admin {
+      background: #ff4d4d;
+      color: white;
+      border: 2px solid #da0000;
+    }
+
+    .badge-vip {
+      background: var(--nfs-yellow);
+      color: black;
+      border: 2px solid #000;
+    }
 
     .bottom-bar {
       position: fixed; bottom: 0; width: 100%;
@@ -214,10 +419,28 @@
       text-transform: uppercase; letter-spacing: 1px;
     }
 
-    .hidden { display: none !important; }
-    .swal-avatar-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-    .swal-avatar-item { width: 60px; height: 60px; cursor: pointer; border: 2px solid transparent; }
-    .swal-avatar-item.selected { border-color: var(--nfs-yellow); transform: scale(1.1); }
+    .hidden {
+      display: none !important;
+    }
+
+    .swal-avatar-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .swal-avatar-item {
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .swal-avatar-item.selected {
+      border-color: var(--nfs-yellow);
+      transform: scale(1.1);
+    }
 
     /* Общий контейнер для рамки */
     .avatar-container {
@@ -250,8 +473,12 @@
     }
 
     @keyframes admin-glow {
-      from { box-shadow: 0 0 10px #ff0000; }
-      to { box-shadow: 0 0 25px #ff4d4d; }
+      from {
+        box-shadow: 0 0 10px #ff0000;
+      }
+      to {
+        box-shadow: 0 0 25px #ff4d4d;
+      }
     }
 
     /* 🟡 VIP */
@@ -284,8 +511,12 @@
     }
 
     @keyframes purple-pulse {
-      from { box-shadow: 0 0 5px #6c5ce7; }
-      to { box-shadow: 0 0 20px #a29bfe; }
+      from {
+        box-shadow: 0 0 5px #6c5ce7;
+      }
+      to {
+        box-shadow: 0 0 20px #a29bfe;
+      }
     }
 
     /* 🟢 TOXIC DRIFT */
@@ -315,14 +546,18 @@
     }
 
     @keyframes sparks-move {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .frame-ice {
       background: linear-gradient(45deg, #74b9ff, #0984e3);
       box-shadow: 0 0 15px #74b9ff;
-      border-radius: 10px; /* Скругленные углы для мягкости */
+      border-radius: 10px;
     }
 
     .frame-carbon {
@@ -344,10 +579,17 @@
       outline: 1px solid #4834d4;
       animation: void-pulse 4s infinite;
     }
+
     @keyframes void-pulse {
-      0% { box-shadow: 0 0 10px #fff, inset 0 0 20px #4834d4; }
-      50% { box-shadow: 0 0 25px #fff, inset 0 0 40px #686de0; }
-      100% { box-shadow: 0 0 10px #fff, inset 0 0 20px #4834d4; }
+      0% {
+        box-shadow: 0 0 10px #fff, inset 0 0 20px #4834d4;
+      }
+      50% {
+        box-shadow: 0 0 25px #fff, inset 0 0 40px #686de0;
+      }
+      100% {
+        box-shadow: 0 0 10px #fff, inset 0 0 20px #4834d4;
+      }
     }
 
     .frame-checker {
@@ -382,45 +624,240 @@
       box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
     }
 
+    /* ==========================================================================
+   ПОЛНЫЙ УСИЛЕННЫЙ БЛОК АДАПТИВНОСТИ (ЗАМЕНИТЬ СТАРЫЙ)
+   ========================================================================== */
+    @media screen and (max-width: 768px) {
+
+      /* 1. ШАПКА САЙТА */
+      .top-navbar {
+        position: fixed !important;
+        padding: 0 15px !important;
+      }
+
+      .logo {
+        font-size: 1.1rem !important;
+      }
+
+      #displayNick {
+        max-width: 80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* 2. ЖЕСТКИЙ ПЕРЕНОС САЙДБАРА НАВЕРХ */
+      aside.sidebar {
+        position: relative !important; /* Принудительно убираем fixed */
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        margin-top: 70px !important; /* Встает ровно под фиксированную шапку */
+        padding-top: 0 !important;
+        border-right: none !important;
+        border-bottom: 2px solid var(--nfs-border) !important;
+        z-index: 999 !important;
+        display: block !important;
+      }
+
+      .sidebar nav {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-around !important;
+        padding: 5px 0 !important;
+      }
+
+      .nav-item {
+        flex: 1 1 30% !important; /* Вкладки делят экран поровну */
+        min-width: 95px !important;
+        padding: 12px 5px !important;
+        font-size: 0.75rem !important;
+        text-align: center !important;
+        border-bottom: 1px solid #222 !important;
+        box-sizing: border-box !important;
+      }
+
+      .nav-item:hover, .nav-item.active {
+        border-left: none !important;
+        border-bottom: 3px solid var(--nfs-yellow) !important;
+      }
+
+      /* 3. КОНТЕНТНЫЙ БЛОК (ПРОФИЛЬ) */
+      .container {
+        margin-left: 0 !important; /* Полностью убираем десктопный сдвиг в 280px */
+        padding: 20px 15px 140px 15px !important; /* Уменьшаем верхний паддинг, так как сайдбар сверху стал статичным */
+        box-sizing: border-box !important;
+        width: 100% !important;
+      }
+
+      .profile-card {
+        flex-direction: column !important; /* Аватарка встает НАД текстом */
+        align-items: center !important;
+        gap: 20px !important;
+        padding: 20px !important;
+        text-align: center !important;
+      }
+
+      .avatar-area {
+        width: 100% !important;
+        max-width: 190px !important;
+      }
+
+      .info-area {
+        width: 100% !important;
+      }
+
+      .info-area h1 {
+        justify-content: center !important;
+        font-size: 1.8rem !important;
+        flex-wrap: wrap !important;
+      }
+
+      .status-badge {
+        align-items: center !important;
+      }
+
+      .btn-tuning {
+        position: static !important;
+        width: 100% !important;
+        margin-bottom: 15px !important;
+      }
+
+      /* СЕТКА ГАРАЖА */
+      .gallery {
+        grid-template-columns: 1fr !important; /* Машины выстраиваются строго по одной в ряд */
+        gap: 15px !important;
+      }
+
+      /* 4. НИЖНИЕ ВИДЖЕТЫ */
+      .search-widget {
+        position: static !important;
+        width: 100% !important;
+        margin-top: 20px !important;
+        box-sizing: border-box !important;
+        box-shadow: none !important;
+      }
+
+      .bottom-bar {
+        font-size: 0.75rem !important;
+        padding: 12px 0 !important;
+      }
+    }
   </style>
 </head>
 <body>
 
 <header class="top-navbar">
-  <div style="display: flex; align-items: center; gap: 15px;">
+  <div style="
+             display: flex;
+             align-items: center;
+             gap: 15px;">
     <img src="https://i.ibb.co/DfKw5Ywp/IMG-3707.png"
          alt="NFS Logo"
-         style="height: 65px; width: auto; filter: drop-shadow(2px 2px 5px #000);">
+         style="
+               height: 65px;
+               width: auto;
+               filter: drop-shadow(2px 2px 5px #000);">
 
-    <div style="font-size: 1.6rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 5px #000; font-style: italic; text-transform: uppercase;">
+    <div style="
+               font-size: 1.6rem;
+               font-weight: 900;
+               letter-spacing: 2px;
+               text-shadow: 2px 2px 5px #000;
+               font-style: italic;
+               text-transform: uppercase;">
       PLAYER PROFILE
     </div>
   </div>
 
-  <div class="user-area" style="display: flex; align-items: center; gap: 20px;">
+  <div class="user-area" style="
+                               display: flex;
+                               align-items: center;
+                               gap: 20px;">
 
-    <div class="notifications-wrapper" id="notifyWrapper" style="position: relative; display: flex; align-items: center;">
+    <div class="notifications-wrapper"
+         id="notifyWrapper"
+         style="
+               position: relative;
+               display: flex;
+               align-items: center;">
 
-      <div id="notifyBell" onclick="toggleNotifyPopup()" style="cursor: pointer; display: flex; align-items: center;">
-        <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <div id="notifyBell"
+           onclick="toggleNotifyPopup()"
+           style="
+                 cursor: pointer;
+                 display: flex;
+                 align-items: center;">
+        <svg class="bell-icon"
+             xmlns="http://www.w3.org/2000/svg"
+             width="24"
+             height="24"
+             viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
         </svg>
-        <span id="notifyCount" style="margin-left: 5px;">0</span>
+        <span id="notifyCount"
+              style="
+                    margin-left: 5px;">0</span>
       </div>
 
-      <div id="notifyPopup" style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
-        <div class="notify-header" style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">Friend requests</div>
+      <div id="notifyPopup"
+           style="
+                 display: none;
+                 position: absolute;
+                 top: 100%;
+                 right: 0;
+                 background: #1a1a1a;
+                 border: 1px solid #333;
+                 z-index: 100;
+                 min-width: 200px;
+                 margin-top: 10px;">
+        <div class="notify-header"
+             style="
+                   padding: 10px;
+                   color: #fff;
+                   border-bottom: 1px solid #333;
+                   font-family: sans-serif;
+                   text-transform: uppercase;
+                   font-size: 0.8rem;">Friend requests</div>
         <div id="notifyList"></div>
       </div>
 
-    </div> <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;">LOGIN</button>
+    </div> <button class="btn-login" id="loginBtn"
+                   onclick="openModal()"
+                   style="
+                         display: none;">LOGIN</button>
 
-    <div class="user-info" id="userInfo" style="display: flex; align-items: center; gap: 15px;">
-    <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
+    <div class="user-info"
+         id="userInfo"
+         style="
+               display: flex;
+               align-items: center;
+               gap: 15px;">
+    <span id="displayNick"
+          style="
+                font-weight: bold;
+                cursor: pointer;
+                color: #ffffff;
+                text-shadow: 0 0 8px rgba(0,0,0,0.6);"
+          onclick="window.location.href='profile.html'">
       Davenport
     </span>
-      <button onclick="handleLogout()" style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
+      <button onclick="handleLogout()"
+              style="
+                    background: rgba(0,0,0,0.6);
+                    border: 1px solid #333;
+                    border-radius: 5px;
+                    color: #ff4444;
+                    cursor: pointer;
+                    font-size: 0.75rem;
+                    padding: 6px 12px;
+                    font-weight: bold;
+                    text-transform: uppercase;">
         EXIT
       </button>
     </div>
@@ -441,10 +878,18 @@
 <div class="container">
   <div class="profile-card">
     <button id="editBtn"
-            class="btn-tuning hidden" onclick="openEditProfile()">EDIT PROFILE</button>
+            class="btn-tuning hidden"
+            onclick="openEditProfile()">EDIT PROFILE</button>
     <div class="avatar-area">
-      <div id="avatarFrame" class="avatar-container" onclick="openAvatarPicker()" style="cursor: pointer; position: relative; z-index: 10;">
-        <div class="avatar-big" id="avatarBox">
+      <div id="avatarFrame"
+           class="avatar-container"
+           onclick="openAvatarPicker()"
+           style="
+                 cursor: pointer;
+                 position: relative;
+                 z-index: 10;">
+        <div class="avatar-big"
+             id="avatarBox">
           <span class="avatar-letter">?</span>
         </div>
       </div>
@@ -454,7 +899,6 @@
         <option value="ONLINE">ONLINE</option>
         <option value="IN-GAME">IN-GAME</option>
         <option value="LOOKING FOR GAME">LOOKING FOR GAME</option>
-        <option value="OFFLINE">OFFLINE</option>
       </select>
       <button id="msgBtn"
               class="btn-nfs hidden"
@@ -465,56 +909,100 @@
               class="btn-nfs hidden">ADD TO FRIENDS</button>
     </div>
     <div class="info-area">
-      <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="
+                 display: flex;
+                 align-items: center;
+                 gap: 10px;">
         <span id="badgeContainer"></span>
         <h1 style="margin:0;">
-          <span class="clan-tag" id="profClan">[...]</span>
+          <span class="clan-tag"
+                id="profClan">[...]</span>
           <span id="profName">Loading...</span>
         </h1>
       </div>
 
       <div id="muteInfo"></div>
 
-      <p id="profBio" style="color: #aaa; font-style: italic; margin: 10px 0; font-size: 1.1rem;">Loading...</p>
+      <p id="profBio"
+         style="
+               color: #aaa;
+               font-style: italic;
+               margin: 10px 0;
+               font-size: 1.1rem;">Loading...</p>
 
-      <div id="statusIndicator" class="status-badge status-online">OFFLINE</div>
+      <div id="statusIndicator"
+           class="status-badge status-online">OFFLINE</div>
 
-      <!-- Сетка статистики, чтобы не было "каши" -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 15px; border-top: 1px solid #333; padding-top: 15px;">
+      <div style="
+                 display: grid;
+                 grid-template-columns: 1fr 1fr;
+                 gap: 20px;
+                 margin-top: 15px;
+                 border-top: 1px solid #333;
+                 padding-top: 15px;">
         <div>
-          <div style="font-size: 0.8rem; color: #666; text-transform: uppercase;">Rating</div>
-          <div class="highlight" id="profRating" style="font-size: 1.4rem;">★ 0</div>
+          <div style="
+                     font-size: 0.8rem;
+                     color: #666;
+                     text-transform: uppercase;">Rating</div>
+          <div class="highlight"
+               id="profRating"
+               style="
+                     font-size: 1.4rem;">★ 0</div>
         </div>
         <div>
-          <div style="font-size: 0.8rem; color: #666; text-transform: uppercase;">World rank</div>
-          <div class="highlight" id="rankDisplay" style="font-size: 1.4rem;">#--</div>
+          <div style="
+                     font-size: 0.8rem;
+                     color: #666;
+                     text-transform: uppercase;">World rank</div>
+          <div class="highlight"
+               id="rankDisplay"
+               style="
+                     font-size: 1.4rem;">#--</div>
         </div>
       </div>
 
-      <button id="adminMuteBtn" class="btn-nfs hidden" style="background: #c0392b; color: #fff; border: 1px solid #ff4d4d; margin-top: 15px;" onclick="openMuteModal()">
+      <button id="adminMuteBtn"
+              class="btn-nfs hidden"
+              style="
+                    background: #c0392b;
+                    color: #fff;
+                    border: 1px solid #ff4d4d;
+                    margin-top: 15px;"
+                    onclick="openMuteModal()">
         ⚠ ISSUE A MUT
       </button>
     </div>
   </div>
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <div class="gallery-title" id="garageTitle">RACER'S GARAGE</div>
+  <div style="
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             margin-bottom: 20px;">
+    <div class="gallery-title"
+         id="garageTitle">RACER'S GARAGE</div>
     <button id="addCarBtn"
             class="btn-tuning hidden"
-            style="position: static;
-            background-color: #222222;
-            color: #f1c40f;
-            border: 2px solid #f1c40f;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;"
+            style="
+                  position: static;
+                  background-color: #222222;
+                  color: #f1c40f;
+                  border: 2px solid #f1c40f;
+                  padding: 10px 20px;
+                  border-radius: 6px;
+                  cursor: pointer;"
             onclick="addNewCarPhoto()">+ ADD A CAR
     </button>
   </div>
-  <div class="gallery" id="garageContainer"></div>
+  <div class="gallery"
+       id="garageContainer"></div>
 </div>
 
 <footer class="bottom-bar">
-  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight" id="footerPlaying">0</span></div>
+  <div>ONLINE: <span class="highlight"
+                     id="footerOnline">0</span> | IN THE RACE:
+    <span class="highlight"
+          id="footerPlaying">0</span></div>
 </footer>
 
   <script>
@@ -610,7 +1098,6 @@
       const isItMe = (window.myProfile && window.profileData.id === window.myProfile.id);
 
       if (!presence && !isItMe) {
-        // 🔴 ОФФЛАЙН: Две строки (теперь last_seen будет прилетать в реалтайме)
         let lastSeenTime = "long ago";
         if (window.profileData.last_seen) {
           lastSeenTime = formatLastSeen(window.profileData.last_seen);
@@ -626,10 +1113,9 @@
         `;
         el.className = 'status-badge status-offline';
       } else {
-        // 🔵 ОНЛАЙН: Берем СТАТУС НАПРЯМУЮ ИЗ РАДАРА, а не из замороженного кэша базы!
         let s = 'ONLINE';
         if (presence && presence[0] && presence[0].status) {
-          s = presence[0].status; // Вот она, живая смена статуса!
+          s = presence[0].status;
         } else {
           s = window.profileData.status || 'ONLINE';
         }
@@ -661,7 +1147,6 @@
         if (data) {
           window.profileData = data;
 
-          // 🌟 И ВОТ ТУТ ВКЛЮЧАЕМ РЕАЛТАЙМ ДЛЯ СВОЕГО ПРОФИЛЯ
           setupProfileRealtimeListener();
 
           renderFullProfile(data, true);

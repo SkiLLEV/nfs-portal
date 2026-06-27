@@ -131,6 +131,96 @@
       color: #ff0000;
     }
 
+    /* ==========================================================================
+   АДАПТИВНАЯ ВЕРСТКА ДЛЯ СТРАНИЦЫ ТЕМЫ (ЭКРАНЫ МЕНЬШЕ 768px)
+   ========================================================================== */
+    @media screen and (max-width: 768px) {
+
+      /* 1. ГЛАВНЫЙ КОНТЕЙНЕР */
+      .container {
+        padding: 20px 15px 60px 15px !important; /* Делаем аккуратные мобильные отступы */
+        width: 100% !important;
+        box-sizing: border-box;
+      }
+
+      /* Ссылка возврата на форум */
+      .back-link {
+        font-size: 1.1rem !important; /* Уменьшаем размер ссылки, чтобы она не занимала пол-экрана */
+        margin-bottom: 15px;
+      }
+
+      /* 2. ГЛАВНЫЙ ПОСТ ТЕМЫ */
+      .main-topic {
+        padding: 15px !important; /* Сжимаем внутренние отступы коробки поста */
+      }
+
+      .main-topic h1 {
+        font-size: 1.5rem !important; /* Уменьшаем заголовок темы */
+        line-height: 1.3;
+      }
+
+      .main-topic p {
+        font-size: 1.1rem !important; /* Снижаем гигантский шрифт 1.5rem до читаемого на смартфонах */
+        line-height: 1.4;
+      }
+
+      .main-topic small {
+        font-size: 0.9rem !important; /* Уменьшаем блок с автором */
+      }
+
+      /* 3. КНОПКИ УПРАВЛЕНИЯ ДЛЯ АВТОРА ТЕМЫ */
+      #authorControls {
+        padding-left: 0 !important; /* Убираем левый сдвиг */
+        display: flex;
+        gap: 10px;
+        margin-bottom: 25px !important;
+      }
+
+      #authorControls .btn {
+        flex: 1; /* Кнопки "Edit" и "Delete" делят экран поровну */
+        text-align: center;
+        padding: 12px 5px !important;
+        font-size: 0.9rem;
+      }
+
+      /* 4. БЛОК С КОММЕНТАРИЯМИ */
+      #commentsList h3 {
+        font-size: 1.1rem;
+        text-align: center;
+      }
+
+      .comment {
+        padding: 12px !important;
+      }
+
+      .comment-meta {
+        font-size: 0.9rem !important; /* Мета-данные ответа чуть компактнее */
+      }
+
+      .comment div[style*="font-size: 25px"] {
+        font-style: normal;
+        font-size: 1.1rem !important; /* Огромный шрифт ответов в 25px на мобилке просто разнесет верстку */
+        line-height: 1.4 !important;
+      }
+
+      /* 5. ФОРМА ОТПРАВКИ ОТВЕТА */
+      #replyBox h3 {
+        font-size: 1.2rem;
+      }
+
+      textarea {
+        padding: 10px !important;
+        margin: 15px 0 !important;
+        font-size: 0.95rem;
+      }
+
+      #replyBox .btn {
+        width: 100%; /* Кнопка "Send" растягивается на всю ширину для удобного тапа пальцем */
+        padding: 12px !important;
+        text-align: center;
+      }
+    }
+
   </style>
 </head>
 <body>

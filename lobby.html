@@ -3,16 +3,22 @@
 <head>
   <meta charset="utf-8">
   <title>NFS Portal | Race</title>
+
+  <link rel="shortcut icon" href="/IMG_3707.ico" type="image/x-icon">
+  <link rel="stylesheet" href="css/style.css">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="utils.js"></script>
   <style>
+
     :root {
       --nfs-yellow: #f1c40f;
       --nfs-bg: url('https://i.postimg.cc/7hn83fwx/875151-1023x669-Need-For-Speed-Most-Wanted-Wallpaper.jpg');
       --nfs-dark: rgba(10, 10, 10, 0.95);
       --admin-red: #e74c3c;
     }
+
     body {
       margin: 0; background: var(--nfs-bg) no-repeat center center fixed;
       background-size: cover; color: #fff;
@@ -133,6 +139,161 @@
     .lobby-msg b { color: var(--nfs-yellow); }
     .leave-btn { margin-top: auto; padding: 12px; background: #ff4444; color: #fff; border: none; font-weight: 900; cursor: pointer; text-transform: uppercase; }
     .admin-glow { color: #ffffff !important; text-shadow: 0 0 10px #ffffff; font-weight: 900 !important; }
+
+    /* ==========================================================================
+   АДАПТИВНАЯ ВЕРСТКА ДЛЯ RACE LOBBIES (ЭКРАНЫ МЕНЬШЕ 768px)
+   ========================================================================== */
+    @media screen and (max-width: 768px) {
+
+      /* 1. ШАПКА И КОМПАКТНЫЙ ЛОГОТИП */
+      .top-navbar {
+        height: 70px !important; /* Уменьшаем высоту шапки на мобилках до стандарта */
+        padding: 0 15px !important;
+        position: fixed !important;
+      }
+
+      .top-navbar img {
+        height: 45px !important; /* Делаем логотип чуть аккуратнее */
+      }
+
+      .top-navbar div[style*="font-size: 1.8rem"] {
+        font-size: 1.2rem !important; /* Сжимаем заголовок "Race Lobbies" */
+      }
+
+      #displayNick {
+        max-width: 80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* 2. ПЕРЕНОС МЕНЮ НАВЕРХ */
+      .main-sidebar {
+        position: relative !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        margin-top: 70px !important; /* Привязываем к новой высоте шапки */
+        border-right: none !important;
+        border-bottom: 2px solid #333 !important;
+        z-index: 999 !important;
+        display: block !important;
+      }
+
+      .main-sidebar nav {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: space-around !important;
+      }
+
+      .nav-item {
+        flex: 1 1 30% !important;
+        min-width: 95px !important;
+        padding: 12px 5px !important;
+        font-size: 0.75rem !important;
+        text-align: center !important;
+        border-bottom: 1px solid #222 !important;
+        box-sizing: border-box !important;
+      }
+
+      .nav-item:hover, .nav-item.active {
+        border-left: none !important;
+        border-bottom: 3px solid var(--nfs-yellow) !important;
+      }
+
+      /* 3. ОСНОВНОЙ КОНТЕНТ */
+      .content {
+        margin-left: 0 !important; /* Убираем десктопный сдвиг */
+        padding-top: 0 !important;
+        width: 100% !important;
+      }
+
+      /* Баннер "FIND YOUR CREW" */
+      .lobby-hero {
+        height: auto !important;
+        padding: 20px 15px !important;
+        padding-top: 30px !important;
+      }
+
+      .lobby-hero div[style*="display: flex"] {
+        flex-direction: column !important; /* Заголовок и кнопка создают вертикальный стек */
+        align-items: fill !important;
+        gap: 20px;
+      }
+
+      .lobby-hero h1 {
+        font-size: 1.8rem !important; /* Сжимаем заголовок баннера */
+        text-align: center;
+      }
+
+      .lobby-hero p {
+        text-align: center;
+      }
+
+      .create-btn {
+        width: 100% !important; /* Кнопка создания лобби на всю ширину экрана */
+        text-align: center;
+        box-sizing: border-box;
+      }
+
+      .lobby-grid-container {
+        padding: 20px 15px 100px 15px !important; /* Мобильные отступы для сетки комнат */
+      }
+
+      .lobby-grid {
+        grid-template-columns: 1fr !important; /* Карточки комнат идут строго по одной в ряд */
+        gap: 15px !important;
+      }
+
+      /* 4. АДАПТАЦИЯ ОКНА ОТКРЫТОГО ЛОББИ */
+      .lobby-window {
+        width: 95% !important; /* Окно займет почти всю ширину экрана */
+        height: 85vh !important; /* Ограничиваем по высоте экрана телефона */
+        flex-direction: column !important; /* Разворачиваем: игроки сверху, чат снизу */
+      }
+
+      .lobby-players-side {
+        width: 100% !important;
+        height: 40% !important; /* Игроки занимают верхнюю часть */
+        border-right: none !important;
+        border-bottom: 1px solid #222 !important;
+        padding: 15px !important;
+        box-sizing: border-box;
+      }
+
+      #playerSlotContainer {
+        margin-top: 10px !important;
+        display: flex !important;
+        gap: 10px;
+        overflow-x: auto; /* Если игроков много, их можно скроллить горизонтально */
+        padding-bottom: 5px;
+      }
+
+      .player-row {
+        margin-bottom: 0 !important;
+        padding: 6px 10px !important;
+        flex-shrink: 0; /* Не даем карточкам игроков сжиматься в кашу */
+      }
+
+      .lobby-chat-side {
+        height: 60% !important; /* Чат занимает нижнюю часть */
+      }
+
+      #lobbyChatBox {
+        padding: 15px !important;
+      }
+
+      .leave-btn {
+        padding: 8px !important;
+        font-size: 0.8rem !important;
+      }
+
+      /* Исправление для нижнего инпута в чате лобби */
+      .lobby-chat-side div[style*="padding:20px"] {
+        padding: 10px !important;
+        gap: 5px !important;
+      }
+    }
   </style>
 </head>
 <body>
