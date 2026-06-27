@@ -920,7 +920,7 @@
     list.innerHTML = '';
     data.forEach(racer => {
       const isMe = myProfile && racer.id === myProfile.id;
-      list.innerHTML += `<div class="radar-item"><div style="display:flex; align-items:center; gap:10px;"><img src="${racer.avatar_url || 'https://via.placeholder.com/30'}" style="width:30px; height:30px; border: 1px solid var(--nfs-yellow); object-fit:cover;"><span class="racer-link" onclick="window.location.href='profile.html?u=${racer.username}'">${racer.username}</span></div>${!isMe ? `<button class="btn-race" onclick="window.location.href='chats.html?to=${racer.username}'">ВЫЗВАТЬ</button>` : '<small style="color:var(--nfs-yellow); font-weight:bold;">ВЫ</small>'}</div>`;
+      list.innerHTML += `<div class="radar-item"><div style="display:flex; align-items:center; gap:10px;"><img src="${racer.avatar_url || 'https://via.placeholder.com/30'}" style="width:30px; height:30px; border: 1px solid var(--nfs-yellow); object-fit:cover;"><span class="racer-link" onclick="window.location.href='profile.html?u=${racer.username}'">${racer.username}</span></div>${!isMe ? `<button class="btn-race" onclick="window.location.href='chats.html?to=${racer.username}'">CHALLENGE</button>` : '<small style="color:var(--nfs-yellow); font-weight:bold;">ВЫ</small>'}</div>`;
     });
   }
 
