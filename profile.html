@@ -5,6 +5,11 @@
   <title>NFS Portal | Player Profile</title>
 
   <link rel="shortcut icon" href="/IMG_3707.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Wallpoet&display=swap" rel="stylesheet">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
 
@@ -26,9 +31,18 @@
       background: var(--nfs-bg) no-repeat center center fixed;
       background-size: cover;
       color: #fff;
-      font-family: "Garamond", "Baskerville", "Playfair Display", Georgia, serif;
+      font-family: 'Wallpoet', sans-serif !important;
       min-height: 100vh;
       padding-bottom: 60px;
+    }
+
+    /* Принудительно красим текст во всех окнах SweetAlert2 на этой странице */
+    .swal2-popup,
+    .swal2-title,
+    .swal2-html-container,
+    .swal2-confirm,
+    .swal2-cancel {
+      font-family: 'Wallpoet', sans-serif !important;
     }
 
     /* ШАПКА В ПОЛОСКУ */
@@ -316,6 +330,10 @@
       color: #fff;
       border-color: white;
       background-color: #c10e0e;
+    }
+
+    .nfs-font {
+      font-family: 'Wallpoet', sans-serif !important;
     }
 
     #addCarBtn {
@@ -760,7 +778,7 @@
 <div class="container">
   <div class="profile-card">
     <button id="editBtn"
-            class="btn-tuning hidden"
+            class="btn-tuning nfs-font hidden"
             onclick="openEditProfile()">EDIT PROFILE</button>
     <div class="avatar-area">
       <div id="avatarFrame"
@@ -783,12 +801,12 @@
         <option value="LOOKING FOR GAME">LOOKING FOR GAME</option>
       </select>
       <button id="msgBtn"
-              class="btn-nfs hidden"
+              class="btn-nfs nfs-font hidden"
               style="border-radius: 6px"
               onclick="goToChat()">✉ TO WRITE</button>
       <button id="friendBtn"
               style="border-radius: 6px"
-              class="btn-nfs hidden">ADD TO FRIENDS</button>
+              class="btn-nfs nfs-font hidden">ADD TO FRIENDS</button>
     </div>
     <div class="info-area">
       <div style="
@@ -862,7 +880,7 @@
     <div class="gallery-title"
          id="garageTitle">RACER'S GARAGE</div>
     <button id="addCarBtn"
-            class="btn-tuning hidden"
+            class="btn-tuning nfs-font hidden"
             onclick="addNewCarPhoto()">+ ADD A CAR
     </button>
   </div>
@@ -1378,9 +1396,22 @@
 
       const { value: selectedUrl } = await Swal.fire({
         title: 'IMAGE SELECTION',
-        background: '#0a0a0a', color: '#fff',
-        html: `<p style="font-size:0.9rem; color: #f1c40f; margin-bottom:15px;">CHOOSE A NEW IMAGE:</p>${iconsHtml}`,
-        showCancelButton: true, confirmButtonText: 'TO SET IT!', confirmButtonColor: '#f1c40f',
+        background: '#0a0a0a',
+        color: '#fff',
+        // Добавили класс nfs-font к параграфу, чтобы текст внутри точно забрал нужный шрифт
+        html: `<p class="nfs-font" style="font-size:0.9rem; color: #f1c40f; margin-bottom:15px;">CHOOSE A NEW IMAGE:</p>${iconsHtml}`,
+        showCancelButton: true,
+        confirmButtonText: 'TO SET IT!',
+        confirmButtonColor: '#f1c40f',
+
+        // ЖЕСТКАЯ ПРИВЯЗКА КЛАССА К ЭЛЕМЕНТАМ ОКНА SWEETALERT
+        customClass: {
+          popup: 'nfs-font',       // Для всего модального окна
+          title: 'nfs-font',       // Для главного заголовка
+          confirmButton: 'nfs-font', // Для желтой кнопки
+          cancelButton: 'nfs-font'   // Для кнопки отмены
+        },
+
         preConfirm: () => window.tempAvatarUrl || window.profileData.avatar_url
       });
 

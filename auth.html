@@ -7,6 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="shortcut icon" href="/IMG_3707.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Wallpoet&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -23,7 +28,7 @@
     body {
       background: url('https://images7.alphacoders.com/517/thumb-1920-517466.jpg') no-repeat center center fixed;
       background-size: cover;
-      font-family: "Garamond", "Baskerville", "Playfair Display", Georgia, serif;
+      font-family: 'Wallpoet', sans-serif !important;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -77,7 +82,11 @@
       color: #000;
       margin-top: 15px;
     }
-    .btn-primary:hover { background: #fff; }
+
+    .btn-primary:hover {
+      background: #c10e0e;
+      color: #ffffff;
+    }
 
     .btn-secondary {
       background: none;
@@ -86,7 +95,11 @@
       margin-top: 20px;
       border: 1px solid transparent;
     }
-    .btn-secondary:hover { color: var(--nfs-yellow); text-decoration: underline; }
+
+    .btn-secondary:hover {
+      color: var(--nfs-yellow);
+      text-decoration: underline;
+    }
 
     .error {
       color: #ff4d4d;

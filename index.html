@@ -6,6 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="shortcut icon" href="/IMG_3707.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Wallpoet&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -26,8 +31,8 @@
       margin: 0; padding: 0;
       background: var(--nfs-bg) no-repeat center center fixed;
       background-size: cover;
+      font-family: 'Wallpoet', sans-serif !important;
       color: #fff;
-      font-family: "Garamond", "Baskerville", "Playfair Display", Georgia, serif;
       overflow-x: hidden;
     }
 
@@ -64,6 +69,14 @@
       letter-spacing: 2px;
       text-shadow: 2px 2px 5px #000;
       font-style: italic;
+    }
+
+    /* Применяем гоночный шрифт к списку уведомлений и кнопкам внутри */
+    #notifyPopup,
+    .notify-item,
+    .btn-acc,
+    .btn-rej {
+      font-family: 'Wallpoet', sans-serif !important;
     }
 
     /* УВЕДОМЛЕНИЯ */

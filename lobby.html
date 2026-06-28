@@ -5,6 +5,11 @@
   <title>NFS Portal | Race</title>
 
   <link rel="shortcut icon" href="/IMG_3707.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Wallpoet&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -22,8 +27,16 @@
     body {
       margin: 0; background: var(--nfs-bg) no-repeat center center fixed;
       background-size: cover; color: #fff;
-      font-family: "Garamond", "Baskerville", "Playfair Display", Georgia, serif;
+      font-family: 'Wallpoet', sans-serif !important;
       overflow-x: hidden;
+    }
+
+    /* Применяем гоночный шрифт к списку уведомлений и кнопкам внутри */
+    #notifyPopup,
+    .notify-item,
+    .btn-acc,
+    .btn-rej {
+      font-family: 'Wallpoet', sans-serif !important;
     }
 
     /* УВЕДОМЛЕНИЯ */
@@ -74,7 +87,11 @@
       background: rgba(241,196,15,0.1);
     }
 
-    .content { margin-left: 250px; min-height: 100vh; padding-top: 90px; }
+    .content {
+      margin-left: 250px;
+      min-height: 100vh;
+      padding-top: 90px;
+    }
 
     /* HERO СЕКЦИЯ С КАРТИНКОЙ */
     .lobby-hero {
@@ -109,12 +126,22 @@
       background-color: #c10e0e;
     }
 
-    .lobby-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
-    .lobby-card {
-      background: var(--nfs-dark); border-left: 4px solid #444; padding: 25px;
-      transition: 0.3s; position: relative; box-shadow: 10px 10px 0 rgba(0,0,0,0.5);
+    .nfs-font {
+      font-family: 'Wallpoet', sans-serif !important;
     }
-    .lobby-card:hover { border-left-color: var(--nfs-yellow); transform: translateY(-5px); }
+
+    .lobby-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 25px;
+    }
+
+    .lobby-card {
+      background: var(--nfs-dark);
+      padding: 25px;
+      position: relative;
+    }
+
     .lobby-status { font-size: 0.65rem; text-transform: uppercase; color: var(--nfs-yellow); letter-spacing: 2px; margin-bottom: 10px; font-weight: bold; }
     .lobby-title { font-size: 1.3rem; font-weight: 900; margin-bottom: 10px; font-style: italic; text-transform: uppercase; }
 
@@ -367,7 +394,7 @@
         <h1 style="margin:0; font-style: italic; text-transform: uppercase; font-size: 3rem; text-shadow: 4px 4px 0 #000;">FIND YOUR CREW</h1>
         <p style="color: var(--nfs-yellow); font-size: 0.9rem; font-weight: bold; letter-spacing: 2px; text-shadow: 2px 2px 4px #000;">ASSEMBLE A TEAM TO GO TO GAMERANGER</p>
       </div>
-      <button class="create-btn"
+      <button class="create-btn nfs-font"
               style="border-radius: 6px"
               onclick="createLobby()">+ CREATE LOBBY</button>
     </div>
@@ -454,14 +481,32 @@
 
   async function createLobby() {
     const { value: title } = await Swal.fire({
-      title: 'NAME FOR ROOM', input: 'text', inputPlaceholder: 'For exmpl: Drag Race 1v1',
-      background: '#0a0a0a', color: '#fff', confirmButtonColor: '#f1c40f', inputAttributes: { maxlength: 25 }
+      title: 'NAME FOR ROOM',
+      input: 'text',
+      inputPlaceholder: 'For exmpl: Drag Race 1v1',
+      background: '#0a0a0a',
+      color: '#fff',
+      confirmButtonColor: '#f1c40f',
+      inputAttributes: { maxlength: 25 },
+
+      customClass: {
+        popup: 'nfs-font',
+        title: 'nfs-font',
+        input: 'nfs-font',
+        confirmButton: 'nfs-font',
+        cancelButton: 'nfs-font'
+      }
     });
+
     if (title) {
       const { data, error } = await _supabase.from('lobbies').insert([{
-        host_name: myProfile.username, host_id: myProfile.id, title: title, current_players: 1,
+        host_name: myProfile.username,
+        host_id: myProfile.id,
+        title: title,
+        current_players: 1,
         players: [{id: myProfile.id, name: myProfile.username, avatar: myProfile.avatar_url}]
       }]).select();
+
       if (!error && data) joinLobby(data[0].id);
     }
   }
@@ -470,11 +515,33 @@
     const { data: lobby } = await _supabase.from('lobbies').select('*').eq('id', id).single();
     let players = lobby.players || [];
     const isAlreadyIn = players.find(p => p.id === myProfile.id);
+
     if (!isAlreadyIn) {
-      if (lobby.current_players >= 4) return Swal.fire("FULL", "No seats left!", "error");
+      if (lobby.current_players >= 4) {
+        return Swal.fire({
+          title: "ROOM FULL",
+          text: "No seats left for this race!",
+          icon: "error",
+          background: '#0a0a0a',
+          color: '#fff',
+          confirmButtonColor: '#e74c3c',
+          customClass: {
+            popup: 'nfs-font',
+            title: 'nfs-font',
+            htmlContainer: 'nfs-font',
+            confirmButton: 'nfs-font'
+          }
+        });
+      }
+
       players.push({ id: myProfile.id, name: myProfile.username, avatar: myProfile.avatar_url });
-      await _supabase.from('lobbies').update({ players: players, current_players: players.length, status: players.length >= 4 ? 'full' : 'open' }).eq('id', id);
+      await _supabase.from('lobbies').update({
+        players: players,
+        current_players: players.length,
+        status: players.length >= 4 ? 'full' : 'open'
+      }).eq('id', id);
     }
+
     currentLobbyId = id;
     renderLobbyWindow(id);
   }
@@ -529,7 +596,7 @@
 
     if (requests && requests.length > 0) {
       countEl.innerText = requests.length;
-      countEl.style.display = 'block'; // Показываем красный кружок с цифрой
+      countEl.style.display = 'block';
       listEl.innerHTML = '';
       requests.forEach(req => {
         listEl.innerHTML += `
