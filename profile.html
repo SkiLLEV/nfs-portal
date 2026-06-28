@@ -295,6 +295,7 @@
       font-weight: bold;
     }
 
+    /*EDIT PROFILE BUTTON*/
     .btn-tuning {
       position: absolute;
       top: 30px;
@@ -309,6 +310,29 @@
       font-weight: bold;
       font-size: 0.75rem;
       transition: all 0.3s ease;
+    }
+
+    .btn-tuning:hover {
+      color: #fff;
+      border-color: white;
+      background-color: #c10e0e;
+    }
+
+    #addCarBtn {
+      position: static !important;
+      background-color: #222222 !important;
+      color: var(--nfs-yellow);
+      border: 2px solid var(--nfs-yellow);
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #addCarBtn:hover {
+      color: #fff;
+      border-color: white !important;
+      background-color: #c10e0e !important;
     }
 
     .btn-nfs {
@@ -839,14 +863,6 @@
          id="garageTitle">RACER'S GARAGE</div>
     <button id="addCarBtn"
             class="btn-tuning hidden"
-            style="
-                  position: static;
-                  background-color: #222222;
-                  color: #f1c40f;
-                  border: 2px solid #f1c40f;
-                  padding: 10px 20px;
-                  border-radius: 6px;
-                  cursor: pointer;"
             onclick="addNewCarPhoto()">+ ADD A CAR
     </button>
   </div>
