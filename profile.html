@@ -251,11 +251,6 @@
       align-items: center;
     }
 
-    .clan-tag {
-      color: var(--nfs-yellow);
-      margin-right: 15px;
-    }
-
     .status-badge {
       background: none !important;
       border: none !important;
@@ -465,33 +460,11 @@
       border: 2px solid #000;
     }
 
-    /* 🔴 ADMIN */
-    .frame-admin {
-      background: #ff4d4d;
-      box-shadow: 0 0 15px #ff0000, inset 0 0 10px #000;
-      animation: admin-glow 1.5s ease-in-out infinite alternate;
-    }
-
-    @keyframes admin-glow {
-      from {
-        box-shadow: 0 0 10px #ff0000;
-      }
-      to {
-        box-shadow: 0 0 25px #ff4d4d;
-      }
-    }
-
     /* 🟡 VIP */
     .frame-vip {
       background: linear-gradient(135deg, #f1c40f 0%, #9b7b00 50%, #f1c40f 100%);
       border: 2px solid #444;
       box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
-    }
-
-    /* ⚪️ NEWBIE */
-    .frame-default {
-      background: rgba(255,255,255,0.1);
-      border: 2px solid #333;
     }
 
     /* Внутренний бокс для фото */
@@ -501,120 +474,6 @@
       background: #000;
       border: none; /* Убираем старую рамку */
       z-index: 2;
-    }
-
-    /* 🟣 PURPLE GHOST */
-    .frame-purple {
-      background: #a29bfe;
-      box-shadow: 0 0 15px #6c5ce7, inset 0 0 10px #000;
-      animation: purple-pulse 2s infinite alternate;
-    }
-
-    @keyframes purple-pulse {
-      from {
-        box-shadow: 0 0 5px #6c5ce7;
-      }
-      to {
-        box-shadow: 0 0 20px #a29bfe;
-      }
-    }
-
-    /* 🟢 TOXIC DRIFT */
-    .frame-toxic {
-      background: #55efc4;
-      border: 2px dashed #00b894;
-      box-shadow: 0 0 15px rgba(85, 239, 196, 0.5);
-    }
-
-    /* ⚡ NITRO SPARKS */
-    .frame-sparks {
-      background: #111;
-      border: 2px solid #fdcb6e;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .frame-sparks::after {
-      content: "";
-      position: absolute;
-      top: -50%; left: -50%;
-      width: 200%; height: 200%;
-      background: radial-gradient(circle, #fdcb6e 1px, transparent 1px);
-      background-size: 10px 10px;
-      animation: sparks-move 4s linear infinite;
-      opacity: 0.3;
-    }
-
-    @keyframes sparks-move {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .frame-ice {
-      background: linear-gradient(45deg, #74b9ff, #0984e3);
-      box-shadow: 0 0 15px #74b9ff;
-      border-radius: 10px;
-    }
-
-    .frame-carbon {
-      background:
-        linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px,
-        linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0,
-        linear-gradient(27deg, #222 5px, transparent 5px) 0 10px,
-        linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px,
-        linear-gradient(90deg, #1b1b1b 10px, transparent 10px),
-        linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
-      background-size: 20px 20px;
-      border: 1px solid #444;
-    }
-
-    .frame-void {
-      background: #000;
-      border: 1px solid #333;
-      box-shadow: 0 0 20px #fff, inset 0 0 30px #4834d4;
-      outline: 1px solid #4834d4;
-      animation: void-pulse 4s infinite;
-    }
-
-    @keyframes void-pulse {
-      0% {
-        box-shadow: 0 0 10px #fff, inset 0 0 20px #4834d4;
-      }
-      50% {
-        box-shadow: 0 0 25px #fff, inset 0 0 40px #686de0;
-      }
-      100% {
-        box-shadow: 0 0 10px #fff, inset 0 0 20px #4834d4;
-      }
-    }
-
-    .frame-checker {
-      background-image:
-        linear-gradient(45deg, #222 25%, transparent 25%),
-        linear-gradient(-45deg, #222 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #222 75%),
-        linear-gradient(-45deg, transparent 75%, #222 75%);
-      background-size: 20px 20px;
-      background-color: #eee;
-      border: 3px solid var(--nfs-yellow);
-      box-shadow: 0 0 10px var(--nfs-yellow);
-    }
-
-    .frame-holo {
-      background: linear-gradient(135deg, #00f2fe 0%, #4facfe 25%, #f093fb 50%, #f5576c 75%, #00f2fe 100%);
-      background-size: 400% 400%;
-      animation: holo-slide 3s linear infinite, rainbow-hue 10s linear infinite;
-      box-shadow: 0 0 20px rgba(79, 172, 254, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-    }
-
-    @keyframes rainbow-hue {
-      from { filter: hue-rotate(0deg); }
-      to { filter: hue-rotate(360deg); }
     }
 
     /* Класс для выбранной аватарки в окне выбора */
@@ -915,8 +774,6 @@
                  gap: 10px;">
         <span id="badgeContainer"></span>
         <h1 style="margin:0;">
-          <span class="clan-tag"
-                id="profClan">[...]</span>
           <span id="profName">Loading...</span>
         </h1>
       </div>
@@ -1230,9 +1087,6 @@
           : `<span class="avatar-letter">${data.username[0].toUpperCase()}</span>`;
       }
 
-      const clanEl = document.getElementById('profClan');
-      if (clanEl) clanEl.innerText = data.clan_tag || '[NONE]';
-
       renderGarage(data.photos);
 
       // Первичный пинок рендеринга статуса
@@ -1345,15 +1199,6 @@
       const frames = [
         { id: 'frame-default', name: 'Stardart' },
         { id: 'frame-mw', name: 'Most Wanted' },
-        { id: 'frame-admin', name: 'Red Neon' },
-        { id: 'frame-purple', name: 'Ghost Purple' },
-        { id: 'frame-toxic', name: 'Toxic Green' },
-        { id: 'frame-sparks', name: 'Nitro Sparks' },
-        { id: 'frame-ice', name: 'Ice Cold' },
-        { id: 'frame-void', name: 'Event Horizon' },
-        { id: 'frame-checker', name: 'Winner Check' },
-        { id: 'frame-carbon', name: 'Pro Carbon' },
-        { id: 'frame-holo', name: 'Cosmos Edge' },
       ];
 
       let framesHtml = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">';

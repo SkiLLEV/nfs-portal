@@ -304,7 +304,6 @@
       <th>PLACE</th>
       <th>PHOTO</th>
       <th>RACER</th>
-      <th>CLAN</th>
       <th>RATING</th>
       <th>STATUS</th>
     </tr>
@@ -489,7 +488,6 @@
             ${crown}${racer.username} ${isMe ? '<small style="color:var(--nfs-yellow); font-size: 0.6rem;">(ВЫ)</small>' : ''}
           </span>
         </td>
-        <td style="color: #888;">${racer.clan_tag || '[НЕТ]'}</td>
         <td style="font-weight: bold; color: var(--nfs-yellow); font-size: 1.1rem;">
           ${(racer.rating || 0).toLocaleString()}
         </td>
