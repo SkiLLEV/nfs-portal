@@ -59,18 +59,48 @@
     }
 
     /* УВЕДОМЛЕНИЯ */
-    .notifications-wrapper { position: relative; margin-right: 20px; display: flex; align-items: center; }
-    #notifyBell { cursor: pointer; position: relative; font-size: 22px; transition: 0.2s; }
-    #notifyBell:hover { transform: scale(1.1); }
+    .notifications-wrapper {
+      position: relative;
+      margin-right: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    #notifyBell {
+      cursor: pointer;
+      position: relative;
+      font-size: 22px;
+      transition: 0.2s;
+    }
+
+    #notifyBell:hover {
+      transform: scale(1.1);
+    }
+
     #notifyCount {
-      position: absolute; top: -5px; right: -8px; background: var(--admin-red);
-      color: white; border-radius: 50%; padding: 1px 6px; font-size: 10px;
-      font-weight: bold; border: 1px solid white; display: none;
+      position: absolute;
+      top: -5px;
+      right: -8px;
+      background: var(--admin-red);
+      color: white;
+      border-radius: 50%;
+      padding: 1px 6px;
+      font-size: 10px;
+      font-weight: bold;
+      border: 1px solid white;
+      display: none;
     }
 
     .main-sidebar {
-      width: 250px; background: var(--nfs-dark); height: 100vh; position: fixed; top: 70px; border-right: 2px solid #333; z-index: 900;
+      width: 250px;
+      background: var(--nfs-dark);
+      height: 100vh;
+      position: fixed;
+      top: 70px;
+      border-right: 2px solid #333;
+      z-index: 900;
     }
+
     .nav-item {
       display: block;
       padding: 20px 30px;
@@ -89,42 +119,85 @@
 
     /* СТИЛЬ ДЛЯ БЕЙДЖА СООБЩЕНИЙ */
     #msgBadge {
-      background: var(--nfs-yellow); color: #000; padding: 2px 6px;
-      font-size: 0.7rem; font-weight: 900; border-radius: 2px;
-      margin-left: 8px; box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+      background: var(--nfs-yellow);
+      color: #000;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      border-radius: 2px;
+      margin-left: 8px;
+      box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
       display: none;
     }
 
-    .container { margin-left: 250px; padding: 100px 50px 50px; }
+    .container {
+      margin-left: 250px;
+      padding: 100px 50px 50px;
+    }
 
-    h1 { font-style: italic; text-transform: uppercase; border-bottom: 3px solid var(--nfs-yellow); display: inline-block; margin-bottom: 30px; }
+    h1 {
+      font-style: italic;
+      text-transform: uppercase;
+      border-bottom: 3px solid var(--nfs-yellow);
+      display: inline-block;
+      margin-bottom: 30px;
+    }
 
     .blacklist-table {
-      width: 100%; border-collapse: collapse; background: rgba(0,0,0,0.85);
-      box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(0,0,0,0.85);
     }
-    .blacklist-table th {
-      text-align: left; padding: 15px; background: #111; color: var(--nfs-yellow);
-      text-transform: uppercase; font-size: 0.8rem;
-    }
-    .blacklist-table td { padding: 15px; border-bottom: 1px solid #222; }
-    .blacklist-row:hover { background: rgba(241, 196, 15, 0.05); cursor: pointer; }
 
-    .rank-num { font-size: 1.5rem; font-weight: 900; font-style: italic; color: #444; width: 50px; }
-    .top-rank { color: var(--nfs-yellow); text-shadow: 0 0 10px var(--nfs-yellow); }
+    .blacklist-table th {
+      text-align: left;
+      padding: 15px;
+      background: #111;
+      color: var(--nfs-yellow);
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+
+    .blacklist-table td {
+      padding: 15px;
+      border-bottom: 1px solid #222;
+    }
+
+    .blacklist-row:hover {
+      background: rgba(241, 196, 15, 0.05);
+      cursor: pointer;
+    }
+
+    .rank-num {
+      font-size: 1.5rem;
+      font-weight: 900;
+      font-style: italic;
+      color: #444; width: 50px;
+    }
+
+    .top-rank {
+      color: var(--nfs-yellow);
+      text-shadow: 0 0 10px var(--nfs-yellow);
+    }
 
     .racer-avatar {
-      width: 45px; height: 45px; border: 2px solid #444;
-      object-fit: cover; background: #111; transition: 0.3s;
+      width: 45px;
+      height: 45px;
+      border: 2px solid #444;
+      object-fit: cover;
+      background: #111;
+      transition: 0.3s;
     }
-    .blacklist-row:hover .racer-avatar { border-color: var(--nfs-yellow); transform: scale(1.1); }
 
-    .racer-name { font-weight: bold; font-size: 1.1rem; }
-    .admin-name { color: #ff4d4d; text-shadow: 0 0 5px #ff0000; }
+    .blacklist-row:hover .racer-avatar {
+      border-color: var(--nfs-yellow);
+      transform: scale(1.1);
+    }
 
-    .racer-status { font-size: 0.7rem; text-transform: uppercase; padding: 2px 6px; border-radius: 3px; }
-    .online { color: #2ecc71; border: 1px solid #2ecc71; border-radius: 6px }
-    .offline { color: #555; border: 1px solid #333; border-radius: 6px }
+    .racer-name {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
 
     /* ФУТЕР И ПОИСК */
     .bottom-bar {
@@ -255,7 +328,7 @@
 
 <header class="top-navbar">
   <div style="display: flex; align-items: center; gap: 20px;">
-    <img src="https://i.ibb.co/DfKw5Ywp/IMG-3707.png"
+    <img src="https://i.postimg.cc/KjhYnZ7S/IMG-4583.png"
          alt="NFS Logo"
          style="height: 65px; width: auto; filter: drop-shadow(2px 2px 8px #000);">
 
