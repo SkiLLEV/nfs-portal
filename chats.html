@@ -191,16 +191,43 @@
       padding: 0 25px;
       font-weight: bold;
       cursor: pointer;
-      text-transform: uppercase; }
+      text-transform: uppercase;
+    }
+
+    .send-btn:hover {
+      color: white;
+      background-color: #c10e0e;
+      transition: 0.3s;
+    }
 
     .admin-glow { color: #ff4d4d !important; text-shadow: 0 0 10px #ff0000; font-weight: 900 !important; }
     .badge-admin { background: #ff4d4d; color: white; border: 1px solid #da0000; font-size: 0.8rem; padding: 2px 5px; border-radius: 3px; margin-left: 5px; }
 
-    .del-btn { color: #666; font-size: 0.7rem; margin-left: 10px; cursor: pointer; }
-    .del-btn:hover { color: #ff4444; }
+    .del-btn {
+      color: #666;
+      font-size: 0.7rem;
+      margin-left: 10px;
+      cursor: pointer;
+    }
 
-    .racer-link { color: var(--nfs-yellow); cursor: pointer; text-decoration: none; }
-    .racer-link:hover { color: #fff; text-decoration: underline; }
+    .del-btn:hover {
+      color: #ff4444;
+    }
+
+    .nfs-font {
+      font-family: 'Wallpoet', sans-serif !important;
+    }
+
+    .racer-link {
+      color: var(--nfs-yellow);
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .racer-link:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
 
     #typingIndicator {
       height: 20px;
@@ -380,7 +407,7 @@
     <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
       Davenport
     </span>
-      <button onclick="handleLogout()" style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
+      <button onclick="handleLogout()" class="nfs-font" style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
         EXIT
       </button>
     </div>
@@ -422,9 +449,9 @@
 
     <div id="typingIndicator"></div>
 
-    <div class="chat-input-area">
+    <div class="chat-input-area nfs-font">
       <input type="text" id="chatInput" placeholder="Enter a message..." onkeydown="if(event.key==='Enter') doSendMessage()">
-      <button class="send-btn" onclick="doSendMessage()">ENTER</button>
+      <button class="send-btn nfs-font" onclick="doSendMessage()">ENTER</button>
     </div>
   </div>
 </div>

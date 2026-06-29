@@ -5,6 +5,11 @@
   <title>NFS Portal | Topic</title>
 
   <link rel="shortcut icon" href="/IMG_3707.ico" type="image/x-icon">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Wallpoet&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -23,7 +28,7 @@
       no-repeat center center fixed;
       background-size: cover;
       color: #fff;
-      font-family: "Garamond", "Baskerville", "Playfair Display", Georgia, serif;
+      font-family: 'Wallpoet', sans-serif !important;
     }
     .container {
       max-width: 900px;
@@ -78,7 +83,12 @@
     }
 
     .btn:hover {
-      background-color: #c1970e;
+      color: white;
+      background-color: #c10e0e;
+    }
+
+    .nfs-font {
+      font-family: 'Wallpoet', sans-serif !important;
     }
 
     .btn-secondary {
@@ -238,11 +248,11 @@
        style="margin-bottom: 40px;
        padding-left: 30px;">
 
-    <button class="btn btn-secondary"
+    <button class="btn btn-secondary nfs-font"
             style="border-radius: 6px"
             onclick="editTopic()">Edit</button>
 
-    <button class="btn btn-danger"
+    <button class="btn btn-danger nfs-font"
             style="border-radius: 6px"
             onclick="confirmDeleteTopic()">Delete topic</button>
   </div>
@@ -260,7 +270,7 @@
     <textarea id="commentText"
               rows="3"
               placeholder="Enter your message here..."></textarea>
-    <button class="btn"
+    <button class="btn nfs-font"
             style="border-radius: 6px"
             onclick="postComment()">Send</button>
   </div>
@@ -371,8 +381,18 @@
       confirmButtonText: 'YES I`M SURE',
       cancelButtonText: 'CANCEL',
       background: '#0a0a0a',
-      color: '#fff'
+      color: '#fff',
+
+      // 🌟 ВШИВАЕМ WALLPOET ДЛЯ ОКНА УДАЛЕНИЯ
+      customClass: {
+        popup: 'nfs-font',
+        title: 'nfs-font',
+        htmlContainer: 'nfs-font',
+        confirmButton: 'nfs-font',
+        cancelButton: 'nfs-font'
+      }
     });
+
     if (result.isConfirmed) {
       const { error } = await _supabase.from('forum_topics').delete().eq('id', topicId);
       if (!error) {
@@ -388,10 +408,21 @@
       background: '#0a0a0a',
       color: '#fff',
       html:
-        `<input id="swal-title" class="swal2-input" placeholder="Title" value="${topicData.title}" style="background:#111; color:#fff; border:1px solid #444">` +
-        `<textarea id="swal-content" class="swal2-textarea" placeholder="Content" style="background:#111; color:#fff; border:1px solid #444; height: 150px;">${topicData.content}</textarea>`,
+        `<input id="swal-title" class="swal2-input nfs-font" placeholder="Title" value="${topicData.title}" style="background:#111; color:#fff; border:1px solid #444">` +
+        `<textarea id="swal-content" class="swal2-textarea nfs-font" placeholder="Content" style="background:#111; color:#fff; border:1px solid #444; height: 150px;">${topicData.content}</textarea>`,
       confirmButtonText: 'SAVE CHANGES',
       confirmButtonColor: '#f1c40f',
+      showCancelButton: true, // Добавим кнопку отмены, чтобы соответствовать кастомным классам
+      cancelButtonText: 'CANCEL',
+
+      // 🌟 ВШИВАЕМ WALLPOET ДЛЯ ОКНА РЕДАКТИРОВАНИЯ
+      customClass: {
+        popup: 'nfs-font',
+        title: 'nfs-font',
+        confirmButton: 'nfs-font',
+        cancelButton: 'nfs-font'
+      },
+
       preConfirm: () => {
         return {
           title: document.getElementById('swal-title').value.trim(),
@@ -399,6 +430,7 @@
         }
       }
     });
+
     if (formValues) {
       const { error } = await _supabase.from('forum_topics')
         .update({ title: formValues.title, content: formValues.content })

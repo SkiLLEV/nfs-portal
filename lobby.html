@@ -257,7 +257,7 @@
 
       .lobby-hero div[style*="display: flex"] {
         flex-direction: column !important; /* Заголовок и кнопка создают вертикальный стек */
-        align-items: fill !important;
+        align-items: stretch !important;
         gap: 20px;
       }
 
@@ -359,7 +359,7 @@
       </div>
 
       <div id="notifyPopup" style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
-        <div class="notify-header" style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">Friend requests</div>
+        <div class="notify-header nfs-font" style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">Friend requests</div>
         <div id="notifyList"></div>
       </div>
 
@@ -369,7 +369,16 @@
     <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
       Davenport
     </span>
-      <button onclick="handleLogout()" style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
+      <button onclick="handleLogout()" class="nfs-font"
+              style="background: rgba(0,0,0,0.6);
+              border: 1px solid #333;
+              border-radius: 5px;
+              color: #ff4444;
+              cursor: pointer;
+              font-size: 0.75rem;
+              padding: 6px 12px;
+              font-weight: bold;
+              text-transform: uppercase;">
         EXIT
       </button>
     </div>
