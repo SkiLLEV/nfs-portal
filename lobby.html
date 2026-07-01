@@ -79,8 +79,25 @@
     }
 
     /* САЙДБАР */
-    .main-sidebar { width: 250px; background: rgba(15,15,15,0.98); height: calc(100vh - 90px); position: fixed; top: 90px; border-right: 2px solid #333; z-index: 100; }
-    .nav-item { display: block; padding: 20px 30px; color: #bbb; text-decoration: none; text-transform: uppercase; transition: 0.3s; font-size: 0.85rem; }
+    .main-sidebar {
+      width: 250px;
+      background: rgba(15,15,15,0.98);
+      height: auto;
+      position: fixed;
+      top: 90px;
+      border-right: 2px solid #333;
+      z-index: 100;
+    }
+
+    .nav-item {
+      display: block;
+      padding: 20px 30px;
+      color: #bbb;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: 0.3s;
+      font-size: 0.85rem;
+    }
 
     .nav-item:hover, .nav-item.active {
       color: #fff;
