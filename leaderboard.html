@@ -105,6 +105,12 @@
       z-index: 900;
     }
 
+    .btn-exit:hover {
+      background: rgba(255, 68, 68, 0.2) !important;
+      color: #ff6666 !important;
+      border-color: #ff4444 !important;
+    }
+
     .nav-item {
       display: block;
       padding: 20px 30px;
@@ -368,7 +374,7 @@
     <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
       Davenport
     </span>
-      <button onclick="handleLogout()" class="nfs-font"
+      <button onclick="handleLogout()" class="nfs-font btn-exit"
               style="background: rgba(0,0,0,0.6);
               border: 1px solid #333;
               border-radius: 5px;

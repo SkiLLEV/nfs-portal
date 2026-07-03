@@ -76,11 +76,54 @@
       width: 280px; background: #0a0a0a; border: 2px solid var(--nfs-yellow);
       z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
-    .notify-header { padding: 10px; background: #1a1a1a; border-bottom: 1px solid #333; font-size: 11px; font-weight: bold; color: var(--nfs-yellow); text-transform: uppercase; }
-    .notify-item { padding: 12px; border-bottom: 1px solid #222; }
-    .notify-btns { display: flex; gap: 5px; margin-top: 8px; }
-    .btn-acc { flex: 1; background: var(--nfs-yellow); border: none; padding: 5px; cursor: pointer; font-weight: bold; font-size: 10px; text-transform: uppercase; }
-    .btn-rej { flex: 1; background: #333; color: white; border: none; padding: 5px; cursor: pointer; font-size: 10px; text-transform: uppercase; }
+    .notify-header {
+      padding: 10px;
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      font-size: 11px;
+      font-weight: bold;
+      color: var(--nfs-yellow);
+      text-transform: uppercase;
+    }
+
+    .notify-item {
+      padding: 12px;
+      border-bottom: 1px solid #222;
+    }
+
+    .notify-btns {
+      display: flex;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .btn-acc {
+      flex: 1;
+      background: var(--nfs-yellow);
+      border: none;
+      padding: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .btn-rej {
+      flex: 1;
+      background: #333;
+      color: white;
+      border: none;
+      padding: 5px;
+      cursor: pointer;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .btn-exit:hover {
+      background: rgba(255, 68, 68, 0.2) !important;
+      color: #ff6666 !important;
+      border-color: #ff4444 !important;
+    }
 
     .nav-item {
       display: block;
@@ -426,7 +469,7 @@
     <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
       Davenport
     </span>
-      <button onclick="handleLogout()" class="nfs-font" style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
+      <button onclick="handleLogout()" class="nfs-font btn-exit" style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
         EXIT
       </button>
     </div>
@@ -598,7 +641,7 @@
       const { data, error } = await _supabase.from('direct_messages')
         .select('*')
         .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`)
-        .order('created_at', {ascending: false});
+        .order('created_at', {ascending: false}); // От новых к старым
 
       if (error) throw error;
 
@@ -609,7 +652,7 @@
           const otherName = (m.sender_id === myProfile.id) ? m.receiver_name : m.sender_name;
 
           if (otherId && otherId !== myProfile.id) {
-            // 1. Если этого человека ещё нет в списке, создаём его структуру
+            // 1. Если этого человека ещё нет в списке, это САМОЕ СВЕЖЕЕ сообщение
             if (!contacts.has(otherId)) {
               const uData = specialUsers[otherName] || { avatar: null, status: 'OFFLINE' };
               contacts.set(otherId, {
@@ -621,9 +664,9 @@
               });
             }
 
-            // 2. Счётчик непрочитанных (работает для ЛЮБОГО сообщения в цикле)
-            // Если получатель — я, и сообщение не прочитано, и этот чат сейчас НЕ открыт прямо на экране
-            if (m.receiver_id === myProfile.id && m.is_read === false && activeChatId !== otherId) {
+            // 2. Счётчик непрочитанных (работает для каждого непрочитанного сообщения от этого юзера)
+            // Приводим к строке, чтобы избежать багов сравнения UUID объектов со строками
+            if (m.receiver_id === myProfile.id && m.is_read === false && String(activeChatId) !== String(otherId)) {
               contacts.get(otherId).unreadCount++;
             }
           }
@@ -633,6 +676,9 @@
       container.innerHTML = contacts.size > 0 ? '' : '<p style="padding: 20px; font-size: 0.8rem; color: #444;">Нет активных диалогов</p>';
 
       contacts.forEach((val, id) => {
+        const currentIdStr = String(id);
+        const activeIdStr = String(activeChatId);
+
         // ОПРЕДЕЛЯЕМ ЦВЕТ ТОЧКИ В РЕАЛЬНОМ ВРЕМЕНИ ЧЕРЕЗ РАДАР
         const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[val.name] : null;
 
@@ -651,19 +697,20 @@
           }
         }
 
+        // ВАЖНО: Добавили id="chat-${id}" для корректной работы switchChat
         container.innerHTML += `
-      <div class="chat-item ${activeChatId === id ? 'active' : ''}" onclick="switchChat('${id}', '${val.name}', 'private')">
-        <div class="avatar-wrapper">
-          <div class="chat-avatar">${val.avatar ? `<img src="${val.avatar}">` : val.name[0]}</div>
-          <div class="status-dot" style="background: ${dotColor}; ${presence ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
-        </div>
-        <div class="chat-item-info">
-          <div style="font-weight: bold; color: ${presence ? '#fff' : '#888'}">${val.name}</div>
-          <div style="font-size: 0.75rem; color: #666;">${val.lastMsg.substring(0, 20)}${val.lastMsg.length > 20 ? '...' : ''}</div>
-        </div>
+    <div id="chat-${id}" class="chat-item ${activeIdStr === currentIdStr ? 'active' : ''}" onclick="switchChat('${id}', '${val.name}', 'private')">
+      <div class="avatar-wrapper">
+        <div class="chat-avatar">${val.avatar ? `<img src="${val.avatar}">` : val.name[0]}</div>
+        <div class="status-dot" style="background: ${dotColor}; ${presence ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
+      </div>
+      <div class="chat-item-info">
+        <div style="font-weight: bold; color: ${presence ? '#fff' : '#888'}">${val.name}</div>
+        <div style="font-size: 0.75rem; color: #666;">${val.lastMsg.substring(0, 20)}${val.lastMsg.length > 20 ? '...' : ''}</div>
+      </div>
 
-        ${val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : ''}
-      </div>`;
+      ${val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : ''}
+    </div>`;
       });
     } catch (err) {
       console.error("Error of uploading DMs:", err);
@@ -671,20 +718,31 @@
   }
 
   async function switchChat(id, name, type) {
-    activeChatId = id; activeChatType = type; targetUserName = name;
+    activeChatId = id;
+    activeChatType = type;
+    targetUserName = name;
+
     document.getElementById('chatWithTitle').innerText = name;
+
     document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
 
-    if(type === 'private') {
+    if (type === 'private') {
       const el = document.getElementById(`chat-${id}`);
       if (el) el.classList.add('active');
-      await _supabase.from('direct_messages').update({ is_read: true }).eq('sender_id', id).eq('receiver_id', myProfile.id);
+
+      await _supabase
+        .from('direct_messages')
+        .update({ is_read: true })
+        .eq('sender_id', id)
+        .eq('receiver_id', myProfile.id);
     } else {
-      document.getElementById('publicChatBtn').classList.add('active');
+      const publicBtn = document.getElementById('publicChatBtn');
+      if (publicBtn) publicBtn.classList.add('active');
     }
 
     if (typingChannel) typingChannel.unsubscribe();
     initTypingTracker();
+
     await loadMessages();
     await loadRecentDMs();
   }

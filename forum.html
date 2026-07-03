@@ -38,6 +38,12 @@
       font-family: 'Wallpoet', sans-serif !important;
     }
 
+    .btn-exit:hover {
+      background: rgba(255, 68, 68, 0.2) !important;
+      color: #ff6666 !important;
+      border-color: #ff4444 !important;
+    }
+
     /* УВЕДОМЛЕНИЯ */
     .notifications-wrapper {
       position: relative;
@@ -396,7 +402,7 @@
     <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
       Davenport
     </span>
-      <button onclick="handleLogout()" class="nfs-font"
+      <button onclick="handleLogout()" class="nfs-font btn-exit"
               style="background: rgba(0,0,0,0.6);
               border: 1px solid #333;
               border-radius: 5px;
@@ -428,7 +434,7 @@
   <div class="create-topic-box">
     <h3 style="margin-top:0; color: var(--nfs-yellow); font-style: italic;">NEW DISCUSSION</h3>
     <input type="text" id="topicTitle" placeholder="Enter title here...">
-    <textarea id="topicContent" rows="3" placeholder="What we'll talk about?.."></textarea>
+    <textarea id="topicContent" rows="3" placeholder="What are we discussing today?.."></textarea>
     <button class="btn-create nfs-font"
             style="border-radius: 6px"
             onclick="createNewTopic()">Publish it!</button>
