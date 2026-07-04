@@ -2,6 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NFS Portal | Topic</title>
 
   <link rel="icon" href="https://i.postimg.cc/htQQdS85/IMG-3707.png" type="image/png">
@@ -17,7 +18,8 @@
   <script src="utils.js"></script>
 
   <style>
-    :root { --nfs-yellow: #f1c40f;
+    :root {
+      --nfs-yellow: #cca609; /* Привели к единому приглушенному золотому тону */
       --nfs-dark: #0a0a0a;
     }
 
@@ -30,16 +32,17 @@
       color: #fff;
       font-family: 'Wallpoet', sans-serif !important;
     }
+
     .container {
       max-width: 900px;
       margin: 0 auto;
-      padding: 40px;
-    }
+      padding: 20px 40px 40px 40px;
 
     .main-topic {
-      background: rgba(255,255,255,0.05);
+      background: rgba(15, 15, 15, 0.95);
       padding: 30px;
       margin-bottom: 20px;
+      border: 1px solid #222;
     }
 
     .main-topic p, .comment div {
@@ -47,13 +50,12 @@
     }
 
     .comment {
-      background: #151515;
-      padding: 15px;
+      background: #111;
+      padding: 20px;
       margin-bottom: 10px;
-      border: 1px solid #333;
+      border: 1px solid #222;
     }
 
-    /* КЛАСС ДЛЯ ЧИТАЕМОГО ТЕКСТА ПОЛЬЗОВАТЕЛЕЙ */
     .user-text-content {
       font-family: 'Arial', 'Helvetica', sans-serif !important;
       font-size: 1.05rem;
@@ -63,9 +65,11 @@
     }
 
     .comment-meta {
-      font-size: 1.2rem;
-      color: var(--nfs-yellow);
-      margin-bottom: 5px;
+      font-size: 0.85rem;
+      color: #777;
+      margin-bottom: 10px;
+      font-family: 'Wallpoet', sans-serif;
+      text-transform: uppercase;
     }
 
     /* ОБНОВЛЕННЫЙ ТЕКСТАРЕА */
@@ -79,6 +83,8 @@
       outline: none;
       resize: none;
       box-sizing: border-box;
+      font-family: 'Arial', 'Helvetica', sans-serif !important; /* Удобный ввод */
+      font-size: 1rem;
     }
 
     textarea:focus {
@@ -93,6 +99,7 @@
       cursor: pointer;
       text-transform: uppercase;
       transition: 0.2s;
+      color: #000;
     }
 
     .btn:hover {
@@ -126,9 +133,12 @@
     .back-link {
       color: #888;
       text-decoration: none;
-      display: block;
+      display: inline-block;
       margin-bottom: 20px;
-      font-size: 1.5rem;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: 0.2s;
     }
 
     .back-link:hover {
@@ -146,12 +156,13 @@
     .racer-link {
       color: var(--nfs-yellow);
       cursor: pointer;
-      text-decoration: underline;
+      text-decoration: none;
       font-weight: bold;
     }
 
     .racer-link:hover {
       color: #ff0000;
+      text-decoration: underline;
     }
 
     /* ==========================================================================
@@ -165,7 +176,7 @@
       }
 
       .back-link {
-        font-size: 1.1rem !important;
+        font-size: 0.9rem !important;
         margin-bottom: 15px;
       }
 
@@ -179,7 +190,7 @@
       }
 
       .user-text-content {
-        font-size: 0.95rem !important; /* Корректируем размер шрифта на мобилках */
+        font-size: 0.95rem !important;
         line-height: 1.5;
       }
 
@@ -211,7 +222,7 @@
       }
 
       .comment-meta {
-        font-size: 0.9rem !important;
+        font-size: 0.8rem !important;
       }
 
       #replyBox h3 {
@@ -230,7 +241,6 @@
         text-align: center;
       }
     }
-
   </style>
 </head>
 <body>
@@ -243,36 +253,21 @@
     </div>
   </div>
 
-  <div id="authorControls"
-       class="hidden"
-       style="margin-bottom: 40px;
-       padding-left: 30px;">
-
-    <button class="btn btn-secondary nfs-font"
-            style="border-radius: 6px"
-            onclick="editTopic()">Edit</button>
-
-    <button class="btn btn-danger nfs-font"
-            style="border-radius: 6px"
-            onclick="confirmDeleteTopic()">Delete topic</button>
+  <div id="authorControls" class="hidden" style="margin-bottom: 40px;">
+    <button class="btn btn-secondary nfs-font" style="border-radius: 6px" onclick="editTopic()">Edit</button>
+    <button class="btn btn-danger nfs-font" style="border-radius: 6px" onclick="confirmDeleteTopic()">Delete topic</button>
   </div>
 
-  <hr style="border: 0; border-top: 1px solid #333; margin: 40px 0;">
+  <hr style="border: 0; border-top: 1px solid #222; margin: 40px 0;">
 
   <div id="commentsList">
-    <h3>ANSWERS:</h3>
+    <h3 style="font-style: italic; text-transform: uppercase;">MESSAGE INTERCEPT:</h3>
   </div>
 
   <div id="replyBox">
-    <h3 style="color:
-    var(--nfs-yellow);
-    font-style: italic;">Send Reply</h3>
-    <textarea id="commentText"
-              rows="3"
-              placeholder="Enter your message here..."></textarea>
-    <button class="btn nfs-font"
-            style="border-radius: 6px"
-            onclick="postComment()">Send</button>
+    <h3 style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 1rem; letter-spacing: 1px;">Send Reply</h3>
+    <textarea id="commentText" rows="3" placeholder="Enter your message here..."></textarea>
+    <button class="btn nfs-font" style="border-radius: 6px" onclick="postComment()">Send</button>
   </div>
 </div>
 
@@ -310,12 +305,11 @@
     }
     topicData = data;
 
-    // Внедрили класс .user-text-content для основного текста поста
     document.getElementById('topicDetail').innerHTML = `
       <div class="main-topic">
-        <h1 style="color:var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;">${data.title}</h1>
-        <p class="user-text-content" style="white-space: pre-line;">${data.content}</p>
-        <small style="font-size: 1rem; color: #888; font-family: 'Wallpoet', sans-serif;">Post author:
+        <h1 style="color:var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0; font-size: 1.8rem; letter-spacing: 1px;">${data.title}</h1>
+        <p class="user-text-content" style="white-space: pre-line; margin-bottom: 20px;">${data.content}</p>
+        <small style="font-size: 0.8rem; color: #555; font-family: 'Wallpoet', sans-serif; text-transform: uppercase; letter-spacing: 1px;">Post author:
            <span class="racer-link" onclick="window.location.href='profile.html?u=${data.author_name}'">
              ${data.author_name}
            </span>
@@ -334,24 +328,26 @@
       .order('created_at', {ascending: true});
 
     const list = document.getElementById('commentsList');
-    list.innerHTML = '<h3 style="border-bottom: 1px solid #222; padding-bottom: 10px; font-style: italic;">MESSAGE INTERCEPT:</h3>';
+    list.innerHTML = '<h3 style="border-bottom: 1px solid #222; padding-bottom: 10px; font-style: italic; font-size: 1.1rem; letter-spacing: 1px;">MESSAGE INTERCEPT:</h3>';
 
     if (data && data.length > 0) {
       data.forEach(c => {
-        // Внедрили класс .user-text-content для текста комментариев
+        // Сделали вывод даты через компактный локальный формат
+        const commentDate = new Date(c.created_at).toLocaleDateString('ru-RU') + ' ' + new Date(c.created_at).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+
         list.innerHTML += `
           <div class="comment">
             <div class="comment-meta">
                <span class="racer-link" onclick="window.location.href='profile.html?u=${c.author_name}'">
                  ${c.author_name}
-               </span> • ${new Date(c.created_at).toLocaleString()}
+               </span> • ${commentDate}
             </div>
             <div class="user-text-content" style="white-space: pre-line;">${c.content}</div>
           </div>
         `;
       });
     } else {
-      list.innerHTML += '<p style="color: #cfcfcf;">It`s quiet here for now...</p>';
+      list.innerHTML += '<p style="color: #444; font-size: 0.8rem; font-style: italic; padding-left: 5px;">It`s quiet here for now...</p>';
     }
   }
 
@@ -365,7 +361,7 @@
 
     if (!error) {
       document.getElementById('commentText').value = '';
-      nfsNotify("Ответ отправлен в сеть");
+      if (typeof nfsNotify === 'function') nfsNotify("Ответ отправлен в сеть");
       loadComments();
     }
   }
@@ -393,7 +389,7 @@
     if (result.isConfirmed) {
       const { error } = await _supabase.from('forum_topics').delete().eq('id', topicId);
       if (!error) {
-        nfsNotify("Topic deleted");
+        if (typeof nfsNotify === 'function') nfsNotify("Topic deleted");
         setTimeout(() => window.location.href = 'forum.html', 1000);
       }
     }
@@ -408,7 +404,7 @@
         `<input id="swal-title" class="swal2-input nfs-font" placeholder="Title" value="${topicData.title}" style="background:#111; color:#fff; border:1px solid #444">` +
         `<textarea id="swal-content" class="swal2-textarea nfs-font" placeholder="Content" style="background:#111; color:#fff; border:1px solid #444; height: 150px;">${topicData.content}</textarea>`,
       confirmButtonText: 'SAVE CHANGES',
-      confirmButtonColor: '#f1c40f',
+      confirmButtonColor: '#cca609',
       showCancelButton: true,
       cancelButtonText: 'CANCEL',
       customClass: {
@@ -430,7 +426,7 @@
         .update({ title: formValues.title, content: formValues.content })
         .eq('id', topicId);
       if (!error) {
-        nfsNotify("Data updated");
+        if (typeof nfsNotify === 'function') nfsNotify("Data updated");
         loadFullTopic();
       }
     }
