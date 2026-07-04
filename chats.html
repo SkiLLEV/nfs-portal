@@ -2,9 +2,10 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>NFS Portal | My Chats</title>
 
-  <link rel="icon" href="https://i.postimg.cc/htQQdS85/IMG-3707.png" type="image/png">
+  <link class="icon" href="https://i.postimg.cc/htQQdS85/IMG-3707.png" type="image/png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -125,39 +126,24 @@
       border-color: #ff4444 !important;
     }
 
-    .nav-item {
-      display: block;
-      padding: 20px 30px;
-      color: #bbb;
-      text-decoration: none;
-      text-transform: uppercase;
-      border-bottom: 1px solid #222;
-      transition: 0.3s;
-    }
-
-    .nav-item:hover, .nav-item.active {
-      color: #fff;
-      background: rgba(241, 196, 15, 0.1);
-    }
-
     /* САЙДБАР */
     .main-sidebar {
-        width: 250px;
-        background: linear-gradient(
-          to right,
-          rgba(5, 5, 5, 0.98) 0%,
-          rgba(12, 12, 12, 0.95) 60%,
-          rgba(20, 20, 20, 0.85) 100%
-        );
-        backdrop-filter: blur(4px);
-        height: auto;
-        position: fixed;
-        top: 70px;
-        left: 0;
-        border-right: 2px solid var(--nfs-border);
-        padding-top: 20px;
-        z-index: 999;
-      }
+      width: 250px;
+      background: linear-gradient(
+        to right,
+        rgba(5, 5, 5, 0.98) 0%,
+        rgba(12, 12, 12, 0.95) 60%,
+        rgba(20, 20, 20, 0.85) 100%
+      );
+      backdrop-filter: blur(4px);
+      height: auto;
+      position: fixed;
+      top: 70px;
+      left: 0;
+      border-right: 2px solid var(--nfs-border);
+      padding-top: 20px;
+      z-index: 999;
+    }
 
     .nav-item {
       display: block;
@@ -167,6 +153,12 @@
       text-transform: uppercase;
       transition: 0.3s;
       font-size: 0.85rem;
+      border-bottom: 1px solid #222;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      color: #fff;
+      background: rgba(241, 196, 15, 0.1);
     }
 
     /* КОНТЕЙНЕР ЧАТА */
@@ -200,11 +192,12 @@
       flex-shrink: 0;
     }
 
+    /* КВАДРАТНЫЕ ИКОНКИ ЧАТОВ */
     .chat-avatar {
       width: 50px;
       height: 50px;
       background: #222;
-    : 50%; display: flex;
+      display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
@@ -214,6 +207,8 @@
     }
 
     .chat-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* КВАДРАТНЫЕ МИНИ-АВАТАРКИ */
     .mini-avatar {
       width: 40px;
       height: 40px;
@@ -235,7 +230,7 @@
 
     .messages-area { flex-grow: 1; padding: 45px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
 
-    .msg { max-width: 75%; padding: 12px 24px; border-radius: 6px; position: relative; font-size: 1.4rem; line-height: 1.4; box-shadow: 4px 4px 10px rgba(0,0,0,0.4); }
+    .msg { max-width: 75%; padding: 12px 24px; border-radius: 6px; position: relative; box-shadow: 4px 4px 10px rgba(0,0,0,0.4); }
     .msg.incoming { align-self: flex-start; background: #1e1e1e; }
     .msg.outgoing { align-self: flex-end; background: #2a2a2a;  }
 
@@ -246,12 +241,39 @@
       align-items: center;
       font-weight: bold;
       gap: 8px;
+      font-family: 'Wallpoet', sans-serif !important;
     }
 
     .msg-info .avatar-wrapper { margin-right: 2px; }
 
+    /* Шрифт контента */
+    .msg-text {
+      font-family: 'Arial', 'Helvetica', sans-serif !important;
+      font-size: 1.1rem;
+      line-height: 1.5;
+      color: #e5e5e0;
+      letter-spacing: 0.3px;
+    }
+
+    /* Шрифт превью текста */
+    .chat-item-preview-text {
+      font-family: 'Arial', 'Helvetica', sans-serif !important;
+      font-size: 0.8rem;
+      color: #777;
+    }
+
     .chat-input-area { padding: 30px; background: #0a0a0a; display: flex; gap: 15px; border-top: 1px solid #222; }
-    input[type="text"] { flex-grow: 1; background: #1a1a1a; border: 1px solid #333; color: #fff; padding: 12px; outline: none; }
+
+    input[type="text"] {
+      flex-grow: 1;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 12px;
+      outline: none;
+      font-family: 'Arial', 'Helvetica', sans-serif !important;
+      font-size: 1rem;
+    }
     input[type="text"]:focus { border-color: var(--nfs-yellow); }
 
     .send-btn {
@@ -319,12 +341,8 @@
       margin-left: 5px;
     }
 
-    /* ==========================================================================
-   АДАПТИВНАЯ ВЕРСТКА ДЛЯ МЕССЕНДЖЕРА (ЭКРАНЫ МЕНЬШЕ 768px)
-   ========================================================================== */
+    /* АДАПТИВНОСТЬ */
     @media screen and (max-width: 768px) {
-
-      /* 1. ШАПКА И ГЛАВНОЕ МЕНЮ САЙТА */
       .top-navbar {
         height: 70px !important;
         padding: 0 15px !important;
@@ -372,23 +390,20 @@
         border-bottom: 3px solid var(--nfs-yellow) !important;
       }
 
-      /* 2. КОНТЕЙНЕР ПРИЛОЖЕНИЯ НА МОБИЛКЕ */
       .app-container {
         margin-left: 0 !important;
         margin-top: 0 !important;
-        height: calc(100vh - 140px) !important; /* Высчитываем высоту за вычетом шапок */
+        height: calc(100vh - 140px) !important;
         position: relative !important;
         width: 100% !important;
-        display: block !important; /* Flex-box на мобилках ломает абсолютные перекрытия колонок */
+        display: block !important;
       }
 
-      /* СПИСОК ЧАТОВ: На мобилке изначально занимает 100% */
       .chat-list {
         width: 100% !important;
         display: block !important;
       }
 
-      /* ОКНО СООБЩЕНИЙ: Изначально спрятано и ждет активации класса .open-chat */
       .chat-window {
         display: none !important;
         position: absolute !important;
@@ -397,20 +412,18 @@
         width: 100% !important;
         height: 100% !important;
         z-index: 50 !important;
-        background: #050505 !important; /* Плотный фон, чтобы сквозь чат не просвечивал список */
+        background: #050505 !important;
       }
 
-      /* ⚡️ МАГИЯ ПЕРЕКЛЮЧЕНИЯ (РАБОТАЕТ ТОЛЬКО НА СМАРТФОНЕ) */
       .app-container.open-chat .chat-list {
-        display: none !important; /* Скрываем список, когда открыли чат */
+        display: none !important;
       }
 
       .app-container.open-chat .chat-window {
-        display: flex !important; /* Показываем чат и инпут */
+        display: flex !important;
         flex-direction: column !important;
       }
 
-      /* 3. ОПТИМИЗАЦИЯ ДЕТАЛЕЙ ДИАЛОГА */
       .messages-area {
         padding: 15px !important;
         gap: 12px !important;
@@ -419,7 +432,10 @@
       .msg {
         max-width: 85% !important;
         padding: 10px 18px !important;
-        font-size: 1.1rem !important; /* Возвращаем нормальный читаемый размер вместо огромного */
+      }
+
+      .msg-text {
+        font-size: 1rem !important;
       }
 
       .msg-info {
@@ -435,10 +451,6 @@
         padding: 0 15px !important;
         font-size: 0.9rem !important;
       }
-
-      .chat-back-btn {
-        display: inline-block !important; /* Стрелочка "Назад" появляется только на мобилках */
-      }
     }
   </style>
 </head>
@@ -449,16 +461,13 @@
     <img src="https://i.postimg.cc/KjhYnZ7S/IMG-4583.png"
          alt="NFS Logo"
          style="height: 65px; width: auto; filter: drop-shadow(2px 2px 8px #000);">
-
     <div style="font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 5px #000; font-style: italic; text-transform: uppercase;">
       MY MESSENGER
     </div>
   </div>
 
   <div class="user-area" style="display: flex; align-items: center; gap: 20px;">
-
     <div class="notifications-wrapper" id="notifyWrapper" style="position: relative; display: flex; align-items: center;">
-
       <div id="notifyBell" onclick="toggleNotifyPopup()" style="cursor: pointer; display: flex; align-items: center;">
         <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -470,13 +479,14 @@
         <div class="notify-header nfs-font" style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">Friend requests</div>
         <div id="notifyList"></div>
       </div>
+    </div>
 
-    </div> <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;">LOGIN</button>
+    <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;">LOGIN</button>
 
     <div class="user-info" id="userInfo" style="display: flex; align-items: center; gap: 15px;">
-    <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
-      Davenport
-    </span>
+      <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
+        Davenport
+      </span>
       <button onclick="handleLogout()" class="nfs-font btn-exit" style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
         EXIT
       </button>
@@ -502,7 +512,7 @@
       <div class="chat-avatar">G</div>
       <div class="chat-item-info">
         <div style="font-weight: bold;">GENERAL CHANNEL</div>
-        <div style="font-size: 0.8rem; color: var(--nfs-yellow);">ALL RIDERS</div>
+        <div class="chat-item-preview-text" style="color: var(--nfs-yellow);">ALL RIDERS</div>
       </div>
     </div>
 
@@ -525,6 +535,7 @@
     </div>
   </div>
 </div>
+
 <script>
   const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
@@ -556,22 +567,15 @@
         updateFriendNotifications();
       }
 
-      // 1. Запускаем основной маяк
       if (typeof initGlobalStatus === 'function') {
         initGlobalStatus(_supabase, myProfile);
 
-        // 2. ПРИНУДИТЕЛЬНЫЙ ПИНГ
         setTimeout(() => {
           if (typeof window.trackMyStatus === 'function') {
             window.trackMyStatus(myProfile.status || 'ONLINE');
-            console.log("Радар: принудительно вещаю статус 'В ЧАТЕ'");
+            console.log("Радар: вещаю статус 'В ЧАТЕ'");
           }
         }, 800);
-      }
-
-      // Обновляем бейдж сообщений
-      if (typeof updateGlobalMsgBadge === 'function') {
-        updateGlobalMsgBadge(_supabase, myProfile.id);
       }
     }
 
@@ -587,11 +591,13 @@
       await loadMessages();
     }
 
+    if (typeof updateGlobalMsgBadge === 'function') {
+      updateGlobalMsgBadge(_supabase, myProfile.id);
+    }
+
     subscribeToChanges();
     initTypingTracker();
   };
-
-  // ФУНКЦИИ РАБОТЫ СО СТАТУСАМИ
 
   function initStatusTracker() {
     const statusChannel = _supabase.channel('global-online', {
@@ -601,7 +607,7 @@
     statusChannel
       .on('presence', { event: 'sync' }, () => {
         onlineUsers = statusChannel.presenceState();
-        loadRecentDMs(); // Перерисовываем список чатов с актуальными точками
+        loadRecentDMs();
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
@@ -622,13 +628,11 @@
     const userLocation = pData.location;
     const liveStatus = pData.status || 'ONLINE';
 
-    if (userLocation === 'chats.html') return '#ff4d4d'; // Красный
+    if (userLocation === 'chats.html') return '#ff4d4d';
     if (liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
 
-    return '#2ecc71'; // Зеленый
+    return '#2ecc71';
   }
-
-  // ФУНКЦИИ ЧАТА
 
   async function fetchSpecialRoles() {
     const { data } = await _supabase.from('profiles').select('id, username, is_admin, is_vip, avatar_url, status');
@@ -636,8 +640,6 @@
       id: u.id, admin: u.is_admin, vip: u.is_vip, avatar: u.avatar_url, status: u.status || 'OFFLINE', username: u.username
     });
   }
-
-  let isDMsLoading = false; // Флаг защиты от спама запросами
 
   async function loadRecentDMs() {
     if (!myProfile) return;
@@ -649,7 +651,7 @@
       const { data, error } = await _supabase.from('direct_messages')
         .select('*')
         .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`)
-        .order('created_at', {ascending: false}); // От новых к старым
+        .order('created_at', {ascending: false});
 
       if (error) throw error;
 
@@ -660,7 +662,6 @@
           const otherName = (m.sender_id === myProfile.id) ? m.receiver_name : m.sender_name;
 
           if (otherId && otherId !== myProfile.id) {
-            // 1. Если этого человека ещё нет в списке, это САМОЕ СВЕЖЕЕ сообщение
             if (!contacts.has(otherId)) {
               const uData = specialUsers[otherName] || { avatar: null, status: 'OFFLINE' };
               contacts.set(otherId, {
@@ -672,10 +673,10 @@
               });
             }
 
-            // 2. Счётчик непрочитанных (работает для каждого непрочитанного сообщения от этого юзера)
-            // Приводим к строке, чтобы избежать багов сравнения UUID объектов со строками
-            if (m.receiver_id === myProfile.id && m.is_read === false && String(activeChatId) !== String(otherId)) {
-              contacts.get(otherId).unreadCount++;
+            if (m.receiver_id === myProfile.id && m.is_read === false) {
+              if (activeChatType !== 'private' || String(activeChatId) !== String(m.sender_id)) {
+                contacts.get(otherId).unreadCount++;
+              }
             }
           }
         });
@@ -686,37 +687,33 @@
       contacts.forEach((val, id) => {
         const currentIdStr = String(id);
         const activeIdStr = String(activeChatId);
-
-        // ОПРЕДЕЛЯЕМ ЦВЕТ ТОЧКИ В РЕАЛЬНОМ ВРЕМЕНИ ЧЕРЕЗ РАДАР
         const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[val.name] : null;
 
-        let dotColor = '#555'; // Offline
+        let dotColor = '#555';
         if (presence) {
           const pData = presence[0];
           const loc = pData.location;
           const liveStatus = pData.status || 'ONLINE';
 
           if (loc === 'chats.html') {
-            dotColor = '#ff4d4d'; // В чате (Красный)
+            dotColor = '#ff4d4d';
           } else if (liveStatus === 'IN GAME' || liveStatus === 'LOOKING FOR GAME') {
-            dotColor = 'var(--nfs-yellow)'; // В игре (Желтый)
+            dotColor = 'var(--nfs-yellow)';
           } else {
-            dotColor = '#2ecc71'; // В сети (Зеленый)
+            dotColor = '#2ecc71';
           }
         }
 
-        // ВАЖНО: Добавили id="chat-${id}" для корректной работы switchChat
         container.innerHTML += `
-    <div id="chat-${id}" class="chat-item ${activeIdStr === currentIdStr ? 'active' : ''}" onclick="switchChat('${id}', '${val.name}', 'private')">
+    <div id="chat-${id}" class="chat-item ${activeChatType === 'private' && activeIdStr === currentIdStr ? 'active' : ''}" onclick="switchChat('${id}', '${val.name}', 'private')">
       <div class="avatar-wrapper">
         <div class="chat-avatar">${val.avatar ? `<img src="${val.avatar}">` : val.name[0]}</div>
         <div class="status-dot" style="background: ${dotColor}; ${presence ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
       </div>
       <div class="chat-item-info">
         <div style="font-weight: bold; color: ${presence ? '#fff' : '#888'}">${val.name}</div>
-        <div style="font-size: 0.75rem; color: #666;">${val.lastMsg.substring(0, 20)}${val.lastMsg.length > 20 ? '...' : ''}</div>
+        <div class="chat-item-preview-text">${val.lastMsg.substring(0, 20)}${val.lastMsg.length > 20 ? '...' : ''}</div>
       </div>
-
       ${val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : ''}
     </div>`;
       });
@@ -731,7 +728,6 @@
     targetUserName = name;
 
     document.getElementById('chatWithTitle').innerText = name;
-
     document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
 
     if (type === 'private') {
@@ -753,6 +749,10 @@
 
     await loadMessages();
     await loadRecentDMs();
+
+    if (typeof updateGlobalMsgBadge === 'function') {
+      updateGlobalMsgBadge(_supabase, myProfile.id);
+    }
   }
 
   async function loadMessages() {
@@ -796,8 +796,6 @@
     box.scrollTop = box.scrollHeight;
   }
 
-  // ТРЕКЕР ПЕЧАТИ (Broadcast)
-
   function initTypingTracker() {
     const channelKey = activeChatType === 'public' ? 'global' : [myProfile.id, activeChatId].sort().join('-');
     typingChannel = _supabase.channel(`typing:${channelKey}`);
@@ -808,7 +806,7 @@
         if (userName === myProfile.username) return;
 
         const indicator = document.getElementById('typingIndicator');
-        if (indicator) indicator.innerText = userName + " печатает...";
+        if (indicator) indicator.innerText = userName + " is typing...";
 
         clearTimeout(localTypingTimeouts[userName]);
         localTypingTimeouts[userName] = setTimeout(() => {
@@ -829,30 +827,23 @@
     }
   }
 
-  // ОТПРАВКА И УДАЛЕНИЕ
-
   async function doSendMessage() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
 
     if (!text) return;
 
-    // 1. Проверка на лимит символов (то, что мы делали раньше)
     if (text.length > 500) {
       nfsNotify('THE MESSAGE IS TOO LONG!', 'error');
       return;
     }
 
-    // 2. ПРОВЕРКА НА МУТ (БАН)
     if (myProfile && myProfile.muted_until) {
       const now = new Date();
       const muteDate = new Date(myProfile.muted_until);
 
       if (muteDate > now) {
-        // Считаем минуты до конца
         const diffMins = Math.ceil((muteDate - now) / 60000);
-
-        // Используем стильный SweetAlert2 вместо обычного alert
         Swal.fire({
           title: 'OOOPS!',
           html: `Your access to the chat is blocked.<br>Mute expires in: <b style="color:#f1c40f">${diffMins} min.</b>`,
@@ -862,11 +853,10 @@
           confirmButtonColor: '#f1c40f',
           confirmButtonText: 'I GOT IT'
         });
-        return; // Прерываем отправку
+        return;
       }
     }
 
-    // 3. ОТПРАВКА СООБЩЕНИЯ
     let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
     let payload = activeChatType === 'public'
       ? { sender_name: myProfile.username, text: text, room_id: 'global' }
@@ -884,7 +874,6 @@
       renderSingleMessage(data[0]);
       input.value = '';
 
-      // Если это приватный чат, обновляем список контактов слева
       if (activeChatType === 'private') {
         loadRecentDMs();
       }
@@ -907,23 +896,13 @@
 
     _supabase.channel('dms').on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'direct_messages'}, async (p) => {
       if (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id) {
-
-        // 1. ЕСЛИ МЫ СЕЙЧАС В ДИАЛОГЕ С ЭТИМ ОТПРАВИТЕЛЕМ:
         if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
           renderSingleMessage(p.new);
-
-          // Помечаем как прочитанное и ЖДЁМ ответа от базы данных (await)
           if (p.new.sender_id === activeChatId) {
-            await _supabase.from('direct_messages')
-              .update({ is_read: true })
-              .eq('id', p.new.id);
+            await _supabase.from('direct_messages').update({ is_read: true }).eq('id', p.new.id);
           }
         }
-
-        // 2. Жёстко обновляем список контактов слева ТОЛЬКО после того, как статус прочитанного обновился
         await loadRecentDMs();
-
-        // 3. Синхронизируем главный счётчик MESSENGER [0] в сайдбаре
         if (typeof updateGlobalMsgBadge === 'function') {
           updateGlobalMsgBadge(_supabase, myProfile.id);
         }
@@ -933,17 +912,13 @@
 
   async function updateFriendNotifications() {
     if (!myProfile) return;
-    const { data: requests } = await _supabase.from('friend_requests')
-      .select('*')
-      .eq('receiver_id', myProfile.id)
-      .eq('status', 'pending');
-
+    const { data: requests } = await _supabase.from('friend_requests').select('*').eq('receiver_id', myProfile.id).eq('status', 'pending');
     const countEl = document.getElementById('notifyCount');
     const listEl = document.getElementById('notifyList');
 
     if (requests && requests.length > 0) {
       countEl.innerText = requests.length;
-      countEl.style.display = 'flex'; // Показываем и центрируем цифру
+      countEl.style.display = 'flex';
       listEl.innerHTML = '';
       requests.forEach(req => {
         listEl.innerHTML += `
@@ -970,26 +945,15 @@
     updateFriendNotifications();
   }
 
-  // Функция автоматического открытия чата по URL-параметру (?to=nickname)
   async function openChatFromURL(targetName) {
     if (!targetName) return;
-    console.log('Перехват сигнала! Пытаемся открыть чат с:', targetName);
-
-    // Ждем небольшую паузу, чтобы объект specialUsers точно успел заполниться данными из базы
     if (Object.keys(specialUsers).length === 0) {
       await fetchSpecialRoles();
     }
-
-    // Ищем гонщика в нашем списке пользователей по его никнейму
     const racer = specialUsers[targetName];
-
     if (racer) {
-      console.log(`Нашли гонщика ${targetName} с ID: ${racer.id}. Переключаю сессию...`);
-      // Вызываем нашу рабочую функцию переключения чата
       switchChat(racer.id, racer.username, 'private');
     } else {
-      console.warn(`[Радар]: Гонщик с ником "${targetName}" не найден в локальной базе.`);
-      // Если в кэше specialUsers его вдруг нет, делаем точечный запрос в Supabase для подстраховки
       const { data } = await _supabase.from('profiles').select('id, username').eq('username', targetName).maybeSingle();
       if (data) {
         switchChat(data.id, data.username, 'private');
@@ -1011,7 +975,6 @@
   }
 
   window.updateFriendsStatusOnly = function() {
-    console.log("Радар обновился, перерисовываю список чатов...");
     loadRecentDMs();
   };
 </script>

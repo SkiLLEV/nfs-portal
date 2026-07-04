@@ -53,6 +53,15 @@
       border: 1px solid #333;
     }
 
+    /* КЛАСС ДЛЯ ЧИТАЕМОГО ТЕКСТА ПОЛЬЗОВАТЕЛЕЙ */
+    .user-text-content {
+      font-family: 'Arial', 'Helvetica', sans-serif !important;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #e0e0e0;
+      letter-spacing: 0.5px;
+    }
+
     .comment-meta {
       font-size: 1.2rem;
       color: var(--nfs-yellow);
@@ -68,8 +77,8 @@
       padding: 15px;
       margin: 20px 0;
       outline: none;
-      resize: none; /* изменение размера окна для сообщений */
-      box-sizing: border-box; /* Фикс ширины */
+      resize: none;
+      box-sizing: border-box;
     }
 
     textarea:focus {
@@ -149,55 +158,49 @@
    АДАПТИВНАЯ ВЕРСТКА ДЛЯ СТРАНИЦЫ ТЕМЫ (ЭКРАНЫ МЕНЬШЕ 768px)
    ========================================================================== */
     @media screen and (max-width: 768px) {
-
-      /* 1. ГЛАВНЫЙ КОНТЕЙНЕР */
       .container {
-        padding: 20px 15px 60px 15px !important; /* Делаем аккуратные мобильные отступы */
+        padding: 20px 15px 60px 15px !important;
         width: 100% !important;
         box-sizing: border-box;
       }
 
-      /* Ссылка возврата на форум */
       .back-link {
-        font-size: 1.1rem !important; /* Уменьшаем размер ссылки, чтобы она не занимала пол-экрана */
+        font-size: 1.1rem !important;
         margin-bottom: 15px;
       }
 
-      /* 2. ГЛАВНЫЙ ПОСТ ТЕМЫ */
       .main-topic {
-        padding: 15px !important; /* Сжимаем внутренние отступы коробки поста */
+        padding: 15px !important;
       }
 
       .main-topic h1 {
-        font-size: 1.5rem !important; /* Уменьшаем заголовок темы */
+        font-size: 1.5rem !important;
         line-height: 1.3;
       }
 
-      .main-topic p {
-        font-size: 1.1rem !important; /* Снижаем гигантский шрифт 1.5rem до читаемого на смартфонах */
-        line-height: 1.4;
+      .user-text-content {
+        font-size: 0.95rem !important; /* Корректируем размер шрифта на мобилках */
+        line-height: 1.5;
       }
 
       .main-topic small {
-        font-size: 0.9rem !important; /* Уменьшаем блок с автором */
+        font-size: 0.9rem !important;
       }
 
-      /* 3. КНОПКИ УПРАВЛЕНИЯ ДЛЯ АВТОРА ТЕМЫ */
       #authorControls {
-        padding-left: 0 !important; /* Убираем левый сдвиг */
+        padding-left: 0 !important;
         display: flex;
         gap: 10px;
         margin-bottom: 25px !important;
       }
 
       #authorControls .btn {
-        flex: 1; /* Кнопки "Edit" и "Delete" делят экран поровну */
+        flex: 1;
         text-align: center;
         padding: 12px 5px !important;
         font-size: 0.9rem;
       }
 
-      /* 4. БЛОК С КОММЕНТАРИЯМИ */
       #commentsList h3 {
         font-size: 1.1rem;
         text-align: center;
@@ -208,16 +211,9 @@
       }
 
       .comment-meta {
-        font-size: 0.9rem !important; /* Мета-данные ответа чуть компактнее */
+        font-size: 0.9rem !important;
       }
 
-      .comment div[style*="font-size: 25px"] {
-        font-style: normal;
-        font-size: 1.1rem !important; /* Огромный шрифт ответов в 25px на мобилке просто разнесет верстку */
-        line-height: 1.4 !important;
-      }
-
-      /* 5. ФОРМА ОТПРАВКИ ОТВЕТА */
       #replyBox h3 {
         font-size: 1.2rem;
       }
@@ -229,7 +225,7 @@
       }
 
       #replyBox .btn {
-        width: 100%; /* Кнопка "Send" растягивается на всю ширину для удобного тапа пальцем */
+        width: 100%;
         padding: 12px !important;
         text-align: center;
       }
@@ -313,13 +309,13 @@
       return;
     }
     topicData = data;
+
+    // Внедрили класс .user-text-content для основного текста поста
     document.getElementById('topicDetail').innerHTML = `
       <div class="main-topic">
         <h1 style="color:var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;">${data.title}</h1>
-        <p style="font-size: 1.5rem; line-height: 1.6; color: #eee; white-space: pre-line;">${data.content}</p>
-        <small style="
-        font-size: 20px;
-        color: #888;">Post author:
+        <p class="user-text-content" style="white-space: pre-line;">${data.content}</p>
+        <small style="font-size: 1rem; color: #888; font-family: 'Wallpoet', sans-serif;">Post author:
            <span class="racer-link" onclick="window.location.href='profile.html?u=${data.author_name}'">
              ${data.author_name}
            </span>
@@ -342,6 +338,7 @@
 
     if (data && data.length > 0) {
       data.forEach(c => {
+        // Внедрили класс .user-text-content для текста комментариев
         list.innerHTML += `
           <div class="comment">
             <div class="comment-meta">
@@ -349,10 +346,7 @@
                  ${c.author_name}
                </span> • ${new Date(c.created_at).toLocaleString()}
             </div>
-            <div style="color: #ddd;
-            font-size: 25px;
-            line-height: 1.4;
-            white-space: pre-line;">${c.content}</div>
+            <div class="user-text-content" style="white-space: pre-line;">${c.content}</div>
           </div>
         `;
       });
@@ -387,8 +381,6 @@
       cancelButtonText: 'CANCEL',
       background: '#0a0a0a',
       color: '#fff',
-
-      // 🌟 ВШИВАЕМ WALLPOET ДЛЯ ОКНА УДАЛЕНИЯ
       customClass: {
         popup: 'nfs-font',
         title: 'nfs-font',
@@ -417,17 +409,14 @@
         `<textarea id="swal-content" class="swal2-textarea nfs-font" placeholder="Content" style="background:#111; color:#fff; border:1px solid #444; height: 150px;">${topicData.content}</textarea>`,
       confirmButtonText: 'SAVE CHANGES',
       confirmButtonColor: '#f1c40f',
-      showCancelButton: true, // Добавим кнопку отмены, чтобы соответствовать кастомным классам
+      showCancelButton: true,
       cancelButtonText: 'CANCEL',
-
-      // 🌟 ВШИВАЕМ WALLPOET ДЛЯ ОКНА РЕДАКТИРОВАНИЯ
       customClass: {
         popup: 'nfs-font',
         title: 'nfs-font',
         confirmButton: 'nfs-font',
         cancelButton: 'nfs-font'
       },
-
       preConfirm: () => {
         return {
           title: document.getElementById('swal-title').value.trim(),

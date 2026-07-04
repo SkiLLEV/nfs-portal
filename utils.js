@@ -1,16 +1,17 @@
-// Глобальный объект радара
+// Global radar object
 let onlineUsers = {};
 
 /**
- * 0. ГЛОБАЛЬНЫЙ ЗВУК УВЕДОМЛЕНИЯ
+ * 0. GLOBAL NOTIFICATION SOUND
  */
 function playNotificationSound() {
   const audio = new Audio('https://codesandbox.io/api/v1/sandboxes/github/codesandbox/sandbox-template/files/contents/public/success.mp3');
   audio.volume = 0.6;
+  audio.play().catch(err => console.log("Sound play prevented by browser autoplay policy"));
 }
 
 /**
- * 1. Уведомления NFS
+ * 1. NFS Notifications
  */
 function nfsNotify(title, icon = 'success') {
   if (typeof Swal === 'undefined') return;
@@ -22,8 +23,8 @@ function nfsNotify(title, icon = 'success') {
     showConfirmButton: false,
     timer: 3000,
     background: '#0a0a0a',
-    color: '#f1c40f',
-    iconColor: '#f1c40f',
+    color: '#cca609',
+    iconColor: '#cca609',
     customClass: { popup: 'nfs-toast-border' }
   });
 }
@@ -43,10 +44,11 @@ function formatLastSeen(dateString) {
 }
 
 /**
- * 2. Счетчик сообщений
+ * 2. Message Badge Updater (Fetches raw state from DB without updating flags)
  */
 async function updateGlobalMsgBadge(supabase, myId) {
   if (!supabase || !myId) return;
+
   const { count, error } = await supabase
     .from('direct_messages')
     .select('*', { count: 'exact', head: true })
@@ -65,31 +67,29 @@ async function updateGlobalMsgBadge(supabase, myId) {
 }
 
 /**
- * 3. Пометка прочитанных
+ * 3. Safe message marker (Marks read only when explicitly inside the specific chat block)
  */
-async function markAllMsgsAsRead(supabase, myId) {
-  if (!supabase || !myId) return;
-  const { error } = await supabase
+async function markChatAsRead(supabase, myId, senderId) {
+  if (!supabase || !myId || !senderId) return;
+  await supabase
     .from('direct_messages')
     .update({ is_read: true })
     .eq('receiver_id', myId)
+    .eq('sender_id', senderId)
     .eq('is_read', false);
 
-  if (!error) {
-    const badge = document.getElementById('msgBadge');
-    if (badge) badge.style.display = 'none';
-  }
+  await updateGlobalMsgBadge(supabase, myId);
 }
 
 /**
- * 4. ГЛОБАЛЬНЫЙ МАЯК (initGlobalStatus)
+ * 4. GLOBAL BEACON (initGlobalStatus)
  */
 async function initGlobalStatus(supabase, profile) {
   if (!supabase) return;
 
   const currentPage = window.location.pathname.split("/").pop() || 'index.html';
 
-  // Создаем канал для Realtime присутствия
+  // Create Realtime presence channel
   const statusChannel = supabase.channel('global-online', {
     config: {
       presence: {
@@ -98,7 +98,7 @@ async function initGlobalStatus(supabase, profile) {
     }
   });
 
-  // --- ШАГ 1: ОБРАБОТЧИКИ (Синхронизация радара) ---
+  // --- STEP 1: HANDLERS (Radar sync) ---
   statusChannel.on('presence', { event: 'sync' }, () => {
     onlineUsers = statusChannel.presenceState();
 
@@ -110,7 +110,7 @@ async function initGlobalStatus(supabase, profile) {
     if (typeof window.updateSteamFriendsWidgetOnly === 'function') window.updateSteamFriendsWidgetOnly();
   });
 
-  // Глобальная функция для обновления статуса в радаре
+  // Global status tracking broadcaster
   window.trackMyStatus = async (newStatus) => {
     if (!profile) return;
     await statusChannel.track({
@@ -120,12 +120,12 @@ async function initGlobalStatus(supabase, profile) {
     });
   };
 
-  // Включаем оверлей друзей, если профиль авторизован
+  // Inject overlay if authorized
   if (profile) {
     injectSteamFriendsWidget(supabase, profile);
   }
 
-  // --- ШАГ 2: ПОДПИСКА И ОБНОВЛЕНИЕ ВРЕМЕНИ ---
+  // --- STEP 2: SUBSCRIPTION & LAST SEEN UPDATES ---
   statusChannel.subscribe(async (status) => {
     if (status === 'SUBSCRIBED' && profile) {
       await window.trackMyStatus();
@@ -135,40 +135,36 @@ async function initGlobalStatus(supabase, profile) {
         .from('profiles')
         .update({ last_seen: now })
         .eq('id', profile.id);
+
+      // Pull actual counter upon re-login/refresh securely
+      await updateGlobalMsgBadge(supabase, profile.id);
     }
   });
 
-  // --- ШАГ 2.5: 🔔 ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК СООБЩЕНИЙ СО ЗВУКОМ ---
+  // --- STEP 2.5: Realtime direct message interceptor with sound triggers ---
   if (profile) {
-    supabase.removeChannel(supabase.channel('global-audio-messages'));
-
     supabase.channel('global-audio-messages')
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'direct_messages',
-        filter: `receiver_id=eq.'${profile.id}'`
+        filter: `receiver_id=eq.${profile.id}`
       }, (payload) => {
-        console.log("🔊 Realtime:", payload);
-
         playNotificationSound();
         updateGlobalMsgBadge(supabase, profile.id);
 
-        if (currentPage === 'chats.html' && typeof window.loadMyChatsList === 'function') {
-          window.loadMyChatsList();
+        if (currentPage === 'chats.html' && typeof window.loadRecentDMs === 'function') {
+          window.loadRecentDMs();
         }
       })
-      .subscribe((status) => {
-        console.log(`Статус аудио-канала для ${profile.username}:`, status);
-      });
+      .subscribe();
   }
 
-  // --- ШАГ 3: ОБРАБОТКА ВЫХОДА (OFFLINE) ---
+  // --- STEP 3: VISIBILITY/OFFLINE MANAGEMENT ---
   if (profile) {
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
         const now = new Date().toISOString();
-        // Используем специальный быстрый запрос, который сработает даже при закрытии приложения
         supabase
           .from('profiles')
           .update({ status: 'OFFLINE', last_seen: now })
@@ -179,11 +175,10 @@ async function initGlobalStatus(supabase, profile) {
   }
 
   /**
-   * 5. СТИЛЬНЫЙ ВИДЖЕТ ДРУЗЕЙ В СТИЛЕ STEAM OVERLAY
+   * 5. STEAM OVERLAY LOOKALIKE FRIENDS WIDGET
    */
   function injectSteamFriendsWidget(supabaseClient, myProfile) {
     if (!supabaseClient || !myProfile) return;
-
     if (document.getElementById('steamFriendsWin')) return;
 
     const style = document.createElement('style');
@@ -194,7 +189,7 @@ async function initGlobalStatus(supabase, profile) {
         right: 20px;
         background: #0a0a0a;
         color: #96a6b6;
-        border: 1px solid #f1c40f;
+        border: 1px solid #cca609;
         padding: 4px 12px;
         font-size: 0.75rem;
         font-weight: bold;
@@ -214,7 +209,7 @@ async function initGlobalStatus(supabase, profile) {
         width: 280px;
         height: 380px;
         background: #0a0a0a;
-        border: 1px solid #f1c40f;
+        border: 1px solid #cca609;
         box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         z-index: 2000;
         font-family: 'Segoe UI', Arial, sans-serif;
@@ -320,9 +315,6 @@ async function initGlobalStatus(supabase, profile) {
     refreshSteamFriendsList(supabaseClient, myProfile);
   }
 
-  /**
-   * Логика получения друзей из базы и разделения их на Playing, Online и Offline
-   */
   async function refreshSteamFriendsList(supabaseClient, myProfile) {
     const body = document.getElementById('steamFriendsBody');
     if (!body) return;
@@ -363,9 +355,8 @@ async function initGlobalStatus(supabase, profile) {
       if (isOnline) {
         const pData = presence[0];
         const liveStatus = pData.status || 'ONLINE';
-        const avatarSrc = friend.avatar_url || 'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png';
+        const avatarSrc = friend.avatar_url || 'https://via.placeholder.com/34';
 
-        // 🟢 ИГРАЕТ ИЛИ ИЩЕТ ИГРУ
         if (liveStatus === 'IN GAME' || liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME' || pData.location === 'chats.html') {
           playingCount++;
           dotColorClass = 'steam-text-ingame';
@@ -385,7 +376,6 @@ async function initGlobalStatus(supabase, profile) {
             </div>
           `;
         }
-        // 🔵 Online
         else {
           onlineCount++;
           dotColorClass = 'steam-text-online';
@@ -402,14 +392,13 @@ async function initGlobalStatus(supabase, profile) {
           `;
         }
       } else {
-        // ⚫ ОФФЛАЙН (Только время захода)
         offlineCount++;
         let lastSeenText = "Last online long ago";
         if (friend.last_seen) {
           lastSeenText = `Last online ${formatLastSeen(friend.last_seen)}`;
         }
 
-        const avatarSrc = friend.avatar_url || 'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png';
+        const avatarSrc = friend.avatar_url || 'https://via.placeholder.com/34';
 
         offlineHTML += `
           <div class="steam-friend-row" onclick="window.location.href='profile.html?u=${friend.username}'" style="opacity: 0.6;">
@@ -443,7 +432,6 @@ async function initGlobalStatus(supabase, profile) {
     body.innerHTML = finalHTML;
   }
 
-  // Привязываем внутреннюю функцию регенерации к глобальному триггеру
   window.updateSteamFriendsWidgetOnly = function() {
     const win = document.getElementById('steamFriendsWin');
     if (win && win.style.display === 'flex') {
@@ -452,29 +440,28 @@ async function initGlobalStatus(supabase, profile) {
   };
 
   /**
-   * ГЛОБАЛЬНОЕ ОКНО АВТОРИЗАЦИИ
+   * GLOBAL SWEETALERT AUTHORIZATION
    */
   async function openModal() {
     const { value: formValues } = await Swal.fire({
       title: 'RACE AUTHORIZATION',
       background: '#0a0a0a',
       color: '#fff',
-      confirmButtonColor: '#f1c40f',
+      confirmButtonColor: '#cca609',
       html:
         '<input id="swal-email" class="swal2-input" placeholder="Email" type="email" style="background:#111; color:#fff;">' +
         '<input id="swal-password" class="swal2-input" placeholder="Password" type="password" style="background:#111; color:#fff;">',
       focusConfirm: false,
       preConfirm: () => {
         return {
-          email: document.getElementById('swal-email').value,
-          password: document.getElementById('swal-password').value
+          email: document.getElementById('swal-email').value.trim(),
+          password: document.getElementById('swal-password').value.trim()
         }
       }
     });
 
     if (formValues) {
-      // Вызываем авторизацию Supabase
-      const { error } = await _supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: formValues.email,
         password: formValues.password,
       });
@@ -487,6 +474,6 @@ async function initGlobalStatus(supabase, profile) {
       }
     }
   }
-// Ссылаем глобальное окно, чтобы HTML его увидел
+
   window.openModal = openModal;
 }

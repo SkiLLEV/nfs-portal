@@ -142,7 +142,7 @@
       display: none;
     }
 
-    /* КОНТЕНТ (Убрали маргин справа, теперь контент распределяется свободно) */
+    /* КОНТЕНТ */
     .container {
       margin-left: 280px;
       padding: 120px 50px 50px 50px;
@@ -162,6 +162,7 @@
       margin-bottom: 40px;
     }
 
+    /* ФОРМА СОЗДАНИЯ ТЕМЫ: ЧИТАЕМЫЙ ШРИФТ ПРИ НАБОРЕ СЛОВ */
     input, textarea {
       width: 100%;
       background: #111;
@@ -172,6 +173,8 @@
       box-sizing: border-box;
       outline: none;
       resize: none;
+      font-family: 'Arial', 'Helvetica', sans-serif !important;
+      font-size: 1rem;
     }
 
     input:focus, textarea:focus {
@@ -222,9 +225,19 @@
       text-decoration: underline;
     }
 
+    /* КЛАСС ДЛЯ ОБЫЧНОГО ЧИТАЕМОГО ТЕКСТА ПОЛЬЗОВАТЕЛЕЙ */
+    .user-text-content {
+      font-family: 'Arial', 'Helvetica', sans-serif !important;
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: #cccccc;
+      letter-spacing: 0.5px;
+    }
+
     .topic-meta {
       font-size: 0.8rem;
       color: #777;
+      font-family: 'Wallpoet', sans-serif;
     }
 
     /* ФУТЕР С ВЕРТИКАЛЬНЫМ ГРАДИЕНТОМ И РАЗМЫТИЕМ */
@@ -325,7 +338,7 @@
 </header>
 
 <aside class="sidebar">
-  <nav style="padding-top: 20px;">
+  <nav>
     <a href="index.html" class="nav-item">MAIN</a>
     <a href="forum.html" class="nav-item active">FORUM</a>
     <a href="chats.html" class="nav-item">MESSENGER<span id="msgBadge">0</span></a>
@@ -431,10 +444,11 @@
     if (data) {
       data.forEach(topic => {
         const date = new Date(topic.created_at).toLocaleDateString();
+        // Применили класс .user-text-content к описанию превью темы
         list.innerHTML += `
           <div class="topic-card" onclick="window.location.href='topic.html?id=${topic.id}'">
             <div class="topic-title">${topic.title}</div>
-            <div style="margin-bottom: 10px; color: #ccc;">${topic.content.substring(0, 120)}${topic.content.length > 120 ? '...' : ''}</div>
+            <div class="user-text-content" style="margin-bottom: 10px;">${topic.content.substring(0, 120)}${topic.content.length > 120 ? '...' : ''}</div>
             <div class="topic-meta">Autor: <strong>${topic.author_name}</strong> • ${date}</div>
           </div>
         `;
