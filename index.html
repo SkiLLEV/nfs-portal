@@ -526,7 +526,7 @@
                                   min-width: 200px;
                                   margin-top: 10px;">
 
-        <div class="notify-header" style="
+        <div class="notify-header nfs-font" style="
                                        padding: 10px;
                                        color: #fff;
                                        border-bottom: 1px solid #333;
@@ -750,7 +750,7 @@
           .subscribe();
       }
     } else {
-      // ДЛЯ ГОСТЕЙ: Чтобы счетчик в футере работал, просто вызываем initGlobalStatus с null
+
       if (typeof initGlobalStatus === 'function') {
         initGlobalStatus(_supabase, null);
       }
@@ -768,12 +768,11 @@
     }).subscribe();
   }
 
-  let friendsCache = []; // Кэш для списка друзей
+  let friendsCache = [];
 
   async function loadSidebarFriends() {
     if (!myProfile) return;
 
-    // Грузим из базы только ОДИН РАЗ или принудительно
     const { data } = await _supabase.from('friend_requests')
       .select('sender_id, ' +
         'receiver_id, ' +
@@ -784,11 +783,10 @@
 
     if (data) {
       friendsCache = data;
-      renderFriendsUI(); // Рендерим список
+      renderFriendsUI();
     }
   }
 
-  // Новая функция, которая просто перерисовывает точки БЕЗ запроса к базе
   function renderFriendsUI() {
     const listContainer = document.getElementById('sidebarFriendsList');
     if (!listContainer) return;
@@ -804,7 +802,7 @@
       if (presence) {
         const pData = presence[0];
         const loc = pData.location;
-        const liveStatus = pData.status || 'ONLINE'; // Тот самый статус, который мы трекаем
+        const liveStatus = pData.status || 'ONLINE';
 
         if (loc === 'chats.html') {
           statusName = 'IN CHAT';

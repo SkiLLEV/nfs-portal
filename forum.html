@@ -393,7 +393,7 @@
       </div>
 
       <div id="notifyPopup" style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
-        <div class="notify-header" style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">Friend requests</div>
+        <div class="notify-header nfs-font" style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">Friend requests</div>
         <div id="notifyList"></div>
       </div>
 
@@ -557,20 +557,20 @@
 
     if (requests && requests.length > 0) {
       countEl.innerText = requests.length;
-      countEl.style.display = 'block'; // Показываем красный кружок с цифрой
+      countEl.style.display = 'flex'; // Показываем и центрируем цифру
       listEl.innerHTML = '';
       requests.forEach(req => {
         listEl.innerHTML += `
-                    <div class="notify-item">
-                        <b>${req.sender_name}</b> wants to be friends
-                        <div class="notify-btns">
-                            <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button>
-                            <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">NO</button>
-                        </div>
-                    </div>`;
+          <div class="notify-item" style="padding:10px; border-bottom:1px solid #222; color:#fff; font-size:0.8rem;">
+            <b>${req.sender_name}</b> wants to be friends
+            <div class="notify-btns" style="display:flex; gap:5px; margin-top:5px;">
+              <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')" style="flex:1; background:#f1c40f; border:none; cursor:pointer; font-weight:bold; font-size:10px;">OK</button>
+              <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')" style="flex:1; background:#333; color:#fff; border:none; cursor:pointer; font-size:10px;">NO</button>
+            </div>
+          </div>`;
       });
     } else {
-      countEl.style.display = 'none'; // Прячем кружок, если запросов нет
+      countEl.style.display = 'none';
       listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">There are no requests</div>';
     }
   }
