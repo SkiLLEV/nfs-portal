@@ -96,15 +96,22 @@
     }
 
     .main-sidebar {
-      width: 250px;
-      background: var(--nfs-dark);
-      height: auto;
-      position: fixed;
-      top: 70px;
-      border-right: 2px solid #333;
-      z-index: 900;
-    }
-
+        width: 250px;
+        background: linear-gradient(
+          to right,
+          rgba(5, 5, 5, 0.98) 0%,
+          rgba(12, 12, 12, 0.95) 60%,
+          rgba(20, 20, 20, 0.85) 100%
+        );
+        backdrop-filter: blur(4px);
+        height: auto;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        border-right: 2px solid var(--nfs-border);
+        padding-top: 0px;
+        z-index: 999;
+      }
     .btn-exit:hover {
       background: rgba(255, 68, 68, 0.2) !important;
       color: #ff6666 !important;
@@ -213,13 +220,25 @@
       font-size: 1.1rem;
     }
 
-    /* ФУТЕР И ПОИСК */
+    /* ФУТЕР С ВЕРТИКАЛЬНЫМ ГРАДИЕНТОМ И РАЗМЫТИЕМ */
     .bottom-bar {
-      position: fixed; bottom: 0; width: 100%;
-      background: rgba(0,0,0,0.95); padding: 15px 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(10, 10, 10, 0.95) 50%,
+        rgba(20, 20, 20, 0.9) 100%
+      );
+      backdrop-filter: blur(4px);
+      padding: 15px 0;
       border-top: 2px solid var(--nfs-yellow);
-      text-align: center; font-size: 0.9rem; z-index: 1000;
-      text-transform: uppercase; letter-spacing: 1px;
+      text-align: center;
+      font-size: 0.9rem;
+      z-index: 1000;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .highlight {

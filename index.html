@@ -49,14 +49,14 @@
       padding: 0 40px;
       box-sizing: border-box;
 
-      /* Мягкий полосатый фон: темно-серый + приглушенный желтый */
+      /* Мягкий полосатый фон */
       background:
-        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), /* Затемняющий слой */
+        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
         repeating-linear-gradient(
           -45deg,
           #0a0a0a,
           #0a0a0a 40px,
-          rgba(241, 196, 15, 0.4) 40px, /* Желтый теперь полупрозрачный */
+          rgba(241, 196, 15, 0.4) 40px,
           rgba(241, 196, 15, 0.4) 80px
         );
 
@@ -72,7 +72,6 @@
       font-style: italic;
     }
 
-    /* Применяем гоночный шрифт к списку уведомлений и кнопкам внутри */
     #notifyPopup,
     .notify-item,
     .btn-acc,
@@ -173,16 +172,21 @@
       border-color: #ff4444 !important;
     }
 
-    /* САЙДБАР */
     .sidebar {
       width: 250px;
-      background: var(--nfs-dark);
+      background: linear-gradient(
+        to right,
+        rgba(5, 5, 5, 0.98) 0%,
+        rgba(12, 12, 12, 0.95) 60%,
+        rgba(20, 20, 20, 0.85) 100%
+      );
+      backdrop-filter: blur(4px);
       height: auto;
       position: fixed;
       top: 70px;
       left: 0;
       border-right: 2px solid var(--nfs-border);
-      padding-top: 20px;
+      padding-top: 0px;
       z-index: 999;
     }
 
@@ -207,7 +211,6 @@
       font-family: 'Wallpoet', sans-serif !important;
     }
 
-    /* БЕЙДЖ СООБЩЕНИЙ */
     #msgBadge {
       background: var(--nfs-yellow);
       color: #000;
@@ -220,9 +223,64 @@
       display: none;
     }
 
+    /* ==========================================================================
+       СТИЛИ ДЛЯ ПРАВОГО ВИДЖЕТА КАЛЕНДАРЯ
+       ========================================================================== */
+    .right-calendar-widget {
+      position: fixed;
+      top: 100px;
+      right: 40px;
+      z-index: 1001;
+      width: 220px;
+      background: rgba(0, 0, 0, 0.9);
+      padding: 15px;
+      border: 1px solid #222;
+    }
+
+    .calendar-title {
+      font-size: 0.8rem;
+      color: var(--nfs-yellow);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #222;
+      padding-bottom: 6px;
+    }
+
+    .u-calendar {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+
+    .u-calendar th {
+      color: var(--nfs-yellow);
+      padding: 4px 0;
+      text-transform: uppercase;
+      font-size: 0.65rem;
+    }
+
+    .u-calendar td {
+      padding: 5px 0;
+      color: #666;
+    }
+
+    .u-calendar td.u-today {
+      background: var(--nfs-yellow);
+      color: #000;
+      font-weight: bold;
+      border-radius: 2px;
+    }
+
     /* КОНТЕНТ */
     .main-content {
       margin-left: 250px;
+      margin-right: 280px;
       margin-top: 70px;
       padding: 50px;
       min-height: 100vh;
@@ -297,12 +355,18 @@
       text-shadow: 0 0 8px var(--nfs-yellow);
     }
 
-    /* ФУТЕР И ПОИСК */
+    /* ФУТЕР С ВЕРТИКАЛЬНЫМ ГРАДИЕНТОМ И РАЗМЫТИЕМ */
     .bottom-bar {
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: rgba(0,0,0,0.95);
+      background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 1) 0%,
+        rgba(10, 10, 10, 0.95) 50%,
+        rgba(20, 20, 20, 0.9) 100%
+      );
+      backdrop-filter: blur(4px);
       padding: 15px 0;
       border-top: 2px solid var(--nfs-yellow);
       text-align: center;
@@ -332,9 +396,6 @@
       display: none;
       align-items: center;
       gap: 20px;
-    }
-
-    .user-info:hover {
     }
 
     #displayNick:hover {
@@ -377,46 +438,36 @@
     }
 
     /* ==========================================================================
-   АДАПТИВНАЯ ВЕРСТКА ДЛЯ СМАРТФОНОВ (ЭКРАНЫ МЕНЬШЕ 768px)
+   АДАПТИВНАЯ ВЕРСТКА ДЛЯ СМАРТФОНОВ
    ========================================================================== */
     @media screen and (max-width: 768px) {
+      .top-navbar { padding: 0 15px; }
+      .logo { font-size: 1.2rem; }
+      #displayNick { max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-      /* 1. ШАПКА САЙТА */
-      .top-navbar {
-        padding: 0 15px; /* Уменьшаем боковые отступы в шапке */
-      }
-
-      .logo {
-        font-size: 1.2rem; /* Чуть уменьшаем шрифт логотипа */
-      }
-
-      #displayNick {
-        max-width: 90px; /* Чтобы длинный никнейм не сдвигал кнопку EXIT */
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      /* 2. ПЕРЕНОС САЙДБАРА НАВЕРХ */
       .sidebar {
-        position: static; /* Отвязываем от фиксации слева */
+        position: static;
         width: 100%;
         height: auto;
         top: 0;
         padding-top: 0;
-        margin-top: 70px; /* Ставим сразу под шапку */
+        margin-top: 70px;
         border-right: none;
         border-bottom: 2px solid var(--nfs-border);
       }
 
       .sidebar nav {
         display: flex;
-        flex-wrap: wrap; /* Разрешаем кнопкам меню переноситься на новую строку */
+        flex-wrap: wrap;
         justify-content: space-around;
       }
 
+      .right-calendar-widget {
+        display: none;
+      }
+
       .nav-item {
-        flex: 1 1 30%; /* Кнопки будут по 3 в ряд (примерно) */
+        flex: 1 1 30%;
         min-width: 100px;
         padding: 12px 5px;
         font-size: 0.75rem;
@@ -427,31 +478,23 @@
 
       .nav-item:hover, .nav-item.active {
         border-left: none;
-        border-bottom: 3px solid var(--nfs-yellow); /* Эффект активной кнопки теперь снизу */
+        border-bottom: 3px solid var(--nfs-yellow);
       }
 
-      /* 3. ОСНОВНОЙ КОНТЕНТ */
       .main-content {
-        margin-left: 0; /* Убираем отступ слева, так как сайдбара там больше нет */
-        margin-top: 10px; /* Уменьшаем отступ сверху */
-        padding: 15px;  /* Мягкие отступы вместо огромных 50px */
-        padding-bottom: 140px; /* Отступ снизу, чтобы контент не перекрывался виджетом и футером */
+        margin-left: 0;
+        margin-right: 0;
+        margin-top: 10px;
+        padding: 15px;
+        padding-bottom: 140px;
         box-sizing: border-box;
       }
 
-      .content-box {
-        padding: 20px; /* Делаем коробку контента аккуратнее */
-        width: 100%;
-        box-sizing: border-box;
-      }
+      .content-box { width: 100%; box-sizing: border-box; padding: 20px; }
+      .content-box h1 { font-size: 1.6rem; }
 
-      .content-box h1 {
-        font-size: 1.6rem; /* Уменьшаем главный заголовок */
-      }
-
-      /* 4. ВИДЖЕТ ПОИСКА И ФУТЕР */
       .search-widget {
-        position: static; /* Отвязываем от правого угла */
+        position: static;
         width: 100%;
         margin-top: 20px;
         box-sizing: border-box;
@@ -460,111 +503,42 @@
         border-bottom: 1px solid var(--nfs-border);
       }
 
-      .bottom-bar {
-        font-size: 0.75rem; /* Уменьшаем текст в футере, чтобы всё влезло в строку */
-        padding: 12px 0;
-      }
-
-      /* 5. МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ */
-      .modal {
-        width: 85%; /* На мобилках модалка займет почти всю ширину */
-        padding: 25px 15px;
-      }
+      .bottom-bar { font-size: 0.75rem; padding: 12px 0; }
+      .modal { width: 85%; padding: 25px 15px; }
     }
-
   </style>
 </head>
 <body>
 
 <header class="top-navbar">
-  <div style="
-              display: flex;
-              align-items: center;
-              gap: 15px;">
-    <img src="https://i.postimg.cc/KjhYnZ7S/IMG-4583.png"
-         alt="NFS Logo"
-         style="
-             height: 65px;
-             width: auto;
-             filter: drop-shadow(2px 2px 5px #000);">
-
+  <div style="display: flex; align-items: center; gap: 15px;">
+    <img src="https://i.postimg.cc/KjhYnZ7S/IMG-4583.png" alt="NFS Logo" style="height: 65px; width: auto; filter: drop-shadow(2px 2px 5px #000);">
     <div class="logo">SAFEHOUSE</div>
   </div>
 
-  <div class="user-area" style="
-                              display: flex;
-                              align-items: center;
-                              gap: 20px;">
-
-    <div class="notifications-wrapper" id="notifyWrapper" style="
-                                                                 position: relative;
-                                                                 display: flex;
-                                                                 align-items: center;">
-
-      <div id="notifyBell" onclick="toggleNotifyPopup()" style="
-                                                                 cursor: pointer;
-                                                                 display: flex;
-                                                                 align-items: center;">
-
+  <div class="user-area" style="display: flex; align-items: center; gap: 20px;">
+    <div class="notifications-wrapper" id="notifyWrapper" style="position: relative; display: flex; align-items: center;">
+      <div id="notifyBell" onclick="toggleNotifyPopup()" style="cursor: pointer; display: flex; align-items: center;">
         <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
         </svg>
-        <span id="notifyCount" style="
-        margin-left: 5px;">0
-        </span>
+        <span id="notifyCount" style="margin-left: 5px;">0</span>
       </div>
 
-      <div id="notifyPopup" style="
-                                  display: none;
-                                  position: absolute;
-                                  top: 100%;
-                                  right: 0;
-                                  background: #1a1a1a;
-                                  border: 1px solid #333;
-                                  z-index: 100;
-                                  min-width: 200px;
-                                  margin-top: 10px;">
-
-        <div class="notify-header nfs-font" style="
-                                       padding: 10px;
-                                       color: #fff;
-                                       border-bottom: 1px solid #333;
-                                       font-family: sans-serif;
-                                       text-transform: uppercase;
-                                       font-size: 0.8rem;
-                                       ">Friend requests</div>
+      <div id="notifyPopup" style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
+        <div class="notify-header nfs-font" style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">Friend requests</div>
         <div id="notifyList"></div>
       </div>
+    </div>
 
-    </div> <button class="btn-login"
-                   id="loginBtn"
-                   onclick="openModal()"
-                   style="display: none;">LOGIN</button>
+    <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;">LOGIN</button>
 
-    <div class="user-info" id="userInfo" style="
-                                               display: flex;
-                                               align-items: center;
-                                               gap: 15px;">
-    <span id="displayNick" style="
-                                 font-weight: bold;
-                                 cursor: pointer;
-                                 color: #ffffff;
-                                 text-shadow: 0 0 8px rgba(0,0,0,0.6);"
-          onclick="window.location.href='profile.html'">
-      Davenport
-    </span>
-      <button onclick="handleLogout()" class="nfs-font btn-exit" style="
-                                             background: rgba(0,0,0,0.6);
-                                             border: 1px solid #333;
-                                             border-radius: 5px;
-                                             color: #ff4444;
-                                             cursor: pointer;
-                                             font-size: 0.75rem;
-                                             padding: 6px 12px;
-                                             font-weight: bold;
-                                             text-transform: uppercase;">EXIT
-      </button>
+    <div class="user-info" id="userInfo" style="display: flex; align-items: center; gap: 15px;">
+      <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
+        Davenport
+      </span>
+      <button onclick="handleLogout()" class="nfs-font btn-exit" style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">EXIT</button>
     </div>
   </div>
 </header>
@@ -577,126 +551,67 @@
     <a href="lobby.html" class="nav-item">SEARCH THE GAME</a>
     <a href="leaderboard.html" class="nav-item">LEADERBOARD</a>
     <a href="profile.html" class="nav-item">MY PROFILE</a>
-
   </nav>
 </aside>
 
+<div class="right-calendar-widget">
+  <div class="calendar-title" id="calendarMonth">Календарь</div>
+  <table class="u-calendar">
+    <thead>
+    <tr><th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th><th>Сб</th><th>Вс</th></tr>
+    </thead>
+    <tbody>
+    <tr><td></td><td>1</td><td>2</td><td>3</td><td class="u-today">4</td><td>5</td><td>6</td></tr>
+    <tr><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td></tr>
+    <tr><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td></tr>
+    <tr><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td></tr>
+    <tr><td>28</td><td>29</td><td>30</td><td>31</td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+</div>
+
 <main class="main-content">
   <div class="content-box">
-    <h1 style="
-              color: var(--nfs-yellow);
-              text-transform: uppercase;
-              font-style: italic;
-              margin-top: 0;">
+    <h1 style="color: var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;">
       Welcome to Need For Speed Portal!
     </h1>
-    <p style="
-             font-size: 1.2rem;
-             color: #fff;
-             line-height: 1.5;
-             font-weight: 300;">
+    <p style="font-size: 1.2rem; color: #fff; line-height: 1.5; font-weight: 300;">
       Thank you for support! All of you.
     </p>
 
-    <div class="radar-box" id="matchmakingRadar" style="
-                                                       margin-top: 40px;">
-      <h2 style="
-                color: var(--nfs-yellow);
-                font-style: italic;
-                text-transform: uppercase;
-                font-size: 0.9rem;
-                border-bottom: 1px solid #333;
-                padding-bottom: 10px;
-                margin-top: 0;
-                letter-spacing: 2px;">
+    <div class="radar-box" id="matchmakingRadar" style="margin-top: 40px;">
+      <h2 style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 0.9rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; letter-spacing: 2px;">
         FREQUENCY INTERCEPTION: LOOKING FOR GAME
       </h2>
-      <div id="radarList" style="
-                                margin-top: 15px;">
-        <p style="
-                 color: #444;
-                 font-size: 0.8rem;">Signal scanning...</p>
+      <div id="radarList" style="margin-top: 15px;">
+        <p style="color: #444; font-size: 0.8rem;">Signal scanning...</p>
       </div>
     </div>
   </div>
 </main>
 
 <div class="search-widget">
-  <div style="
-             border-radius: 6px;
-             font-size: 0.80rem;
-             color: #555;
-             font-weight: 900;
-             letter-spacing: 2px;
-             text-transform: uppercase;
-             margin-bottom: 8px;">
+  <div style="border-radius: 6px; font-size: 0.80rem; color: #555; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
     Find a player by nickname:
   </div>
-  <div style="
-             display: flex;
-             border-radius: 6px;
-             gap: 5px;">
-    <input type="text"
-           id="globalSearchInput"
-           placeholder="ENTER NICKNAME..." onkeypress="if(event.key === 'Enter') performGlobalSearch()"
-           style="
-                 width: 100%;
-                 background: #111;
-                 border: 1px solid #222;
-                 color: #fff;
-                 padding: 6px;
-                 outline: none;">
-    <button onclick="performGlobalSearch()"
-            style="
-                  background: var(--nfs-yellow);
-                  border-radius: 6px;
-                  font-weight: bold;
-                  cursor: pointer;
-                  padding: 0 12px;">>
-    </button>
+  <div style="display: flex; border-radius: 6px; gap: 5px;">
+    <input type="text" id="globalSearchInput" placeholder="ENTER NICKNAME..." onkeypress="if(event.key === 'Enter') performGlobalSearch()" style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 6px; outline: none;">
+    <button onclick="performGlobalSearch()" style="background: var(--nfs-yellow); border-radius: 6px; font-weight: bold; cursor: pointer; padding: 0 12px;">></button>
   </div>
 </div>
 
 <footer class="bottom-bar">
-  <div>ONLINE:
-    <span class="highlight"
-          id="footerOnline">0</span> | IN THE RACE:
-    <span class="highlight"
-          id="footerPlaying">0</span></div>
+  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight" id="footerPlaying">0</span></div>
 </footer>
 
-<div class="modal-overlay"
-     id="modalOverlay" onclick="closeModal()">
-</div>
-<div class="modal"
-     id="loginModal">
-  <h2 style="
-            color: var(--nfs-yellow);
-            text-transform: uppercase;">Login
-  </h2>
-
-  <input type="email"
-         id="emailInput" placeholder="EMAIL">
-  <input type="password"
-         id="passInput" placeholder="PASSWORD">
-  <button class="btn-login"
-          style="
-                width: 100%;
-                margin-top: 10px;"
-          onclick="handleLogin()">AUTHORIZATION</button>
-
-  <div style="
-             margin-top: 15px;
-             font-size: 0.8rem;">
-    Don't have an account yet?
-    <a href="auth.html"
-       style="
-             color: var(--nfs-yellow);
-             text-decoration: none;
-             font-weight: bold;
-             text-transform: uppercase;">
-      Register Here
-    </a>
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+<div class="modal" id="loginModal">
+  <h2 style="color: var(--nfs-yellow); text-transform: uppercase;">Login</h2>
+  <input type="email" id="emailInput" placeholder="EMAIL">
+  <input type="password" id="passInput" placeholder="PASSWORD">
+  <button class="btn-login" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">AUTHORIZATION</button>
+  <div style="margin-top: 15px; font-size: 0.8rem;">
+    Don't have an account yet? <a href="auth.html" style="color: var(--nfs-yellow); text-decoration: none; font-weight: bold; text-transform: uppercase;">Register Here</a>
   </div>
 </div>
 
@@ -707,7 +622,27 @@
 
   let myProfile = null;
 
+  // Автоматическое определение текущего месяца для календаря
+  function initCalendarHeader() {
+    const monthNames = [
+      "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+      "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    ];
+    const now = new Date();
+    const currentMonthName = monthNames[now.getMonth()];
+    const currentYear = now.getFullYear();
+
+    const calendarTitleEl = document.getElementById('calendarMonth');
+    if (calendarTitleEl) {
+      calendarTitleEl.innerText = `${currentMonthName} ${currentYear}`;
+    }
+  }
+
   window.onload = async () => {
+    // Инициализируем название месяца в календаре
+    initCalendarHeader();
+
+    // Подтягиваем сессию пользователя из Supabase
     const { data: { user } } = await _supabase.auth.getUser();
 
     if (user) {
@@ -717,7 +652,6 @@
         showLoggedIn(profile);
         document.getElementById('notifyWrapper').style.display = 'flex';
 
-        // Запускаем статус (здесь внутри уже есть subscribe)
         if (typeof initGlobalStatus === 'function') {
           initGlobalStatus(_supabase, myProfile);
         }
@@ -726,7 +660,6 @@
         updateFriendNotifications();
         loadSidebarFriends();
 
-        // Логика прочтения
         const chatLink = document.querySelector('a[href="chats.html"]');
         if (chatLink) {
           chatLink.addEventListener('click', () => {
@@ -741,16 +674,12 @@
             table: 'direct_messages',
             filter: `receiver_id=eq.${myProfile.id}` }, (payload) => {
             updateGlobalMsgBadge(_supabase, myProfile.id);
-
-            // Вызываем функцию звука при получении нового сообщения
             playNotificationSound();
-
             if (typeof nfsNotify === 'function') nfsNotify('YOU GOT A NEW MESSAGE!', 'info');
           })
           .subscribe();
       }
     } else {
-
       if (typeof initGlobalStatus === 'function') {
         initGlobalStatus(_supabase, null);
       }
@@ -758,7 +687,6 @@
     scanForPlayers();
   };
 
-  // ФУНКЦИЯ ДЛЯ ГОСТЕЙ (счетчик онлайна в футере)
   function initGuestRadar() {
     const channel = _supabase.channel('global-online');
     channel.on('presence', { event: 'sync' }, () => {
@@ -808,56 +736,29 @@
           statusName = 'IN CHAT';
           dotColor = '#ff4d4d';
         } else {
-          // Проверяем актуальный статус из радара
           statusName = liveStatus;
-
           if (liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME') {
             dotColor = 'var(--nfs-yellow)';
           } else {
-            dotColor = '#2ecc71'; // Обычный ONLINE
+            dotColor = '#2ecc71';
           }
         }
       }
 
       listContainer.innerHTML += `
-    <div style="
-               display: flex;
-               align-items: center;
-               gap: 12px;
-               margin-bottom: 15px;
-               cursor: pointer;"
-    onclick="window.location.href='profile.html?u=${friend.username}'">
-      <div style="
-                 position: relative;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 15px; cursor: pointer;" onclick="window.location.href='profile.html?u=${friend.username}'">
+      <div style="position: relative;">
         <img src="${friend.avatar_url || 'https://via.placeholder.com/35'}" style="width: 35px; height: 35px; border: 1px solid #333; object-fit: cover; display: block;">
-        <div style="
-                   width: 10px;
-                   height: 10px;
-                   background-color: ${dotColor};
-                   border-radius: 50%;
-                   position: absolute;
-                   bottom: -2px;
-                   right: -2px;
-                   border: 2px solid #000; ${presence ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
+        <div style="width: 10px; height: 10px; background-color: ${dotColor}; border-radius: 50%; position: absolute; bottom: -2px; right: -2px; border: 2px solid #000; ${presence ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
       </div>
-      <div style="
-                 overflow: hidden;">
-        <div style="
-                   font-size: 0.9rem;
-                   font-weight: 900;
-                   color: #eee;
-                   text-transform: uppercase;">${friend.username}</div>
-        <div style="
-                   font-size: 0.6rem;
-                   color: #555;
-                   font-weight: bold;
-                   text-transform: uppercase;">${statusName}</div>
+      <div style="overflow: hidden;">
+        <div style="font-size: 0.9rem; font-weight: 900; color: #eee; text-transform: uppercase;">${friend.username}</div>
+        <div style="font-size: 0.6rem; color: #555; font-weight: bold; text-transform: uppercase;">${statusName}</div>
       </div>
     </div>`;
     });
   }
 
-  // Эта функция будет вызываться из utils.js для быстрого обновления точек
   window.updateFriendsStatusOnly = renderFriendsUI;
 
   async function handleLogout() {
@@ -875,37 +776,27 @@
 
   async function updateFriendNotifications() {
     if (!myProfile) return;
-    const { data: requests } = await _supabase.from('friend_requests')
-      .select('*')
-      .eq('receiver_id', myProfile.id)
-      .eq('status', 'pending');
-
+    const { data: requests } = await _supabase.from('friend_requests').select('*').eq('receiver_id', myProfile.id).eq('status', 'pending');
     const countEl = document.getElementById('notifyCount');
     const listEl = document.getElementById('notifyList');
 
     if (requests && requests.length > 0) {
       countEl.innerText = requests.length;
-      countEl.style.display = 'block'; // Показываем красный кружок с цифрой
+      countEl.style.display = 'block';
       listEl.innerHTML = '';
       requests.forEach(req => {
         listEl.innerHTML += `
                     <div class="notify-item">
                         <b>${req.sender_name}</b> wants to be friends
                         <div class="notify-btns">
-                            <button class="btn-acc"
-                            onclick="respondFriend('${req.id}', 'accepted')">ОК</button>
-                            <button class="btn-rej"
-                            onclick="respondFriend('${req.id}', 'rejected')">NO</button>
+                            <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button>
+                            <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">NO</button>
                         </div>
                     </div>`;
       });
     } else {
-      countEl.style.display = 'none'; // Прячем кружок, если запросов нет
-      listEl.innerHTML = '<div style="' +
-                                      'padding:10px; ' +
-                                      'font-size:10px; ' +
-                                      'color:#444; ' +
-                                      'text-align:center;">There are no requests</div>';
+      countEl.style.display = 'none';
+      listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">There are no requests</div>';
     }
   }
 
@@ -918,13 +809,9 @@
         await _supabase.from('friend_requests').delete().eq('id', reqId);
         if (typeof nfsNotify === 'function') nfsNotify('Your request has been reject', 'info');
       }
-
-      // Мгновенно обновляем интерфейс
       await updateFriendNotifications();
       await loadSidebarFriends();
-    } catch (err) {
-      console.error("Error when responding to a request:", err);
-    }
+    } catch (err) { console.error(err); }
   }
 
   async function performGlobalSearch() {
@@ -932,13 +819,7 @@
     if (!query) return;
     const { data } = await _supabase.from('profiles').select('username').ilike('username', query).maybeSingle();
     if (data) window.location.href = `profile.html?u=${data.username}`;
-    else Swal.fire({
-      title:'ERROR',
-      text:'The racer was not found',
-      icon:'error',
-      background:'#111',
-      color:'#fff',
-      confirmButtonColor:'#f1c40f'});
+    else Swal.fire({ title:'ERROR', text:'The racer was not found', icon:'error', background:'#111', color:'#fff', confirmButtonColor:'#f1c40f'});
   }
 
   async function scanForPlayers() {
@@ -980,9 +861,7 @@
   }
 
   window.loadSidebarFriends = loadSidebarFriends;
-
   setInterval(scanForPlayers, 15000);
-
 </script>
 </body>
 </html>
