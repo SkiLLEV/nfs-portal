@@ -267,7 +267,7 @@
 
     .u-calendar td {
       padding: 5px 0;
-      color: #666;
+      color: #e0e0e0; /* Сделали более читаемым цвет обычных чисел */
     }
 
     .u-calendar td.u-today {
@@ -554,18 +554,15 @@
   </nav>
 </aside>
 
+<!-- УБРАЛИ ХАРДКОД ИЗ ТЕЛА ТАБЛИЦЫ, ДОБАВИЛИ ID ДЛЯ ДИНАМИЧЕСКОЙ ГЕНЕРАЦИИ -->
 <div class="right-calendar-widget">
   <div class="calendar-title" id="calendarMonth">Календарь</div>
   <table class="u-calendar">
     <thead>
     <tr><th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th><th>Сб</th><th>Вс</th></tr>
     </thead>
-    <tbody>
-    <tr><td></td><td>1</td><td>2</td><td>3</td><td class="u-today">4</td><td>5</td><td>6</td></tr>
-    <tr><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td></tr>
-    <tr><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td></tr>
-    <tr><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td><td>26</td><td>27</td></tr>
-    <tr><td>28</td><td>29</td><td>30</td><td>31</td><td></td><td></td><td></td></tr>
+    <tbody id="calendarBody">
+    <!-- Сюда JS будет рендерить актуальные дни месяца -->
     </tbody>
   </table>
 </div>
@@ -622,24 +619,69 @@
 
   let myProfile = null;
 
-  // Автоматическое определение текущего месяца для календаря
   function initCalendarHeader() {
     const monthNames = [
       "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
       "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
     ];
     const now = new Date();
-    const currentMonthName = monthNames[now.getMonth()];
+    const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
+    const todayDate = now.getDate();
 
+    // 1. Ставим заголовок
     const calendarTitleEl = document.getElementById('calendarMonth');
     if (calendarTitleEl) {
-      calendarTitleEl.innerText = `${currentMonthName} ${currentYear}`;
+      calendarTitleEl.innerText = `${monthNames[currentMonth]} ${currentYear}`;
     }
+
+    // 2. Генерируем дни месяца
+    const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+    // Переводим воскресенье с 0 индекса JS на 7 место для нашей европейской сетки (Пн-Вс)
+    const startDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
+
+    const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const calendarBody = document.getElementById('calendarBody');
+
+    if (!calendarBody) return;
+    calendarBody.innerHTML = '';
+
+    let html = '<tr>';
+    let dayCount = 1;
+
+    // Пустые ячейки в первой строке до начала месяца
+    for (let i = 0; i < startDay; i++) {
+      html += '<td></td>';
+    }
+
+    // Заполнение днями
+    for (let i = startDay; i < 7; i++) {
+      const isToday = dayCount === todayDate;
+      html += `<td class="${isToday ? 'u-today' : ''}">${dayCount}</td>`;
+      dayCount++;
+    }
+    html += '</tr>';
+
+    // Последующие строки
+    while (dayCount <= totalDays) {
+      html += '<tr>';
+      for (let i = 0; i < 7; i++) {
+        if (dayCount <= totalDays) {
+          const isToday = dayCount === todayDate;
+          html += `<td class="${isToday ? 'u-today' : ''}">${dayCount}</td>`;
+          dayCount++;
+        } else {
+          html += '<td></td>';
+        }
+      }
+      html += '</tr>';
+    }
+
+    calendarBody.innerHTML = html;
   }
 
   window.onload = async () => {
-    // Инициализируем название месяца в календаре
+    // Инициализируем название месяца и сетку в календаре
     initCalendarHeader();
 
     // Подтягиваем сессию пользователя из Supabase
