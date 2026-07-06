@@ -346,6 +346,21 @@
     ` : '';
   }
 
+  // Функция для форматирования скрытых тегов [reply:username] в неоново-зеленый текст
+  function formatCommentText(text) {
+    if (!text) return "";
+    return text.replace(/\[reply:(.+?)\]/g, '<span style="color: #00ff66; font-weight: bold; text-shadow: 0 0 5px rgba(0,255,102,0.4); font-family: \'Arial\', sans-serif !important;">@$1</span>');
+  }
+
+  // Функция, которая вызывается по клику на [ Reply ] под комментарием
+  function insertReplyTag(username) {
+    const textarea = document.getElementById('commentText');
+    if (textarea) {
+      textarea.value = `[reply:${username}], ` + textarea.value;
+      textarea.focus();
+    }
+  }
+
   async function loadFullTopic() {
     const {data, error} = await _supabase.from('forum_topics').select('*').eq('id', topicId).single();
     if (error || !data) {
@@ -374,7 +389,7 @@
            <span class="comment-date-clean">${topicDate}</span>
         </div>
         <h1 style="color:var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0; font-size: 1.8rem; letter-spacing: 1px;">${data.title}</h1>
-        <p class="user-text-content" style="white-space: pre-line; margin-bottom: 0;">${data.content}</p>
+        <p class="user-text-content" style="white-space: pre-line; margin-bottom: 0;">${formatCommentText(data.content)}</p>
       </div>
     `;
     if (currentUserId === data.author_id) {
@@ -403,20 +418,24 @@
         list.innerHTML += `
           <div class="comment" style="position: relative;">
             <div class="comment-meta" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px;">
-
                <span style="display: inline-flex; align-items: center; height: 1.4rem; gap: 6px;">
                  <span class="racer-link" style="line-height: 1;" onclick="window.location.href='profile.html?u=${c.author_name}'">
                    ${c.author_name}
                  </span>
-
                  <span style="display: inline-flex; align-items: center; justify-content: center; height: 100%; margin-top: 2px;">
                    ${dotHTML}
                  </span>
                </span>
-
                <span class="comment-date-clean">${commentDate}</span>
             </div>
-            <div class="user-text-content" style="white-space: pre-line;">${c.content}</div>
+
+            <div class="user-text-content" style="white-space: pre-line;">${formatCommentText(c.content)}</div>
+
+           <div style="margin-top: 0px; border-top: 1px solid #1a1a1a; padding-top: 2px;">
+              <span onclick="insertReplyTag('${c.author_name}')" style="color: #555; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; font-family: 'Arial', sans-serif; font-weight: bold; transition: color 0.2s;" onmouseover="this.style.color='#00ff66'" onmouseout="this.style.color='#555'">
+                [ Reply ]
+              </span>
+            </div>
           </div>
         `;
       });
@@ -464,16 +483,28 @@
         if (confirmBtn) {
           confirmBtn.style.transition = '0.2s';
           confirmBtn.style.color = '#000';
-          confirmBtn.onmouseenter = () => { confirmBtn.style.backgroundColor = '#c10e0e'; confirmBtn.style.color = '#fff'; };
-          confirmBtn.onmouseleave = () => { confirmBtn.style.backgroundColor = '#cca609'; confirmBtn.style.color = '#000'; };
+          confirmBtn.onmouseenter = () => {
+            confirmBtn.style.backgroundColor = '#c10e0e';
+            confirmBtn.style.color = '#fff';
+          };
+          confirmBtn.onmouseleave = () => {
+            confirmBtn.style.backgroundColor = '#cca609';
+            confirmBtn.style.color = '#000';
+          };
         }
 
         if (cancelBtn) {
           cancelBtn.style.transition = '0.2s';
           cancelBtn.style.backgroundColor = '#333';
           cancelBtn.style.color = '#fff';
-          cancelBtn.onmouseenter = () => { cancelBtn.style.backgroundColor = '#333333'; cancelBtn.style.color = '#ff4444'; };
-          cancelBtn.onmouseleave = () => { cancelBtn.style.backgroundColor = '#333'; cancelBtn.style.color = '#fff'; };
+          cancelBtn.onmouseenter = () => {
+            cancelBtn.style.backgroundColor = '#333333';
+            cancelBtn.style.color = '#ff4444';
+          };
+          cancelBtn.onmouseleave = () => {
+            cancelBtn.style.backgroundColor = '#333';
+            cancelBtn.style.color = '#fff';
+          };
         }
       }
     });
