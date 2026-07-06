@@ -19,24 +19,24 @@
 
   <style>
     :root {
-      --nfs-yellow: #cca609; /* Привели к единому приглушенному золотому тону */
+      --nfs-yellow: #f1c40f;
       --nfs-dark: #0a0a0a;
     }
 
     body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background: url('https://s748.ucoz.net/.s/t/984/1.gif') #191919 repeat;
-      /*background: var(--nfs-bg) no-repeat center center fixed;*/
-      /*background-size: cover;*/
       color: #fff;
       font-family: 'Wallpoet', sans-serif !important;
-      padding-bottom: 60px; /* Отступ под футер */
+      padding-bottom: 60px;
     }
 
     .container {
       max-width: 900px;
       margin: 0 auto;
       padding: 20px 40px 40px 40px;
+    }
 
     .main-topic {
       background: rgba(15, 15, 15, 0.95);
@@ -70,9 +70,39 @@
       margin-bottom: 10px;
       font-family: 'Wallpoet', sans-serif;
       text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 4px;
     }
 
-    /* ОБНОВЛЕННЫЙ ТЕКСТАРЕА */
+    .btn-forum-action {
+      background-color: #000000 !important;
+      border: none !important;
+      color: #f1c40f !important;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-transform: uppercase;
+      font-weight: bold;
+      font-size: 0.75rem;
+      transition: all 0.2s ease-in-out !important;
+      display: inline-block;
+    }
+
+    .btn-forum-action:hover {
+      background-color: #c10e0e !important;
+      color: #ffffff !important;
+    }
+
+    .comment-date-clean {
+      font-family: 'Arial', 'Helvetica', sans-serif !important;
+      font-size: 0.8rem !important;
+      color: #555 !important;
+      letter-spacing: 0.5px;
+      text-transform: none !important;
+    }
+
     textarea {
       width: 100%;
       background: #111;
@@ -83,7 +113,7 @@
       outline: none;
       resize: none;
       box-sizing: border-box;
-      font-family: 'Arial', 'Helvetica', sans-serif !important; /* Удобный ввод */
+      font-family: 'Arial', 'Helvetica', sans-serif !important;
       font-size: 1rem;
     }
 
@@ -165,9 +195,7 @@
       text-decoration: underline;
     }
 
-    /* ==========================================================================
-   АДАПТИВНАЯ ВЕРСТКА ДЛЯ СТРАНИЦЫ ТЕМЫ (ЭКРАНЫ МЕНЬШЕ 768px)
-   ========================================================================== */
+    /* АДАПТИВНОСТЬ */
     @media screen and (max-width: 768px) {
       .container {
         padding: 20px 15px 60px 15px !important;
@@ -240,8 +268,6 @@
         padding: 12px !important;
         text-align: center;
       }
-
-    }
     }
   </style>
 </head>
@@ -255,19 +281,21 @@
     </div>
   </div>
 
-  <div id="authorControls" class="hidden" style="margin-bottom: 40px;">
-    <button class="btn btn-secondary nfs-font" style="border-radius: 6px" onclick="editTopic()">Edit</button>
-    <button class="btn btn-danger nfs-font" style="border-radius: 6px" onclick="confirmDeleteTopic()">Delete topic</button>
+  <div id="authorControls" class="hidden" style="margin-bottom: 40px; display: flex; gap: 10px;">
+    <button class="btn-forum-action nfs-font" onclick="editTopic()">Edit</button>
+    <button class="btn-forum-action nfs-font" onclick="confirmDeleteTopic()">Delete topic</button>
   </div>
 
   <hr style="border: 0; border-top: 1px solid #222; margin: 40px 0;">
 
   <div id="commentsList">
-    <h3 style="font-style: italic; text-transform: uppercase;">MESSAGE INTERCEPT:</h3>
+    <h3 style="font-style: italic; text-transform: uppercase;">COMMENTS:</h3>
   </div>
 
   <div id="replyBox">
-    <h3 style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 1rem; letter-spacing: 1px;">Send Reply</h3>
+    <h3
+      style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 1rem; letter-spacing: 1px;">
+      Send Reply</h3>
     <textarea id="commentText" rows="3" placeholder="Enter your message here..."></textarea>
     <button class="btn nfs-font" style="border-radius: 6px" onclick="postComment()">Send</button>
   </div>
@@ -286,11 +314,16 @@
   let topicData = null;
 
   window.onload = async () => {
-    const { data: { user } } = await _supabase.auth.getUser();
+    const {data: {user}} = await _supabase.auth.getUser();
     if (user) {
       currentUserId = user.id;
-      const { data: prof } = await _supabase.from('profiles').select('username').eq('id', user.id).single();
-      if (prof) myName = prof.username;
+      const {data: prof} = await _supabase.from('profiles').select('username, status').eq('id', user.id).single();
+      if (prof) {
+        myName = prof.username;
+        if (typeof initGlobalStatus === 'function') {
+          initGlobalStatus(_supabase, prof);
+        }
+      }
     } else {
       window.location.href = 'auth.html';
       return;
@@ -299,23 +332,49 @@
     await loadComments();
   };
 
+  function getOnlineDotHTML(username) {
+    const isOnline = (typeof onlineUsers !== 'undefined') && onlineUsers[username];
+    return isOnline ? `
+      <span style="
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background-color: #2ecc71;
+        border-radius: 50%;
+        box-shadow: 0 0 6px #2ecc71;
+      "></span>
+    ` : '';
+  }
+
   async function loadFullTopic() {
-    const { data, error } = await _supabase.from('forum_topics').select('*').eq('id', topicId).single();
+    const {data, error} = await _supabase.from('forum_topics').select('*').eq('id', topicId).single();
     if (error || !data) {
       document.getElementById('topicDetail').innerHTML = "<h2>Topic not found.</h2>";
       return;
     }
     topicData = data;
 
+    const dotHTML = getOnlineDotHTML(data.author_name);
+    const topicDate = new Date(data.created_at).toLocaleDateString('ru-RU') + ' ' + new Date(data.created_at).toLocaleTimeString('ru-RU', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
     document.getElementById('topicDetail').innerHTML = `
-      <div class="main-topic">
-        <h1 style="color:var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0; font-size: 1.8rem; letter-spacing: 1px;">${data.title}</h1>
-        <p class="user-text-content" style="white-space: pre-line; margin-bottom: 20px;">${data.content}</p>
-        <small style="font-size: 0.8rem; color: #555; font-family: 'Wallpoet', sans-serif; text-transform: uppercase; letter-spacing: 1px;">Post author:
-           <span class="racer-link" onclick="window.location.href='profile.html?u=${data.author_name}'">
-             ${data.author_name}
+      <div class="main-topic" style="position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px;">
+           <span style="display: inline-flex; align-items: center; gap: 2px;">
+             <span style="font-size: 0.85rem; color: #555; font-family: 'Arial', 'Helvetica', sans-serif !important;">Post author:</span>
+             <span style="display: inline-flex; align-items: center; gap: 6px; margin-left: 5px;">
+               <span class="racer-link" onclick="window.location.href='profile.html?u=${data.author_name}'">
+                 ${data.author_name}
+               </span>${dotHTML}
+             </span>
            </span>
-        </small>
+           <span class="comment-date-clean">${topicDate}</span>
+        </div>
+        <h1 style="color:var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0; font-size: 1.8rem; letter-spacing: 1px;">${data.title}</h1>
+        <p class="user-text-content" style="white-space: pre-line; margin-bottom: 0;">${data.content}</p>
       </div>
     `;
     if (currentUserId === data.author_id) {
@@ -324,25 +383,38 @@
   }
 
   async function loadComments() {
-    const { data } = await _supabase.from('forum_comments')
+    const {data} = await _supabase.from('forum_comments')
       .select('*')
       .eq('topic_id', topicId)
       .order('created_at', {ascending: true});
 
     const list = document.getElementById('commentsList');
-    list.innerHTML = '<h3 style="border-bottom: 1px solid #222; padding-bottom: 10px; font-style: italic; font-size: 1.1rem; letter-spacing: 1px;">MESSAGE INTERCEPT:</h3>';
+    list.innerHTML = '<h3 style="border-bottom: 1px solid #222; padding-bottom: 10px; font-style: italic; font-size: 1.1rem; letter-spacing: 1px;">COMMENTS:</h3>';
 
     if (data && data.length > 0) {
       data.forEach(c => {
-        // Сделали вывод даты через компактный локальный формат
-        const commentDate = new Date(c.created_at).toLocaleDateString('ru-RU') + ' ' + new Date(c.created_at).toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'});
+        const commentDate = new Date(c.created_at).toLocaleDateString('ru-RU') + ' ' + new Date(c.created_at).toLocaleTimeString('ru-RU', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+
+        const dotHTML = getOnlineDotHTML(c.author_name);
 
         list.innerHTML += `
-          <div class="comment">
-            <div class="comment-meta">
-               <span class="racer-link" onclick="window.location.href='profile.html?u=${c.author_name}'">
-                 ${c.author_name}
-               </span> • ${commentDate}
+          <div class="comment" style="position: relative;">
+            <div class="comment-meta" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 12px;">
+
+               <span style="display: inline-flex; align-items: center; height: 1.4rem; gap: 6px;">
+                 <span class="racer-link" style="line-height: 1;" onclick="window.location.href='profile.html?u=${c.author_name}'">
+                   ${c.author_name}
+                 </span>
+
+                 <span style="display: inline-flex; align-items: center; justify-content: center; height: 100%; margin-top: 2px;">
+                   ${dotHTML}
+                 </span>
+               </span>
+
+               <span class="comment-date-clean">${commentDate}</span>
             </div>
             <div class="user-text-content" style="white-space: pre-line;">${c.content}</div>
           </div>
@@ -357,8 +429,8 @@
     const text = document.getElementById('commentText').value.trim();
     if (!text) return;
 
-    const { error } = await _supabase.from('forum_comments').insert([
-      { topic_id: topicId, content: text, author_name: myName }
+    const {error} = await _supabase.from('forum_comments').insert([
+      {topic_id: topicId, content: text, author_name: myName}
     ]);
 
     if (!error) {
@@ -371,40 +443,55 @@
   async function confirmDeleteTopic() {
     const result = await Swal.fire({
       title: 'Are you sure to delete this topic?',
-      text: "This message will disappear from the archives forever!",
+      html: `<span class="user-text-content" style="font-family: 'Arial', 'Helvetica', sans-serif !important; font-size: 1rem; color: #aaa;">This topic will disappear from the archives forever!</span>`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#ff4d4d',
-      confirmButtonText: 'YES I`M SURE',
+      confirmButtonColor: '#cca609',
+      confirmButtonText: 'YES',
       cancelButtonText: 'CANCEL',
       background: '#0a0a0a',
       color: '#fff',
       customClass: {
         popup: 'nfs-font',
         title: 'nfs-font',
-        htmlContainer: 'nfs-font',
         confirmButton: 'nfs-font',
         cancelButton: 'nfs-font'
+      },
+      didOpen: () => {
+        const confirmBtn = Swal.getConfirmButton();
+        const cancelBtn = Swal.getCancelButton();
+
+        if (confirmBtn) {
+          confirmBtn.style.transition = '0.2s';
+          confirmBtn.style.color = '#000';
+          confirmBtn.onmouseenter = () => { confirmBtn.style.backgroundColor = '#c10e0e'; confirmBtn.style.color = '#fff'; };
+          confirmBtn.onmouseleave = () => { confirmBtn.style.backgroundColor = '#cca609'; confirmBtn.style.color = '#000'; };
+        }
+
+        if (cancelBtn) {
+          cancelBtn.style.transition = '0.2s';
+          cancelBtn.style.backgroundColor = '#333';
+          cancelBtn.style.color = '#fff';
+          cancelBtn.onmouseenter = () => { cancelBtn.style.backgroundColor = '#333333'; cancelBtn.style.color = '#ff4444'; };
+          cancelBtn.onmouseleave = () => { cancelBtn.style.backgroundColor = '#333'; cancelBtn.style.color = '#fff'; };
+        }
       }
     });
 
     if (result.isConfirmed) {
-      const { error } = await _supabase.from('forum_topics').delete().eq('id', topicId);
-      if (!error) {
-        if (typeof nfsNotify === 'function') nfsNotify("Topic deleted");
-        setTimeout(() => window.location.href = 'forum.html', 1000);
-      }
+      await _supabase.from('forum_topics').delete().eq('id', topicId);
+      window.location.href = 'forum.html';
     }
   }
 
   async function editTopic() {
-    const { value: formValues } = await Swal.fire({
+    const {value: formValues} = await Swal.fire({
       title: 'EDIT THIS TOPIC',
       background: '#0a0a0a',
       color: '#fff',
       html:
-        `<input id="swal-title" class="swal2-input nfs-font" placeholder="Title" value="${topicData.title}" style="background:#111; color:#fff; border:1px solid #444">` +
-        `<textarea id="swal-content" class="swal2-textarea nfs-font" placeholder="Content" style="background:#111; color:#fff; border:1px solid #444; height: 150px;">${topicData.content}</textarea>`,
+        `<input id="swal-title" class="swal2-input user-text-content" placeholder="Title" value="${topicData.title}" style="background:#111; color:#fff; border:1px solid #444; font-family: 'Arial', 'Helvetica', sans-serif !important; width: 100%; box-sizing: border-box; margin: 10px 0;">` +
+        `<textarea id="swal-content" class="swal2-textarea user-text-content" placeholder="Content" style="background:#111; color:#fff; border:1px solid #444; height: 150px; font-family: 'Arial', 'Helvetica', sans-serif !important; width: 100%; box-sizing: border-box; margin: 10px 0; resize: none;">${topicData.content}</textarea>`,
       confirmButtonText: 'SAVE CHANGES',
       confirmButtonColor: '#cca609',
       showCancelButton: true,
@@ -415,6 +502,38 @@
         confirmButton: 'nfs-font',
         cancelButton: 'nfs-font'
       },
+
+      didOpen: () => {
+        const confirmBtn = Swal.getConfirmButton();
+        const cancelBtn = Swal.getCancelButton();
+
+        if (confirmBtn) {
+          confirmBtn.style.transition = '0.2s';
+          confirmBtn.style.color = '#000';
+          confirmBtn.onmouseenter = () => {
+            confirmBtn.style.backgroundColor = '#c10e0e';
+            confirmBtn.style.color = '#fff';
+          };
+          confirmBtn.onmouseleave = () => {
+            confirmBtn.style.backgroundColor = '#cca609';
+            confirmBtn.style.color = '#000';
+          };
+        }
+
+        if (cancelBtn) {
+          cancelBtn.style.transition = '0.2s';
+          cancelBtn.style.backgroundColor = '#333';
+          cancelBtn.style.color = '#fff';
+          cancelBtn.onmouseenter = () => {
+            cancelBtn.style.backgroundColor = '#333333';
+            cancelBtn.style.color = '#ff4444';
+          };
+          cancelBtn.onmouseleave = () => {
+            cancelBtn.style.backgroundColor = '#333';
+            cancelBtn.style.color = '#fff';
+          };
+        }
+      },
       preConfirm: () => {
         return {
           title: document.getElementById('swal-title').value.trim(),
@@ -424,8 +543,8 @@
     });
 
     if (formValues) {
-      const { error } = await _supabase.from('forum_topics')
-        .update({ title: formValues.title, content: formValues.content })
+      const {error} = await _supabase.from('forum_topics')
+        .update({title: formValues.title, content: formValues.content})
         .eq('id', topicId);
       if (!error) {
         if (typeof nfsNotify === 'function') nfsNotify("Data updated");
@@ -433,6 +552,11 @@
       }
     }
   }
+
+  window.updateFriendsStatusOnly = function () {
+    loadFullTopic();
+    loadComments();
+  };
 </script>
 </body>
 </html>
