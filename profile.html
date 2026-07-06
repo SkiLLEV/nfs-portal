@@ -41,11 +41,7 @@
       color: var(--nfs-yellow) !important;
     }
 
-    .swal2-popup,
-    .swal2-title,
-    .swal2-html-container,
-    .swal2-confirm,
-    .swal2-cancel {
+    .swal2-popup, .swal2-title, .swal2-html-container, .swal2-confirm, .swal2-cancel {
       font-family: 'Wallpoet', sans-serif !important;
     }
 
@@ -68,12 +64,7 @@
 
     .sidebar {
       width: 250px;
-      background: linear-gradient(
-        to right,
-        rgba(5, 5, 5, 0.98) 0%,
-        rgba(12, 12, 12, 0.95) 60%,
-        rgba(20, 20, 20, 0.85) 100%
-      );
+      background: linear-gradient(to right, rgba(5, 5, 5, 0.98) 0%, rgba(12, 12, 12, 0.95) 60%, rgba(20, 20, 20, 0.85) 100%);
       backdrop-filter: blur(4px);
       height: auto;
       position: fixed;
@@ -841,17 +832,18 @@
     }
     window.currentUserId = user.id;
 
+    // Сначала грузим профиль из базы
     const {data: me} = await _supabase.from('profiles').select('*').eq('id', window.currentUserId).single();
     if (me) {
       window.myProfile = me;
 
-      // Перехватываем управление у утилит: если в памяти браузера лежит сохраненный статус, ставим его приоритетным
-      const savedStatus = localStorage.getItem('driver_status');
-      if (savedStatus) {
-        window.myProfile.status = savedStatus;
-        await _supabase.from('profiles').update({status: savedStatus}).eq('id', user.id);
-        if (typeof window.trackMyStatus === 'function') await window.trackMyStatus(savedStatus);
-      }
+      // Жёстко перебиваем статус тем, что лежит в localStorage СРАЗУ на старте сессии
+      const savedStatus = localStorage.getItem('driver_status') || me.status || 'ONLINE';
+      window.myProfile.status = savedStatus;
+
+      // Закидываем в базу актуальный сохранённый статус
+      await _supabase.from('profiles').update({status: savedStatus}).eq('id', user.id);
+      if (typeof window.trackMyStatus === 'function') await window.trackMyStatus(savedStatus);
 
       const nickEl = document.getElementById('displayNick');
       if (nickEl) nickEl.innerText = me.username;
@@ -887,10 +879,8 @@
     const isItMe = (window.myProfile && window.profileData.id === window.myProfile.id);
 
     let s = 'ONLINE';
-
     if (isItMe) {
-      const statusSelect = document.getElementById('statusSelect');
-      s = statusSelect ? statusSelect.value : (window.myProfile.status || 'ONLINE');
+      s = localStorage.getItem('driver_status') || 'ONLINE';
     } else if (presence && presence[0] && presence[0].status) {
       s = presence[0].status;
     } else {
@@ -919,8 +909,13 @@
       if (error) throw error;
       if (data) {
         window.profileData = data;
+
+        // Магия: принудительно синхронизируем profileData с localStorage для себя
+        const currentLocal = localStorage.getItem('driver_status') || 'ONLINE';
+        window.profileData.status = currentLocal;
+
         setupProfileRealtimeListener();
-        renderFullProfile(data, true);
+        renderFullProfile(window.profileData, true);
         updateRacerRank(data.id);
       }
     } catch (err) {
@@ -978,15 +973,11 @@
     document.getElementById('profRating').innerText = `★ ${data.rating.toLocaleString()}`;
 
     const levelEl = document.getElementById('profLevel');
-    if (levelEl) {
-      levelEl.innerText = data.level || 1;
-    }
+    if (levelEl) levelEl.innerText = data.level || 1;
 
     const box = document.getElementById('avatarBox');
     if (box) {
-      box.innerHTML = data.avatar_url
-        ? `<img src="${data.avatar_url}">`
-        : `<span class="avatar-letter">${data.username[0].toUpperCase()}</span>`;
+      box.innerHTML = data.avatar_url ? `<img src="${data.avatar_url}">` : `<span class="avatar-letter">${data.username[0].toUpperCase()}</span>`;
     }
 
     renderGarage(data.photos);
@@ -1001,7 +992,6 @@
       if (editBtn) editBtn.classList.remove('hidden');
       if (statusSelect) {
         statusSelect.classList.remove('hidden');
-        // Ставим значение из localStorage, если оно там есть
         statusSelect.value = localStorage.getItem('driver_status') || data.status || 'ONLINE';
       }
       if (addCarBtn) addCarBtn.classList.remove('hidden');
@@ -1012,7 +1002,7 @@
       if (statusSelect) statusSelect.classList.add('hidden');
       if (addCarBtn) addCarBtn.classList.add('hidden');
       if (msgBtn) msgBtn.classList.remove('hidden');
-      if (friendBtn) friendBtn.remove('hidden');
+      if (friendBtn) friendBtn.classList.remove('hidden');
     }
 
     window.updateLiveStatusUI();
@@ -1023,10 +1013,7 @@
     if (!container) return;
     container.innerHTML = photos?.length ? '' : '<p style="color:#555">Avoid...</p>';
     photos?.forEach((url) => {
-      container.innerHTML += `
-          <div class="car-card" onclick="viewFullImage('${url}')">
-            <img src="${url}">
-          </div>`;
+      container.innerHTML += `<div class="car-card" onclick="viewFullImage('${url}')"><img src="${url}"></div>`;
     });
   }
 
@@ -1050,13 +1037,7 @@
       inputPlaceholder: 'https://i.postimg.cc/..../image.jpg',
       confirmButtonText: 'IN GARAGE',
       confirmButtonColor: '#373737',
-      footer: `
-        <a href="https://postimages.org/" target="_blank" class="nfs-font"
-           style="color: #f1c40f; font-weight: bold; text-decoration: none; transition: color 0.2s ease;"
-           onmouseover="this.style.color='#ff0000'; this.style.textDecoration='underline';"
-           onmouseout="this.style.color='#f1c40f'; this.style.textDecoration='none';">
-          TO OPEN POSTIMAGES.ORG
-        </a>`,
+      footer: `<a href="https://postimages.org/" target="_blank" class="nfs-font" style="color: #f1c40f; font-weight: bold; text-decoration: none; transition: color 0.2s ease;" onmouseover="this.style.color='#ff0000'; this.style.textDecoration='underline';" onmouseout="this.style.color='#f1c40f'; this.style.textDecoration='none';">TO OPEN POSTIMAGES.ORG</a>`,
       showCancelButton: true,
       cancelButtonText: 'CANCEL',
       customClass: {popup: 'nfs-font', title: 'nfs-font', confirmButton: 'nfs-font', cancelButton: 'nfs-font'}
@@ -1085,42 +1066,39 @@
 
   async function updateUserStatus() {
     const s = document.getElementById('statusSelect').value;
-
     localStorage.setItem('driver_status', s);
+
+    if (window.profileData) window.profileData.status = s;
+    if (window.myProfile) window.myProfile.status = s;
+
+    window.updateLiveStatusUI();
 
     const {error} = await _supabase.from('profiles').update({status: s}).eq('id', window.currentUserId);
     if (!error) {
-      if (window.profileData) window.profileData.status = s;
-      if (window.myProfile) window.myProfile.status = s;
       if (typeof window.trackMyStatus === 'function') await window.trackMyStatus(s);
-      window.updateLiveStatusUI();
       if (typeof nfsNotify === 'function') nfsNotify('Status updated: ' + s);
     }
   }
 
   async function openEditProfile() {
-    const frames = [
-      {id: 'frame-default', name: 'Standart'},
-      {id: 'frame-mw', name: 'Most Wanted'},
-    ];
+    const frames = [{id: 'frame-default', name: 'Standart'}, {id: 'frame-mw', name: 'Most Wanted'}];
     let framesHtml = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">';
     frames.forEach(f => {
       const isSelected = window.profileData.selected_frame === f.id ? 'border: 2px solid var(--nfs-yellow);' : 'border: 1px solid #333;';
-      framesHtml += `<div onclick="selectFrame('${f.id}')" id="${f.id}" class="frame-preview ${f.id}" style="cursor:pointer; padding:10px; ${isSelected} background: rgba(0,0,0,0.5); font-size: 0.7rem;">${f.name.toUpperCase()}</div>`;
+      framesHtml += `<div onclick="selectFrame('${f.id}')" id="${f.id}" class="frame-preview ${f.id}" style="cursor:pointer; padding:10px; ${isSelected} background: rgba(0,0,0,0.5); font-size: 0.7rem; text-align: center;">${f.name.toUpperCase()}</div>`;
     });
     framesHtml += '</div>';
 
     const {value: formValues} = await Swal.fire({
       background: '#0a0a0a', color: '#fff',
       html: `
-          <p style="font-size:0.8rem; text-align:left;">BIO:</p>
-          <input id="swal-bio" class="swal2-input" value="${window.profileData.bio || ''}" style="background:#111; color:#fff; width:100%; box-sizing:border-box;">
-          <p style="margin-top:15px; font-size:0.8rem; text-align:left;">FRAME SELECTION:</p>
-          ${framesHtml}
-        `,
-      showCancelButton: true,
-      confirmButtonText: 'TO SET IT!',
-      confirmButtonColor: '#373737',
+        <p style="font-size:0.8rem; text-align: center; text-transform: uppercase;">BIO:</p>
+        <input id="swal-bio" class="swal2-input" value="${window.profileData.bio || ''}" style="background:#111; color:#fff; width:100%; box-sizing:border-box; text-align: center; margin: 10px 0;">
+
+        <p style="margin-top:15px; font-size:0.8rem; text-align: center; text-transform: uppercase;">FRAME SELECTION:</p>
+        ${framesHtml}
+      `,
+      showCancelButton: true, confirmButtonText: 'TO SET IT!', confirmButtonColor: '#373737',
       customClass: {popup: 'nfs-font', title: 'nfs-font', confirmButton: 'nfs-font', cancelButton: 'nfs-font'},
       preConfirm: () => {
         return {
@@ -1197,7 +1175,10 @@
       inputOptions: {'15': '15 минут', '60': '1 час', '1440': '24 часа', '10080': '7 дней'},
       inputPlaceholder: 'Выберите срок наказания',
       showCancelButton: true,
-      background: '#0a0a0a', color: '#ffffff', confirmButtonColor: '#ff4d4d', confirmButtonText: 'ЗАМУТИТЬ'
+      background: '#0a0a0a',
+      color: '#ffffff',
+      confirmButtonColor: '#ff4d4d',
+      confirmButtonText: 'ЗАМУТИТЬ'
     });
 
     if (minutes) {
@@ -1206,7 +1187,6 @@
       if (!error) {
         if (typeof nfsNotify === 'function') nfsNotify('НАРУШИТЕЛЬ ОШТРАФОВАН!');
         window.profileData.muted_until = mutedUntil;
-        renderMuteStatus(window.profileData);
         setTimeout(() => location.reload(), 1200);
       }
     }
@@ -1223,15 +1203,17 @@
         filter: `id=eq.${window.profileData.id}`
       }, (payload) => {
         window.profileData = payload.new;
+        const currentLocal = localStorage.getItem('driver_status') || 'ONLINE';
+        if (window.myProfile && payload.new.id === window.myProfile.id) {
+          window.profileData.status = currentLocal;
+        }
         window.updateLiveStatusUI();
       })
       .subscribe();
   }
 
   window.updateSteamFriendsWidgetOnly = function () {
-    if (typeof refreshSteamFriendsList === 'function' && window.myProfile) {
-      refreshSteamFriendsList(_supabase, window.myProfile);
-    }
+    if (typeof refreshSteamFriendsList === 'function' && window.myProfile) refreshSteamFriendsList(_supabase, window.myProfile);
   };
 </script>
 </body>

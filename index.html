@@ -37,7 +37,6 @@
       overflow-x: hidden;
     }
 
-    /* ШАПКА */
     .top-navbar {
       height: 70px;
       position: fixed;
@@ -77,14 +76,10 @@
       text-decoration: underline;
     }
 
-    #notifyPopup,
-    .notify-item,
-    .btn-acc,
-    .btn-rej {
+    #notifyPopup, .notify-item, .btn-acc, .btn-rej {
       font-family: 'Wallpoet', sans-serif !important;
     }
 
-    /* УВЕДОМЛЕНИЯ */
     .notifications-wrapper {
       position: relative;
       margin-right: 20px;
@@ -230,7 +225,6 @@
       display: none;
     }
 
-    /* ВИДЖЕТ КАЛЕНДАРЯ */
     .right-calendar-widget {
       position: fixed;
       top: 100px;
@@ -282,7 +276,6 @@
       border-radius: 2px;
     }
 
-    /* КОНТЕНТ */
     .main-content {
       margin-left: 250px;
       margin-right: 280px;
@@ -292,7 +285,7 @@
     }
 
     .content-box {
-      background: rgba(10, 10, 10, 0.92); /* Более матовый, глубокий графит */
+      background: rgba(10, 10, 10, 0.92);
       border: 1px solid #222;
       padding: 40px;
       max-width: 800px;
@@ -314,7 +307,6 @@
       transform: scale(1.05);
     }
 
-    /* РАДАР */
     .radar-box {
       background: rgba(5, 5, 5, 0.95);
       border: 1px solid #222;
@@ -333,15 +325,9 @@
     }
 
     @keyframes pulse-border {
-      0% {
-        border-left: 3px solid #333;
-      }
-      50% {
-        border-left: 3px solid var(--nfs-yellow);
-      }
-      100% {
-        border-left: 3px solid #333;
-      }
+      0% { border-left: 3px solid #333; }
+      50% { border-left: 3px solid var(--nfs-yellow); }
+      100% { border-left: 3px solid #333; }
     }
 
     .btn-race {
@@ -372,12 +358,7 @@
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: linear-gradient(
-        to top,
-        rgba(0, 0, 0, 1) 0%,
-        rgba(10, 10, 10, 0.95) 50%,
-        rgba(20, 20, 20, 0.9) 100%
-      );
+      background: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(10, 10, 10, 0.95) 50%, rgba(20, 20, 20, 0.9) 100%);
       backdrop-filter: blur(4px);
       padding: 15px 0;
       border-top: 2px solid var(--nfs-yellow);
@@ -404,138 +385,26 @@
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     }
 
-    .user-info {
-      display: none;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 2000;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #111;
-      padding: 40px;
-      border: 2px solid var(--nfs-yellow);
-      width: 320px;
-      z-index: 2100;
-      text-align: center;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      background: #1a1a1a;
-      border: 1px solid #444;
-      color: #fff;
-      box-sizing: border-box;
-    }
+    .user-info { display: none; align-items: center; gap: 20px; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 2000; }
+    .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 40px; border: 2px solid var(--nfs-yellow); width: 320px; z-index: 2100; text-align: center; }
+    input { width: 100%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #444; color: #fff; box-sizing: border-box; }
 
     @media screen and (max-width: 768px) {
-      .top-navbar {
-        padding: 0 15px;
-      }
-
-      .logo {
-        font-size: 1.2rem;
-      }
-
-      #displayNick {
-        font-family: 'Wallpoet', sans-serif !important;
-        max-width: 90px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .sidebar {
-        position: static;
-        width: 100%;
-        height: auto;
-        top: 0;
-        padding-top: 0;
-        margin-top: 70px;
-        border-right: none;
-        border-bottom: 2px solid var(--nfs-border);
-      }
-
-      .sidebar nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-      }
-
-      .right-calendar-widget {
-        display: none;
-      }
-
-      .nav-item {
-        flex: 1 1 30%;
-        min-width: 100px;
-        padding: 12px 5px;
-        font-size: 0.75rem;
-        text-align: center;
-        border-bottom: 1px solid #222;
-        box-sizing: border-box;
-      }
-
-      .nav-item:hover, .nav-item.active {
-        border-left: none;
-        border-bottom: 3px solid var(--nfs-yellow);
-      }
-
-      .main-content {
-        margin-left: 0;
-        margin-right: 0;
-        margin-top: 10px;
-        padding: 15px;
-        padding-bottom: 140px;
-        box-sizing: border-box;
-      }
-
-      .content-box {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 20px;
-      }
-
-      .content-box h1 {
-        font-size: 1.6rem;
-      }
-
-      .search-widget {
-        position: static;
-        width: 100%;
-        margin-top: 20px;
-        box-sizing: border-box;
-        box-shadow: none;
-        border-top: 1px solid var(--nfs-border);
-        border-bottom: 1px solid var(--nfs-border);
-      }
-
-      .bottom-bar {
-        font-size: 0.75rem;
-        padding: 12px 0;
-      }
-
-      .modal {
-        width: 85%;
-        padding: 25px 15px;
-      }
+      .top-navbar { padding: 0 15px; }
+      .logo { font-size: 1.2rem; }
+      #displayNick { font-family: 'Wallpoet', sans-serif !important; max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sidebar { position: static; width: 100%; height: auto; top: 0; padding-top: 0; margin-top: 70px; border-right: none; border-bottom: 2px solid var(--nfs-border); }
+      .sidebar nav { display: flex; flex-wrap: wrap; justify-content: space-around; }
+      .right-calendar-widget { display: none; }
+      .nav-item { flex: 1 1 30%; min-width: 100px; padding: 12px 5px; font-size: 0.75rem; text-align: center; border-bottom: 1px solid #222; box-sizing: border-box; }
+      .nav-item:hover, .nav-item.active { border-left: none; border-bottom: 3px solid var(--nfs-yellow); }
+      .main-content { margin-left: 0; margin-right: 0; margin-top: 10px; padding: 15px; padding-bottom: 140px; box-sizing: border-box; }
+      .content-box { width: 100%; box-sizing: border-box; padding: 20px; }
+      .content-box h1 { font-size: 1.6rem; }
+      .search-widget { position: static; width: 100%; margin-top: 20px; box-sizing: border-box; box-shadow: none; border-top: 1px solid var(--nfs-border); border-bottom: 1px solid var(--nfs-border); }
+      .bottom-bar { font-size: 0.75rem; padding: 12px 0; }
+      .modal { width: 85%; padding: 25px 15px; }
     }
   </style>
 </head>
@@ -543,27 +412,22 @@
 
 <header class="top-navbar">
   <div style="display: flex; align-items: center; gap: 15px;">
-    <img src="https://i.postimg.cc/KjhYnZ7S/IMG-4583.png" alt="NFS Logo"
-         style="height: 65px; width: auto; filter: drop-shadow(2px 2px 5px #000);">
+    <img src="https://i.postimg.cc/KjhYnZ7S/IMG-4583.png" alt="NFS Logo" style="height: 65px; width: auto; filter: drop-shadow(2px 2px 5px #000);">
     <div class="logo">SAFEHOUSE</div>
   </div>
 
   <div class="user-area" style="display: flex; align-items: center; gap: 20px;">
-    <div class="notifications-wrapper" id="notifyWrapper"
-         style="position: relative; display: flex; align-items: center;">
+    <div class="notifications-wrapper" id="notifyWrapper" style="position: relative; display: flex; align-items: center;">
       <div id="notifyBell" onclick="toggleNotifyPopup()" style="cursor: pointer; display: flex; align-items: center;">
-        <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2">
+        <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
         </svg>
         <span id="notifyCount" style="margin-left: 5px;">0</span>
       </div>
 
-      <div id="notifyPopup"
-           style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
-        <div class="notify-header nfs-font"
-             style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">
+      <div id="notifyPopup" style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
+        <div class="notify-header nfs-font" style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">
           Friend requests
         </div>
         <div id="notifyList"></div>
@@ -573,13 +437,10 @@
     <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;">LOGIN</button>
 
     <div class="user-info" id="userInfo" style="display: flex; align-items: center; gap: 15px;">
-      <span id="displayNick"
-            style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);"
-            onclick="window.location.href='profile.html'">
+      <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
         Davenport
       </span>
-      <button onclick="handleLogout()" class="nfs-font btn-exit"
-              style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
+      <button onclick="handleLogout()" class="nfs-font btn-exit" style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
         EXIT
       </button>
     </div>
@@ -602,17 +463,10 @@
   <table class="u-calendar">
     <thead>
     <tr>
-      <th>Пн</th>
-      <th>Вт</th>
-      <th>Ср</th>
-      <th>Чт</th>
-      <th>Пт</th>
-      <th>Сб</th>
-      <th>Вс</th>
+      <th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th><th>Сб</th><th>Вс</th>
     </tr>
     </thead>
-    <tbody id="calendarBody">
-    </tbody>
+    <tbody id="calendarBody"></tbody>
   </table>
 </div>
 
@@ -626,8 +480,7 @@
     </p>
 
     <div class="radar-box" id="matchmakingRadar" style="margin-top: 40px;">
-      <h2
-        style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 0.9rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; letter-spacing: 2px;">
+      <h2 style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 0.9rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; letter-spacing: 2px;">
         FREQUENCY INTERCEPTION: LOOKING FOR GAME
       </h2>
       <div id="radarList" style="margin-top: 15px;">
@@ -638,24 +491,17 @@
 </main>
 
 <div class="search-widget">
-  <div
-    style="border-radius: 6px; font-size: 0.80rem; color: #555; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
+  <div style="border-radius: 6px; font-size: 0.80rem; color: #555; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
     Find a player by nickname:
   </div>
   <div style="display: flex; border-radius: 6px; gap: 5px;">
-    <input type="text" id="globalSearchInput" placeholder="ENTER NICKNAME..."
-           onkeypress="if(event.key === 'Enter') performGlobalSearch()"
-           style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 6px; outline: none;">
-    <button onclick="performGlobalSearch()"
-            style="background: var(--nfs-yellow); border-radius: 6px; font-weight: bold; cursor: pointer; padding: 0 12px;">
-      &gt;
-    </button>
+    <input type="text" id="globalSearchInput" placeholder="ENTER NICKNAME..." onkeypress="if(event.key === 'Enter') performGlobalSearch()" style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 6px; outline: none;">
+    <button onclick="performGlobalSearch()" style="background: var(--nfs-yellow); border-radius: 6px; font-weight: bold; cursor: pointer; padding: 0 12px;">&gt;</button>
   </div>
 </div>
 
 <footer class="bottom-bar">
-  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight"
-                                                                                       id="footerPlaying">0</span></div>
+  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight" id="footerPlaying">0</span></div>
 </footer>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
@@ -665,9 +511,7 @@
   <input type="password" id="passInput" placeholder="PASSWORD">
   <button class="btn-login" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">AUTHORIZATION</button>
   <div style="margin-top: 15px; font-size: 0.8rem;">
-    Don't have an account yet? <a href="auth.html"
-                                  style="color: var(--nfs-yellow); text-decoration: none; font-weight: bold; text-transform: uppercase;">Register
-    Here</a>
+    Don't have an account yet? <a href="auth.html" style="color: var(--nfs-yellow); text-decoration: none; font-weight: bold; text-transform: uppercase;">Register Here</a>
   </div>
 </div>
 
@@ -679,23 +523,17 @@
   let myProfile = null;
 
   function initCalendarHeader() {
-    const monthNames = [
-      "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-      "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-    ];
+    const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     const todayDate = now.getDate();
 
     const calendarTitleEl = document.getElementById('calendarMonth');
-    if (calendarTitleEl) {
-      calendarTitleEl.innerText = `${monthNames[currentMonth]} ${currentYear}`;
-    }
+    if (calendarTitleEl) calendarTitleEl.innerText = `${monthNames[currentMonth]} ${currentYear}`;
 
     const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
     const startDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
-
     const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
     const calendarBody = document.getElementById('calendarBody');
 
@@ -704,11 +542,7 @@
 
     let html = '<tr>';
     let dayCount = 1;
-
-    for (let i = 0; i < startDay; i++) {
-      html += '<td></td>';
-    }
-
+    for (let i = 0; i < startDay; i++) html += '<td></td>';
     for (let i = startDay; i < 7; i++) {
       const isToday = dayCount === todayDate;
       html += `<td class="${isToday ? 'u-today' : ''}">${dayCount}</td>`;
@@ -729,13 +563,11 @@
       }
       html += '</tr>';
     }
-
     calendarBody.innerHTML = html;
   }
 
   window.onload = async () => {
     initCalendarHeader();
-
     const {data: {user}} = await _supabase.auth.getUser();
 
     if (user) {
@@ -745,28 +577,14 @@
         showLoggedIn(profile);
         document.getElementById('notifyWrapper').style.display = 'flex';
 
-        if (typeof initGlobalStatus === 'function') {
-          initGlobalStatus(_supabase, myProfile);
-        }
+        if (typeof initGlobalStatus === 'function') initGlobalStatus(_supabase, myProfile);
 
         updateGlobalMsgBadge(_supabase, myProfile.id);
         updateFriendNotifications();
         loadSidebarFriends();
 
-        const chatLink = document.querySelector('a[href="chats.html"]');
-        if (chatLink) {
-          chatLink.addEventListener('click', () => {
-            if (typeof markAllMsgsAsRead === 'function') markAllMsgsAsRead(_supabase, myProfile.id);
-          });
-        }
-
         _supabase.channel('index-realtime')
-          .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'direct_messages',
-            filter: `receiver_id=eq.${myProfile.id}`
-          }, (payload) => {
+          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: `receiver_id=eq.${myProfile.id}` }, (payload) => {
             updateGlobalMsgBadge(_supabase, myProfile.id);
             if (typeof playNotificationSound === 'function') playNotificationSound();
             if (typeof nfsNotify === 'function') nfsNotify('YOU GOT A NEW MESSAGE!', 'info');
@@ -774,32 +592,25 @@
           .subscribe();
       }
     } else {
-      if (typeof initGlobalStatus === 'function') {
-        initGlobalStatus(_supabase, null);
-      }
+      if (typeof initGlobalStatus === 'function') initGlobalStatus(_supabase, null);
     }
+
+    // Включаем Real-time слежку за таблицей профилей, чтобы ловить LFG на лету
+    _supabase.channel('radar-status-changes')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+        scanForPlayers();
+      })
+      .subscribe();
+
     scanForPlayers();
   };
-
-  function initGuestRadar() {
-    const channel = _supabase.channel('global-online');
-    channel.on('presence', {event: 'sync'}, () => {
-      const state = channel.presenceState();
-      const fOnline = document.getElementById('footerOnline');
-      if (fOnline) fOnline.innerText = Object.keys(state).length;
-    }).subscribe();
-  }
 
   let friendsCache = [];
 
   async function loadSidebarFriends() {
     if (!myProfile) return;
-
     const {data} = await _supabase.from('friend_requests')
-      .select('sender_id, ' +
-        'receiver_id, ' +
-        'sender:profiles!friend_requests_sender_id_fkey(username, avatar_url, status), ' +
-        'receiver:profiles!friend_requests_receiver_id_fkey(username, avatar_url, status)')
+      .select('sender_id, receiver_id, sender:profiles!friend_requests_sender_id_fkey(username, avatar_url, status), receiver:profiles!friend_requests_receiver_id_fkey(username, avatar_url, status)')
       .eq('status', 'accepted')
       .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`);
 
@@ -824,14 +635,8 @@
       if (presence) {
         const pData = presence[0];
         const liveStatus = pData.status || 'ONLINE';
-
         statusName = liveStatus === 'LOOKING FOR GAME' ? 'LFG' : liveStatus;
-
-        if (liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME') {
-          dotColor = 'var(--nfs-yellow)';
-        } else {
-          dotColor = '#2ecc71';
-        }
+        dotColor = (liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME') ? 'var(--nfs-yellow)' : '#2ecc71';
       }
 
       listContainer.innerHTML += `
@@ -851,9 +656,7 @@
   window.updateFriendsStatusOnly = renderFriendsUI;
 
   async function handleLogout() {
-    if (myProfile) {
-      await _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
-    }
+    if (myProfile) await _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
     await _supabase.auth.signOut();
     window.location.href = 'index.html';
   }
@@ -900,9 +703,7 @@
       }
       await updateFriendNotifications();
       await loadSidebarFriends();
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   }
 
   async function performGlobalSearch() {
@@ -910,25 +711,17 @@
     if (!query) return;
     const {data} = await _supabase.from('profiles').select('username').ilike('username', query).maybeSingle();
     if (data) window.location.href = `profile.html?u=${data.username}`;
-    else Swal.fire({
-      title: 'ERROR',
-      text: 'The racer was not found',
-      icon: 'error',
-      background: '#111',
-      color: '#fff',
-      confirmButtonColor: '#f1c40f'
-    });
+    else Swal.fire({ title: 'ERROR', text: 'The racer was not found', icon: 'error', background: '#111', color: '#fff', confirmButtonColor: '#f1c40f' });
   }
 
   async function scanForPlayers() {
-    const {data, error} = await _supabase.from('profiles')
-      .select('*')
-      .ilike('status', 'LOOKING FOR GAME');
-
-    if (error) {
-      console.error("Radar error:", error);
-      return;
+    // Принудительно подтягиваем локальный статус для себя, чтобы не зависеть от пинга базы
+    if (myProfile) {
+      myProfile.status = localStorage.getItem('driver_status') || 'ONLINE';
     }
+
+    const {data, error} = await _supabase.from('profiles').select('*').ilike('status', 'LOOKING FOR GAME');
+    if (error) return;
 
     const list = document.getElementById('radarList');
     if (!list) return;
@@ -978,7 +771,7 @@
   }
 
   window.loadSidebarFriends = loadSidebarFriends;
-  setInterval(scanForPlayers, 15000);
+  setInterval(scanForPlayers, 10000); // Страховочный опрос раз в 10 сек
 </script>
 </body>
 </html>
