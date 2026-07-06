@@ -37,7 +37,6 @@
       padding-bottom: 60px;
     }
 
-    /* ВОЗВРАЩАЕМ ЖЕЛТЫЙ ЦВЕТ ДЛЯ ВСЕХ ПОДСВЕТОК (ФУТЕР И Т.Д.) */
     .highlight {
       color: var(--nfs-yellow) !important;
     }
@@ -50,7 +49,6 @@
       font-family: 'Wallpoet', sans-serif !important;
     }
 
-    /* ШАПКА В ПОЛОСКУ */
     .top-navbar {
       height: 70px;
       position: fixed;
@@ -94,7 +92,6 @@
       text-decoration: underline;
     }
 
-    /* УВЕДОМЛЕНИЯ */
     .notifications-wrapper {
       position: relative;
       margin-right: 20px;
@@ -234,7 +231,6 @@
       padding: 110px 40px 40px 40px;
     }
 
-    /* СУПЕР СТИЛЬ ИЗ СКРИНШОТА STEAM */
     .profile-card {
       background: rgba(0, 0, 0, 0.85);
       padding: 40px;
@@ -301,7 +297,6 @@
       text-transform: uppercase;
     }
 
-    /* ЦЕНТРАЛЬНЫЙ БЛОК STEAM */
     .info-area {
       display: flex;
       flex-direction: column;
@@ -317,7 +312,6 @@
       text-transform: uppercase;
     }
 
-    /* Ряд локации под ником */
     .steam-location-row {
       display: flex;
       align-items: center;
@@ -350,7 +344,6 @@
       color: #8f98a0 !important;
     }
 
-    /* КРАСИВЫЙ СТИЛЬ БИО В СТИЛЕ ОПИСАНИЯ STEAM */
     #profBio {
       color: #bbbbbb;
       margin: 10px 0;
@@ -359,7 +352,6 @@
       line-height: 1.5;
     }
 
-    /* ПРАВАЯ СТОРОНА HUD */
     .right-stats-area {
       display: flex;
       flex-direction: column;
@@ -404,7 +396,6 @@
       font-weight: bold;
       font-size: 0.75rem;
       transition: all 0.3s ease;
-
       width: max-content !important;
       min-width: 120px;
       align-self: flex-start;
@@ -540,7 +531,6 @@
       display: none !important;
     }
 
-    /* Рамки для аватарок */
     .avatar-container {
       position: relative;
       width: 190px;
@@ -576,7 +566,6 @@
       font-family: 'Wallpoet', sans-serif !important;
     }
 
-    /* АДАПТИВНОСТЬ */
     @media screen and (max-width: 768px) {
       .top-navbar {
         position: fixed !important;
@@ -855,6 +844,15 @@
     const {data: me} = await _supabase.from('profiles').select('*').eq('id', window.currentUserId).single();
     if (me) {
       window.myProfile = me;
+
+      // Перехватываем управление у утилит: если в памяти браузера лежит сохраненный статус, ставим его приоритетным
+      const savedStatus = localStorage.getItem('driver_status');
+      if (savedStatus) {
+        window.myProfile.status = savedStatus;
+        await _supabase.from('profiles').update({status: savedStatus}).eq('id', user.id);
+        if (typeof window.trackMyStatus === 'function') await window.trackMyStatus(savedStatus);
+      }
+
       const nickEl = document.getElementById('displayNick');
       if (nickEl) nickEl.innerText = me.username;
       if (typeof updateFriendNotifications === 'function') updateFriendNotifications();
@@ -894,7 +892,6 @@
       const statusSelect = document.getElementById('statusSelect');
       s = statusSelect ? statusSelect.value : (window.myProfile.status || 'ONLINE');
     } else if (presence && presence[0] && presence[0].status) {
-
       s = presence[0].status;
     } else {
       s = window.profileData.status || 'ONLINE';
@@ -906,7 +903,6 @@
       el.innerHTML = `<div>Currently Offline</div><div style="font-size: 1.05rem; font-weight: normal; color: #8f98a0; margin-top: 2px;">Last Online ${lastSeenTime}</div>`;
       el.className = 'status-badge status-offline';
     } else {
-
       if (s === 'LOOKING FOR GAME') {
         el.innerHTML = `<div>LFG</div>`;
         el.className = 'status-badge status-ingame';
@@ -994,7 +990,6 @@
     }
 
     renderGarage(data.photos);
-    window.updateLiveStatusUI();
 
     const editBtn = document.getElementById('editBtn');
     const statusSelect = document.getElementById('statusSelect');
@@ -1006,7 +1001,8 @@
       if (editBtn) editBtn.classList.remove('hidden');
       if (statusSelect) {
         statusSelect.classList.remove('hidden');
-        statusSelect.value = data.status || 'ONLINE';
+        // Ставим значение из localStorage, если оно там есть
+        statusSelect.value = localStorage.getItem('driver_status') || data.status || 'ONLINE';
       }
       if (addCarBtn) addCarBtn.classList.remove('hidden');
       if (msgBtn) msgBtn.classList.add('hidden');
@@ -1016,8 +1012,10 @@
       if (statusSelect) statusSelect.classList.add('hidden');
       if (addCarBtn) addCarBtn.classList.add('hidden');
       if (msgBtn) msgBtn.classList.remove('hidden');
-      if (friendBtn) friendBtn.classList.remove('hidden');
+      if (friendBtn) friendBtn.remove('hidden');
     }
+
+    window.updateLiveStatusUI();
   }
 
   function renderGarage(photos) {
@@ -1087,6 +1085,9 @@
 
   async function updateUserStatus() {
     const s = document.getElementById('statusSelect').value;
+
+    localStorage.setItem('driver_status', s);
+
     const {error} = await _supabase.from('profiles').update({status: s}).eq('id', window.currentUserId);
     if (!error) {
       if (window.profileData) window.profileData.status = s;
