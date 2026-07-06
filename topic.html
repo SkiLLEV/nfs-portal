@@ -347,18 +347,18 @@
   }
 
   // Функция для форматирования скрытых тегов [reply:username] в неоново-зеленый текст
-  function formatCommentText(text) {
+  function formatCommentText(text, currentUserName) {
     if (!text) return "";
-    return text.replace(/\[reply:(.+?)\]/g, '<span style="color: #00ff66; font-weight: bold; text-shadow: 0 0 5px rgba(0,255,102,0.4); font-family: \'Arial\', sans-serif !important;">@$1</span>');
-  }
 
-  // Функция, которая вызывается по клику на [ Reply ] под комментарием
-  function insertReplyTag(username) {
-    const textarea = document.getElementById('commentText');
-    if (textarea) {
-      textarea.value = `[reply:${username}], ` + textarea.value;
-      textarea.focus();
-    }
+    return text.replace(/\[reply:(.+?)\]/g, (match, username) => {
+      // Если тегнули НАС — горит неоново-зелёным
+      if (username === currentUserName) {
+        return `<span style="color: #00ff66; font-weight: bold; text-shadow: 0 0 5px rgba(0,255,102,0.4); font-family: 'Arial', sans-serif !important;">@${username}</span>`;
+      } else {
+        // Если мы или кто-то другой отвечает третьему лицу — аккуратный серый цвет
+        return `<span style="color: #666; font-weight: bold; font-family: 'Arial', sans-serif !important;">@${username}</span>`;
+      }
+    });
   }
 
   async function loadFullTopic() {
@@ -389,7 +389,7 @@
            <span class="comment-date-clean">${topicDate}</span>
         </div>
         <h1 style="color:var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0; font-size: 1.8rem; letter-spacing: 1px;">${data.title}</h1>
-        <p class="user-text-content" style="white-space: pre-line; margin-bottom: 0;">${formatCommentText(data.content)}</p>
+        <p class="user-text-content" style="white-space: pre-line; margin-bottom: 0;">${formatCommentText(data.content, myName)}</p>
       </div>
     `;
     if (currentUserId === data.author_id) {
@@ -429,7 +429,7 @@
                <span class="comment-date-clean">${commentDate}</span>
             </div>
 
-            <div class="user-text-content" style="white-space: pre-line;">${formatCommentText(c.content)}</div>
+            <div class="user-text-content" style="white-space: pre-line;">${formatCommentText(c.content, myName)}</div>
 
            <div style="margin-top: 0px; border-top: 1px solid #1a1a1a; padding-top: 2px;">
               <span onclick="insertReplyTag('${c.author_name}')" style="color: #555; cursor: pointer; font-size: 0.75rem; text-transform: uppercase; font-family: 'Arial', sans-serif; font-weight: bold; transition: color 0.2s;" onmouseover="this.style.color='#00ff66'" onmouseout="this.style.color='#555'">
