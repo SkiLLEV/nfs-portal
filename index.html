@@ -18,10 +18,9 @@
   <script src="utils.js"></script>
   <title>NFS Portal | Main</title>
 
-
   <style>
     :root {
-      --nfs-yellow: #cca609;
+      --nfs-yellow: #f1c40f;
       --nfs-dark: rgba(15, 15, 15, 0.98);
       --nfs-border: #333;
       --admin-red: #e74c3c;
@@ -29,7 +28,8 @@
     }
 
     body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background: var(--nfs-bg) no-repeat center center fixed;
       background-size: cover;
       font-family: 'Wallpoet', sans-serif !important;
@@ -41,27 +41,24 @@
     .top-navbar {
       height: 70px;
       position: fixed;
-      top: 0; width: 100%;
+      top: 0;
+      width: 100%;
       z-index: 1000;
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 0 40px;
       box-sizing: border-box;
-
-      /* Мягкий полосатый фон */
-      background:
-        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-        repeating-linear-gradient(
-          -45deg,
-          #0a0a0a,
-          #0a0a0a 40px,
-          rgba(241, 196, 15, 0.4) 40px,
-          rgba(241, 196, 15, 0.4) 80px
-        );
-
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+      repeating-linear-gradient(
+        -45deg,
+        #0a0a0a,
+        #0a0a0a 40px,
+        rgba(241, 196, 15, 0.4) 40px,
+        rgba(241, 196, 15, 0.4) 80px
+      );
       border-bottom: 2px solid var(--nfs-yellow);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
     }
 
     .logo {
@@ -70,6 +67,14 @@
       letter-spacing: 2px;
       text-shadow: 2px 2px 5px #000;
       font-style: italic;
+    }
+
+    #displayNick {
+      font-family: 'Wallpoet', sans-serif !important;
+    }
+
+    #displayNick:hover {
+      text-decoration: underline;
     }
 
     #notifyPopup,
@@ -102,7 +107,7 @@
       position: absolute;
       top: -5px;
       right: -8px;
-      background: #e74c3c;;
+      background: #e74c3c;
       color: white;
       border-radius: 50%;
       padding: 1px 6px;
@@ -115,12 +120,13 @@
     #notifyPopup {
       display: none;
       position: absolute;
-      right: 0; top: 45px;
+      right: 0;
+      top: 45px;
       width: 280px;
       background: #0a0a0a;
       border: 2px solid var(--nfs-yellow);
       z-index: 1000;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
     }
 
     .notify-header {
@@ -192,7 +198,8 @@
 
     .nav-item {
       display: block;
-      padding: 18px 30px; color: #bbb;
+      padding: 18px 30px;
+      color: #bbb;
       text-decoration: none;
       font-weight: 600;
       text-transform: uppercase;
@@ -223,9 +230,7 @@
       display: none;
     }
 
-    /* ==========================================================================
-       СТИЛИ ДЛЯ ПРАВОГО ВИДЖЕТА КАЛЕНДАРЯ
-       ========================================================================== */
+    /* ВИДЖЕТ КАЛЕНДАРЯ */
     .right-calendar-widget {
       position: fixed;
       top: 100px;
@@ -267,7 +272,7 @@
 
     .u-calendar td {
       padding: 5px 0;
-      color: #e0e0e0; /* Сделали более читаемым цвет обычных чисел */
+      color: #e0e0e0;
     }
 
     .u-calendar td.u-today {
@@ -314,7 +319,7 @@
       border: 1px solid #333;
       padding: 20px;
       margin-top: 30px;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
     }
 
     .radar-item {
@@ -327,9 +332,15 @@
     }
 
     @keyframes pulse-border {
-      0% { border-left: 3px solid #444; }
-      50% { border-left: 3px solid var(--nfs-yellow); }
-      100% { border-left: 3px solid #444; }
+      0% {
+        border-left: 3px solid #444;
+      }
+      50% {
+        border-left: 3px solid var(--nfs-yellow);
+      }
+      100% {
+        border-left: 3px solid #444;
+      }
     }
 
     .btn-race {
@@ -355,7 +366,6 @@
       text-shadow: 0 0 8px var(--nfs-yellow);
     }
 
-    /* ФУТЕР С ВЕРТИКАЛЬНЫМ ГРАДИЕНТОМ И РАЗМЫТИЕМ */
     .bottom-bar {
       position: fixed;
       bottom: 0;
@@ -377,7 +387,7 @@
     }
 
     .highlight {
-      color: var(--nfs-yellow);
+      color: var(--nfs-yellow) !important;
       font-weight: bold;
     }
 
@@ -387,19 +397,15 @@
       right: 40px;
       z-index: 1001;
       width: 220px;
-      background: rgba(0,0,0,0.9);
+      background: rgba(0, 0, 0, 0.9);
       padding: 15px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     }
 
     .user-info {
       display: none;
       align-items: center;
       gap: 20px;
-    }
-
-    #displayNick:hover {
-      text-decoration: underline;
     }
 
     .modal-overlay {
@@ -409,7 +415,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0, 0, 0, 0.85);
       z-index: 2000;
     }
 
@@ -437,13 +443,23 @@
       box-sizing: border-box;
     }
 
-    /* ==========================================================================
-   АДАПТИВНАЯ ВЕРСТКА ДЛЯ СМАРТФОНОВ
-   ========================================================================== */
+    /* АДАПТИВНАЯ ВЕРСТКА */
     @media screen and (max-width: 768px) {
-      .top-navbar { padding: 0 15px; }
-      .logo { font-size: 1.2rem; }
-      #displayNick { max-width: 90px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .top-navbar {
+        padding: 0 15px;
+      }
+
+      .logo {
+        font-size: 1.2rem;
+      }
+
+      #displayNick {
+        font-family: 'Wallpoet', sans-serif !important;
+        max-width: 90px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
       .sidebar {
         position: static;
@@ -490,8 +506,15 @@
         box-sizing: border-box;
       }
 
-      .content-box { width: 100%; box-sizing: border-box; padding: 20px; }
-      .content-box h1 { font-size: 1.6rem; }
+      .content-box {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 20px;
+      }
+
+      .content-box h1 {
+        font-size: 1.6rem;
+      }
 
       .search-widget {
         position: static;
@@ -503,8 +526,15 @@
         border-bottom: 1px solid var(--nfs-border);
       }
 
-      .bottom-bar { font-size: 0.75rem; padding: 12px 0; }
-      .modal { width: 85%; padding: 25px 15px; }
+      .bottom-bar {
+        font-size: 0.75rem;
+        padding: 12px 0;
+      }
+
+      .modal {
+        width: 85%;
+        padding: 25px 15px;
+      }
     }
   </style>
 </head>
@@ -512,22 +542,29 @@
 
 <header class="top-navbar">
   <div style="display: flex; align-items: center; gap: 15px;">
-    <img src="https://i.postimg.cc/KjhYnZ7S/IMG-4583.png" alt="NFS Logo" style="height: 65px; width: auto; filter: drop-shadow(2px 2px 5px #000);">
+    <img src="https://i.postimg.cc/KjhYnZ7S/IMG-4583.png" alt="NFS Logo"
+         style="height: 65px; width: auto; filter: drop-shadow(2px 2px 5px #000);">
     <div class="logo">SAFEHOUSE</div>
   </div>
 
   <div class="user-area" style="display: flex; align-items: center; gap: 20px;">
-    <div class="notifications-wrapper" id="notifyWrapper" style="position: relative; display: flex; align-items: center;">
+    <div class="notifications-wrapper" id="notifyWrapper"
+         style="position: relative; display: flex; align-items: center;">
       <div id="notifyBell" onclick="toggleNotifyPopup()" style="cursor: pointer; display: flex; align-items: center;">
-        <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
         </svg>
         <span id="notifyCount" style="margin-left: 5px;">0</span>
       </div>
 
-      <div id="notifyPopup" style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
-        <div class="notify-header nfs-font" style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">Friend requests</div>
+      <div id="notifyPopup"
+           style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
+        <div class="notify-header nfs-font"
+             style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">
+          Friend requests
+        </div>
         <div id="notifyList"></div>
       </div>
     </div>
@@ -535,10 +572,15 @@
     <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;">LOGIN</button>
 
     <div class="user-info" id="userInfo" style="display: flex; align-items: center; gap: 15px;">
-      <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
+      <span id="displayNick"
+            style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);"
+            onclick="window.location.href='profile.html'">
         Davenport
       </span>
-      <button onclick="handleLogout()" class="nfs-font btn-exit" style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">EXIT</button>
+      <button onclick="handleLogout()" class="nfs-font btn-exit"
+              style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
+        EXIT
+      </button>
     </div>
   </div>
 </header>
@@ -554,15 +596,21 @@
   </nav>
 </aside>
 
-<!-- УБРАЛИ ХАРДКОД ИЗ ТЕЛА ТАБЛИЦЫ, ДОБАВИЛИ ID ДЛЯ ДИНАМИЧЕСКОЙ ГЕНЕРАЦИИ -->
 <div class="right-calendar-widget">
   <div class="calendar-title" id="calendarMonth">Календарь</div>
   <table class="u-calendar">
     <thead>
-    <tr><th>Пн</th><th>Вт</th><th>Ср</th><th>Чт</th><th>Пт</th><th>Сб</th><th>Вс</th></tr>
+    <tr>
+      <th>Пн</th>
+      <th>Вт</th>
+      <th>Ср</th>
+      <th>Чт</th>
+      <th>Пт</th>
+      <th>Сб</th>
+      <th>Вс</th>
+    </tr>
     </thead>
     <tbody id="calendarBody">
-    <!-- Сюда JS будет рендерить актуальные дни месяца -->
     </tbody>
   </table>
 </div>
@@ -577,7 +625,8 @@
     </p>
 
     <div class="radar-box" id="matchmakingRadar" style="margin-top: 40px;">
-      <h2 style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 0.9rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; letter-spacing: 2px;">
+      <h2
+        style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 0.9rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; letter-spacing: 2px;">
         FREQUENCY INTERCEPTION: LOOKING FOR GAME
       </h2>
       <div id="radarList" style="margin-top: 15px;">
@@ -588,17 +637,24 @@
 </main>
 
 <div class="search-widget">
-  <div style="border-radius: 6px; font-size: 0.80rem; color: #555; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
+  <div
+    style="border-radius: 6px; font-size: 0.80rem; color: #555; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;">
     Find a player by nickname:
   </div>
   <div style="display: flex; border-radius: 6px; gap: 5px;">
-    <input type="text" id="globalSearchInput" placeholder="ENTER NICKNAME..." onkeypress="if(event.key === 'Enter') performGlobalSearch()" style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 6px; outline: none;">
-    <button onclick="performGlobalSearch()" style="background: var(--nfs-yellow); border-radius: 6px; font-weight: bold; cursor: pointer; padding: 0 12px;">></button>
+    <input type="text" id="globalSearchInput" placeholder="ENTER NICKNAME..."
+           onkeypress="if(event.key === 'Enter') performGlobalSearch()"
+           style="width: 100%; background: #111; border: 1px solid #222; color: #fff; padding: 6px; outline: none;">
+    <button onclick="performGlobalSearch()"
+            style="background: var(--nfs-yellow); border-radius: 6px; font-weight: bold; cursor: pointer; padding: 0 12px;">
+      &gt;
+    </button>
   </div>
 </div>
 
 <footer class="bottom-bar">
-  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight" id="footerPlaying">0</span></div>
+  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight"
+                                                                                       id="footerPlaying">0</span></div>
 </footer>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
@@ -608,7 +664,9 @@
   <input type="password" id="passInput" placeholder="PASSWORD">
   <button class="btn-login" style="width: 100%; margin-top: 10px;" onclick="handleLogin()">AUTHORIZATION</button>
   <div style="margin-top: 15px; font-size: 0.8rem;">
-    Don't have an account yet? <a href="auth.html" style="color: var(--nfs-yellow); text-decoration: none; font-weight: bold; text-transform: uppercase;">Register Here</a>
+    Don't have an account yet? <a href="auth.html"
+                                  style="color: var(--nfs-yellow); text-decoration: none; font-weight: bold; text-transform: uppercase;">Register
+    Here</a>
   </div>
 </div>
 
@@ -629,15 +687,12 @@
     const currentYear = now.getFullYear();
     const todayDate = now.getDate();
 
-    // 1. Ставим заголовок
     const calendarTitleEl = document.getElementById('calendarMonth');
     if (calendarTitleEl) {
       calendarTitleEl.innerText = `${monthNames[currentMonth]} ${currentYear}`;
     }
 
-    // 2. Генерируем дни месяца
     const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
-    // Переводим воскресенье с 0 индекса JS на 7 место для нашей европейской сетки (Пн-Вс)
     const startDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
 
     const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -649,12 +704,10 @@
     let html = '<tr>';
     let dayCount = 1;
 
-    // Пустые ячейки в первой строке до начала месяца
     for (let i = 0; i < startDay; i++) {
       html += '<td></td>';
     }
 
-    // Заполнение днями
     for (let i = startDay; i < 7; i++) {
       const isToday = dayCount === todayDate;
       html += `<td class="${isToday ? 'u-today' : ''}">${dayCount}</td>`;
@@ -662,7 +715,6 @@
     }
     html += '</tr>';
 
-    // Последующие строки
     while (dayCount <= totalDays) {
       html += '<tr>';
       for (let i = 0; i < 7; i++) {
@@ -681,14 +733,12 @@
   }
 
   window.onload = async () => {
-    // Инициализируем название месяца и сетку в календаре
     initCalendarHeader();
 
-    // Подтягиваем сессию пользователя из Supabase
-    const { data: { user } } = await _supabase.auth.getUser();
+    const {data: {user}} = await _supabase.auth.getUser();
 
     if (user) {
-      const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+      const {data: profile} = await _supabase.from('profiles').select('*').eq('id', user.id).single();
       if (profile) {
         myProfile = profile;
         showLoggedIn(profile);
@@ -714,9 +764,10 @@
             event: 'INSERT',
             schema: 'public',
             table: 'direct_messages',
-            filter: `receiver_id=eq.${myProfile.id}` }, (payload) => {
+            filter: `receiver_id=eq.${myProfile.id}`
+          }, (payload) => {
             updateGlobalMsgBadge(_supabase, myProfile.id);
-            playNotificationSound();
+            if (typeof playNotificationSound === 'function') playNotificationSound();
             if (typeof nfsNotify === 'function') nfsNotify('YOU GOT A NEW MESSAGE!', 'info');
           })
           .subscribe();
@@ -731,7 +782,7 @@
 
   function initGuestRadar() {
     const channel = _supabase.channel('global-online');
-    channel.on('presence', { event: 'sync' }, () => {
+    channel.on('presence', {event: 'sync'}, () => {
       const state = channel.presenceState();
       const fOnline = document.getElementById('footerOnline');
       if (fOnline) fOnline.innerText = Object.keys(state).length;
@@ -743,7 +794,7 @@
   async function loadSidebarFriends() {
     if (!myProfile) return;
 
-    const { data } = await _supabase.from('friend_requests')
+    const {data} = await _supabase.from('friend_requests')
       .select('sender_id, ' +
         'receiver_id, ' +
         'sender:profiles!friend_requests_sender_id_fkey(username, avatar_url, status), ' +
@@ -771,19 +822,14 @@
 
       if (presence) {
         const pData = presence[0];
-        const loc = pData.location;
         const liveStatus = pData.status || 'ONLINE';
 
-        if (loc === 'chats.html') {
-          statusName = 'IN CHAT';
-          dotColor = '#ff4d4d';
+        statusName = liveStatus === 'LOOKING FOR GAME' ? 'LFG' : liveStatus;
+
+        if (liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME') {
+          dotColor = 'var(--nfs-yellow)';
         } else {
-          statusName = liveStatus;
-          if (liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME') {
-            dotColor = 'var(--nfs-yellow)';
-          } else {
-            dotColor = '#2ecc71';
-          }
+          dotColor = '#2ecc71';
         }
       }
 
@@ -805,7 +851,7 @@
 
   async function handleLogout() {
     if (myProfile) {
-      await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', myProfile.id);
+      await _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', myProfile.id);
     }
     await _supabase.auth.signOut();
     window.location.href = 'index.html';
@@ -813,12 +859,12 @@
 
   function toggleNotifyPopup() {
     const p = document.getElementById('notifyPopup');
-    p.style.display = p.style.display === 'block' ? 'none' : 'block';
+    if (p) p.style.display = p.style.display === 'block' ? 'none' : 'block';
   }
 
   async function updateFriendNotifications() {
     if (!myProfile) return;
-    const { data: requests } = await _supabase.from('friend_requests').select('*').eq('receiver_id', myProfile.id).eq('status', 'pending');
+    const {data: requests} = await _supabase.from('friend_requests').select('*').eq('receiver_id', myProfile.id).eq('status', 'pending');
     const countEl = document.getElementById('notifyCount');
     const listEl = document.getElementById('notifyList');
 
@@ -845,7 +891,7 @@
   async function respondFriend(reqId, status) {
     try {
       if (status === 'accepted') {
-        await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
+        await _supabase.from('friend_requests').update({status: 'accepted'}).eq('id', reqId);
         if (typeof nfsNotify === 'function') nfsNotify('Racer added to friends!');
       } else {
         await _supabase.from('friend_requests').delete().eq('id', reqId);
@@ -853,19 +899,28 @@
       }
       await updateFriendNotifications();
       await loadSidebarFriends();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   async function performGlobalSearch() {
     const query = document.getElementById('globalSearchInput').value.trim();
     if (!query) return;
-    const { data } = await _supabase.from('profiles').select('username').ilike('username', query).maybeSingle();
+    const {data} = await _supabase.from('profiles').select('username').ilike('username', query).maybeSingle();
     if (data) window.location.href = `profile.html?u=${data.username}`;
-    else Swal.fire({ title:'ERROR', text:'The racer was not found', icon:'error', background:'#111', color:'#fff', confirmButtonColor:'#f1c40f'});
+    else Swal.fire({
+      title: 'ERROR',
+      text: 'The racer was not found',
+      icon: 'error',
+      background: '#111',
+      color: '#fff',
+      confirmButtonColor: '#f1c40f'
+    });
   }
 
   async function scanForPlayers() {
-    const { data } = await _supabase.from('profiles').select('*').eq('status', 'LOOKING FOR GAME');
+    const {data} = await _supabase.from('profiles').select('*').eq('status', 'LOOKING FOR GAME');
     const list = document.getElementById('radarList');
     if (!data || data.length === 0) {
       list.innerHTML = '<p style="color:#444; font-size:0.8rem;">It`s empty here for now...</p>';
@@ -881,7 +936,8 @@
   function showLoggedIn(profile) {
     document.getElementById('loginBtn').style.display = 'none';
     document.getElementById('userInfo').style.display = 'flex';
-    const nick = document.getElementById('displayNick'); nick.innerText = profile.username;
+    const nick = document.getElementById('displayNick');
+    nick.innerText = profile.username;
     if (profile.is_admin) nick.className = 'admin-glow';
   }
 
@@ -898,7 +954,7 @@
   async function handleLogin() {
     const email = document.getElementById('emailInput').value.trim();
     const password = document.getElementById('passInput').value.trim();
-    const { error } = await _supabase.auth.signInWithPassword({ email, password });
+    const {error} = await _supabase.auth.signInWithPassword({email, password});
     if (error) alert(error.message); else location.reload();
   }
 

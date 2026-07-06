@@ -22,41 +22,43 @@
       --nfs-dark: rgba(15, 15, 15, 0.98);
       --nfs-border: #333;
       --admin-red: #e74c3c;
-      /*--nfs-bg: url('https://i.postimg.cc/fRVWmFDc/nfs-most-wanted-2005-(1).jpg');*/
     }
 
     body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background: url('https://s748.ucoz.net/.s/t/984/1.gif') #191919 repeat;
-      /*background: var(--nfs-bg) no-repeat center center fixed;*/
-      /*background-size: cover;*/
       color: #fff;
       font-family: 'Wallpoet', sans-serif !important;
-      padding-bottom: 60px; /* Отступ под футер */
+      padding-bottom: 60px;
     }
 
     /* ШАПКА */
     .top-navbar {
       height: 70px;
       position: fixed;
-      top: 0; width: 100%;
+      top: 0;
+      width: 100%;
       z-index: 1100;
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 0 40px;
       box-sizing: border-box;
-      background:
-        linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-        repeating-linear-gradient(
-          -45deg,
-          #0a0a0a,
-          #0a0a0a 40px,
-          rgba(241, 196, 15, 0.4) 40px,
-          rgba(241, 196, 15, 0.4) 80px
-        );
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+      repeating-linear-gradient(
+        -45deg,
+        #0a0a0a,
+        #0a0a0a 40px,
+        rgba(241, 196, 15, 0.4) 40px,
+        rgba(241, 196, 15, 0.4) 80px
+      );
       border-bottom: 2px solid var(--nfs-yellow);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+    }
+
+    #displayNick {
+      font-family: 'Wallpoet', sans-serif !important;
     }
 
     #displayNick:hover {
@@ -97,22 +99,23 @@
     }
 
     .main-sidebar {
-        width: 250px;
-        background: linear-gradient(
-          to right,
-          rgba(5, 5, 5, 0.98) 0%,
-          rgba(12, 12, 12, 0.95) 60%,
-          rgba(20, 20, 20, 0.85) 100%
-        );
-        backdrop-filter: blur(4px);
-        height: auto;
-        position: fixed;
-        top: 70px;
-        left: 0;
-        border-right: 2px solid var(--nfs-border);
-        padding-top: 0px;
-        z-index: 999;
-      }
+      width: 250px;
+      background: linear-gradient(
+        to right,
+        rgba(5, 5, 5, 0.98) 0%,
+        rgba(12, 12, 12, 0.95) 60%,
+        rgba(20, 20, 20, 0.85) 100%
+      );
+      backdrop-filter: blur(4px);
+      height: auto;
+      position: fixed;
+      top: 70px;
+      left: 0;
+      border-right: 2px solid var(--nfs-border);
+      padding-top: 0px;
+      z-index: 999;
+    }
+
     .btn-exit:hover {
       background: rgba(255, 68, 68, 0.2) !important;
       color: #ff6666 !important;
@@ -132,10 +135,9 @@
 
     .nav-item:hover, .nav-item.active {
       color: #fff;
-      background: rgba(241,196,15,0.1);
+      background: rgba(241, 196, 15, 0.1);
     }
 
-    /* СТИЛЬ ДЛЯ БЕЙДЖА СООБЩЕНИЙ */
     #msgBadge {
       background: var(--nfs-yellow);
       color: #000;
@@ -164,7 +166,7 @@
     .blacklist-table {
       width: 100%;
       border-collapse: collapse;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0, 0, 0, 0.85);
     }
 
     .blacklist-table th {
@@ -194,7 +196,8 @@
       font-size: 1.5rem;
       font-weight: 900;
       font-style: italic;
-      color: #444; width: 50px;
+      color: #444;
+      width: 50px;
     }
 
     .top-rank {
@@ -221,7 +224,6 @@
       font-size: 1.1rem;
     }
 
-    /* ФУТЕР С ВЕРТИКАЛЬНЫМ ГРАДИЕНТОМ И РАЗМЫТИЕМ */
     .bottom-bar {
       position: fixed;
       bottom: 0;
@@ -243,38 +245,30 @@
     }
 
     .highlight {
-      color: var(--nfs-yellow);
+      color: var(--nfs-yellow) !important;
       font-weight: bold;
     }
 
-    /* ==========================================================================
-   АДАПТИВНАЯ ВЕРСТКА ДЛЯ LEADERBOARD (ЭКРАНЫ МЕНЬШЕ 768px)
-   ========================================================================== */
+    /* АДАПТИВНАЯ ВЕРСТКА */
     @media screen and (max-width: 768px) {
-
-      /* 1. ШАПКА САЙТА */
       .top-navbar {
         padding: 0 15px !important;
       }
 
-      .logo {
-        font-size: 1.1rem !important;
-      }
-
       #displayNick {
+        font-family: 'Wallpoet', sans-serif !important;
         max-width: 80px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
-      /* 2. ЖЕСТКИЙ ПЕРЕНОС САЙДБАРА НАВЕРХ */
       .main-sidebar {
-        position: relative !important; /* Убираем fixed положение слева */
+        position: relative !important;
         top: 0 !important;
         width: 100% !important;
         height: auto !important;
-        margin-top: 70px !important; /* Ставим аккуратно под шапку */
+        margin-top: 70px !important;
         border-right: none !important;
         border-bottom: 2px solid var(--nfs-border) !important;
         z-index: 999 !important;
@@ -287,7 +281,7 @@
       }
 
       .nav-item {
-        flex: 1 1 30% !important; /* Ссылки встанут красивыми рядами */
+        flex: 1 1 30% !important;
         min-width: 95px !important;
         padding: 12px 5px !important;
         font-size: 0.75rem !important;
@@ -298,16 +292,15 @@
 
       .nav-item:hover, .nav-item.active {
         border-left: none !important;
-        border-bottom: 3px solid var(--nfs-yellow) !important; /* Эффект активной вкладки снизу */
+        border-bottom: 3px solid var(--nfs-yellow) !important;
       }
 
-      /* 3. ОСНОВНОЙ КОНТЕНТ И ТАБЛИЦА ЛИДЕРОВ */
       .container {
-        margin-left: 0 !important; /* Полностью убираем десктопный сдвиг */
-        padding: 20px 10px 100px 10px !important; /* Мягкие мобильные отступы */
+        margin-left: 0 !important;
+        padding: 20px 10px 100px 10px !important;
         box-sizing: border-box !important;
         width: 100% !important;
-        overflow-x: auto; /* Позволяет таблице скроллиться по горизонтали, если экран совсем узкий */
+        overflow-x: auto;
       }
 
       h1 {
@@ -317,18 +310,17 @@
         text-align: center;
       }
 
-      /* Включаем горизонтальный скролл только для таблицы, чтобы верстка не ломалась */
       .blacklist-table {
         display: block;
         width: 100%;
         overflow-x: auto;
-        white-space: nowrap; /* Не дает тексту переноситься, сохраняя структуру строк */
+        white-space: nowrap;
         -webkit-overflow-scrolling: touch;
       }
 
       .blacklist-table th,
       .blacklist-table td {
-        padding: 10px 8px !important; /* Делаем ячейки компактнее на мобильных */
+        padding: 10px 8px !important;
         font-size: 0.85rem;
       }
 
@@ -342,7 +334,7 @@
       }
 
       .racer-avatar {
-        width: 35px !important; /* Чуть уменьшаем аватарки лидеров */
+        width: 35px !important;
         height: 35px !important;
       }
 
@@ -350,7 +342,6 @@
         font-size: 0.95rem !important;
       }
 
-      /* 4. НИЖНЯЯ ПАНЕЛЬ */
       .bottom-bar {
         font-size: 0.75rem !important;
         padding: 12px 0 !important;
@@ -366,17 +357,18 @@
          alt="NFS Logo"
          style="height: 65px; width: auto; filter: drop-shadow(2px 2px 8px #000);">
 
-    <div style="font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 5px #000; font-style: italic; text-transform: uppercase;">
+    <div
+      style="font-size: 1.8rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 5px #000; font-style: italic; text-transform: uppercase;">
       LEADERBOARD
     </div>
   </div>
 
   <div class="user-area" style="display: flex; align-items: center; gap: 20px;">
-
-    <div class="notifications-wrapper" id="notifyWrapper" style="position: relative; display: flex; align-items: center;">
-
+    <div class="notifications-wrapper" id="notifyWrapper"
+         style="position: relative; display: flex; align-items: center;">
       <div id="notifyBell" onclick="toggleNotifyPopup()" style="cursor: pointer; display: flex; align-items: center;">
-        <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
         </svg>
@@ -384,46 +376,31 @@
       </div>
 
       <div id="notifyPopup"
-           style="
-                 display: none;
-                 position: absolute;
-                 top: 100%;
-                 right: 0;
-                 background: #1a1a1a;
-                 border: 1px solid #333;
-                 z-index: 100;
-                 min-width: 200px;
-                 margin-top: 10px;">
-        <div class="notify-header nfs-font" style="padding: 10px;
-                   color: #fff;
-                   border-bottom: 1px solid #333;
-                   font-family: sans-serif;
-                   text-transform: uppercase;
-                   font-size: 0.8rem;">Friend requests</div>
+           style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
+        <div class="notify-header nfs-font"
+             style="padding: 10px; color: #fff; border-bottom: 1px solid #333; text-transform: uppercase; font-size: 0.8rem;">
+          Friend requests
+        </div>
         <div id="notifyList"></div>
       </div>
+    </div>
 
-    </div> <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;">LOGIN</button>
+    <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;">LOGIN</button>
 
     <div class="user-info" id="userInfo" style="display: flex; align-items: center; gap: 15px;">
-    <span id="displayNick" style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);" onclick="window.location.href='profile.html'">
-      Davenport
-    </span>
+      <span id="displayNick"
+            style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);"
+            onclick="window.location.href='profile.html'">
+        Davenport
+      </span>
       <button onclick="handleLogout()" class="nfs-font btn-exit"
-              style="background: rgba(0,0,0,0.6);
-              border: 1px solid #333;
-              border-radius: 5px;
-              color: #ff4444;
-              cursor: pointer;
-              font-size: 0.75rem;
-              padding: 6px 12px;
-              font-weight: bold;
-              text-transform: uppercase;">
+              style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
         EXIT
       </button>
     </div>
   </div>
 </header>
+
 <aside class="main-sidebar">
   <nav>
     <a href="index.html" class="nav-item">MAIN</a>
@@ -452,7 +429,9 @@
 </div>
 
 <footer class="bottom-bar">
-  <div class="stats">ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight" id="footerPlaying">0</span></div>
+  <div class="stats">ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight"
+                                                                                                     id="footerPlaying">0</span>
+  </div>
 </footer>
 
 <script>
@@ -461,36 +440,32 @@
   const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let currentUserId = null;
-  let myUsername = ""; // Сюда сохраняем имя, чтобы использовать везде
+  let myUsername = "";
 
-  // Когда радар в utils.js ловит изменения, он дергает эту функцию
-  window.updateFriendsStatusOnly = function() {
+  window.updateFriendsStatusOnly = function () {
     console.log("Лидерборд: радар обновился, перерисовываю статусы...");
     loadBlacklist();
   };
 
   window.onload = async () => {
-    const { data: { user } } = await _supabase.auth.getUser();
+    const {data: {user}} = await _supabase.auth.getUser();
 
     if (user) {
       currentUserId = user.id;
-      const { data: p } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+      const {data: p} = await _supabase.from('profiles').select('*').eq('id', user.id).single();
 
       if (p) {
         myUsername = p.username;
 
-        // Обращаемся к существующему displayNick в шапке
         const nickEl = document.getElementById('displayNick');
         if (nickEl) nickEl.innerText = p.username;
 
-        // Показываем панель пользователя
         document.getElementById('loginBtn').style.display = 'none';
         document.getElementById('userInfo').style.display = 'flex';
 
         initGlobalStatus(_supabase, p);
         updateGlobalMsgBadge(_supabase, user.id);
 
-        // ВЫЗЫВАЕМ ПРОВЕРКУ УВЕДОМЛЕНИЙ ТУТ (теперь сработает)
         if (typeof updateFriendNotifications === 'function') {
           updateFriendNotifications();
         }
@@ -511,13 +486,12 @@
       console.log("Вход в режиме гостя");
     }
 
-    // Загружаем саму таблицу лидеров
     await loadBlacklist();
   };
 
   function initFooterStats() {
     const presenceChannel = _supabase.channel('online-stats');
-    presenceChannel.on('presence', { event: 'sync' }, () => {
+    presenceChannel.on('presence', {event: 'sync'}, () => {
       const state = presenceChannel.presenceState();
       let total = 0;
       let playing = 0;
@@ -536,10 +510,10 @@
   }
 
   async function loadBlacklist() {
-    const { data, error } = await _supabase
+    const {data, error} = await _supabase
       .from('profiles')
       .select('*')
-      .order('rating', { ascending: false });
+      .order('rating', {ascending: false});
 
     if (error) return;
 
@@ -548,26 +522,20 @@
 
     data.forEach((racer, index) => {
       const rank = index + 1;
-
-      // ИСПРАВЛЕНО: Вместо document.getElementById('myNick').innerText используем myUsername!
-      // Прошлая строка валила весь скрипт в ошибку, потому что 'myNick' не существовал в HTML!
       const isMe = myUsername === racer.username;
-
       const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[racer.username] : null;
 
       let statusText = "OFFLINE";
       let statusClass = "offline";
       let dotColor = "#555";
 
+      // ИСПРАВЛЕНО: Убрана проверка ветки pData.location === 'chats.html' и статус IN CHAT
       if (presence && presence[0]) {
         statusClass = 'online';
         const pData = presence[0];
 
-        if (pData.location === 'chats.html') {
-          statusText = 'IN CHAT';
-          dotColor = '#ff4d4d';
-        } else if (pData.status === 'IN-GAME' || pData.status === 'LOOKING FOR GAME') {
-          statusText = pData.status;
+        if (pData.status === 'IN-GAME' || pData.status === 'LOOKING FOR GAME') {
+          statusText = pData.status === 'LOOKING FOR GAME' ? 'LFG' : pData.status;
           dotColor = 'var(--nfs-yellow)';
         } else {
           statusText = 'ONLINE';
@@ -645,10 +613,9 @@
     if (p) p.style.display = p.style.display === 'block' ? 'none' : 'block';
   }
 
-  // Сама функция отрисовки уведомлений в шапке (переключает на flex)
   async function updateFriendNotifications() {
     if (!currentUserId) return;
-    const { data: requests } = await _supabase.from('friend_requests')
+    const {data: requests} = await _supabase.from('friend_requests')
       .select('*')
       .eq('receiver_id', currentUserId)
       .eq('status', 'pending');
@@ -658,7 +625,7 @@
 
     if (requests && requests.length > 0) {
       countEl.innerText = requests.length;
-      countEl.style.display = 'flex'; // Делаем flex, чтобы цифра встала ровно по центру
+      countEl.style.display = 'flex';
       listEl.innerHTML = '';
       requests.forEach(req => {
         listEl.innerHTML += `
@@ -678,7 +645,7 @@
 
   async function respondFriend(reqId, status) {
     if (status === 'accepted') {
-      await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
+      await _supabase.from('friend_requests').update({status: 'accepted'}).eq('id', reqId);
     } else {
       await _supabase.from('friend_requests').delete().eq('id', reqId);
     }
@@ -687,7 +654,7 @@
 
   async function handleLogout() {
     if (currentUserId) {
-      await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', currentUserId);
+      await _supabase.from('profiles').update({status: 'OFFLINE'}).eq('id', currentUserId);
     }
     await _supabase.auth.signOut();
     window.location.href = 'auth.html';

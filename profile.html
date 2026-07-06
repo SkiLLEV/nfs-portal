@@ -27,7 +27,8 @@
     }
 
     body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background: var(--nfs-bg) no-repeat center center fixed;
       background-size: cover;
       color: #fff;
@@ -36,7 +37,11 @@
       padding-bottom: 60px;
     }
 
-    /* Принудительно красим текст во всех окнах SweetAlert2 на этой странице */
+    /* ВОЗВРАЩАЕМ ЖЕЛТЫЙ ЦВЕТ ДЛЯ ВСЕХ ПОДСВЕТОК (ФУТЕР И Т.Д.) */
+    .highlight {
+      color: var(--nfs-yellow) !important;
+    }
+
     .swal2-popup,
     .swal2-title,
     .swal2-html-container,
@@ -57,11 +62,10 @@
       align-items: center;
       padding: 0 40px;
       box-sizing: border-box;
-      background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
       repeating-linear-gradient(-45deg, #0a0a0a, #0a0a0a 40px, rgba(241, 196, 15, 0.4) 40px, rgba(241, 196, 15, 0.4) 80px);
-
       border-bottom: 2px solid var(--nfs-yellow);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
     }
 
     .sidebar {
@@ -80,6 +84,10 @@
       border-right: 2px solid var(--nfs-border);
       padding-top: 0px;
       z-index: 999;
+    }
+
+    #displayNick {
+      font-family: 'Wallpoet', sans-serif !important;
     }
 
     #displayNick:hover {
@@ -122,12 +130,13 @@
     #notifyPopup {
       display: none;
       position: absolute;
-      right: 0; top: 45px;
+      right: 0;
+      top: 45px;
       width: 280px;
       background: #0a0a0a;
       border: 2px solid var(--nfs-yellow);
       z-index: 1000;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
     }
 
     .notify-header {
@@ -193,11 +202,6 @@
       color: #ff4444 !important;
     }
 
-    /* Эффект при наведении на ссылку в футере SweetAlert */
-    .swal2-footer a:hover {
-      color: #c10e0e !important;
-    }
-
     .nav-item {
       display: block;
       padding: 20px 30px;
@@ -213,7 +217,6 @@
       background: rgba(241, 196, 15, 0.1);
     }
 
-    /* БЕЙДЖ СООБЩЕНИЙ */
     #msgBadge {
       background: var(--nfs-yellow);
       color: #000;
@@ -231,10 +234,13 @@
       padding: 110px 40px 40px 40px;
     }
 
+    /* СУПЕР СТИЛЬ ИЗ СКРИНШОТА STEAM */
     .profile-card {
-      background: rgba(0,0,0,0.85);
+      background: rgba(0, 0, 0, 0.85);
       padding: 40px;
-      display: flex; gap: 40px;
+      display: grid;
+      grid-template-columns: 190px 1fr 240px;
+      gap: 40px;
       align-items: flex-start;
       margin-bottom: 50px;
       position: relative;
@@ -243,21 +249,19 @@
     .avatar-area {
       display: flex;
       flex-direction: column;
-      align-items: center; /* Выравнивает ВСЕ элементы строго по центру по горизонтали */
-      gap: 8px;           /* Делает аккуратный одинаковый отступ между аватаркой, селектом и кнопками */
-      width: fit-content;  /* Сжимает контейнер под ширину аватарки */
+      align-items: center;
+      gap: 8px;
+      width: 190px;
     }
 
-    .avatar-area .btn-nfs,
-    .avatar-area .btn-tuning,
-    #statusSelect {
-      width: 100%;         /* Кнопки будут строго ширины аватарки */
-      margin: 0;           /* Убираем дефолтные сдвиги */
+    .avatar-area .btn-nfs, #statusSelect {
+      width: 100%;
+      margin: 0;
       box-sizing: border-box;
     }
 
     .avatar-area button + button {
-      margin-top: 2px;     /* Красная кнопка встанет почти впритык к желтой, будет очень аккуратно */
+      margin-top: 2px;
     }
 
     .avatar-big {
@@ -297,64 +301,99 @@
       text-transform: uppercase;
     }
 
+    /* ЦЕНТРАЛЬНЫЙ БЛОК STEAM */
+    .info-area {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
     .info-area h1 {
       margin: 0;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
+      font-family: 'Wallpoet', sans-serif !important;
+      font-weight: 400;
+      color: #fff;
       text-transform: uppercase;
+    }
+
+    /* Ряд локации под ником */
+    .steam-location-row {
       display: flex;
       align-items: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      color: #969696;
+      font-family: sans-serif !important;
     }
 
     .status-badge {
       background: none !important;
       border: none !important;
       padding: 0 !important;
-      font-size: 1.4rem !important;
+      font-size: 1.1rem !important;
       font-weight: bold !important;
-      text-transform: none !important;
-
-      display: flex !important;
-      flex-direction: column;
-      gap: 5px;
-
-      margin-top: 12px !important;
-      margin-bottom: 15px !important;
+      text-transform: uppercase;
+      margin-top: 15px !important;
+      margin-bottom: 0 !important;
     }
 
     .status-online {
       color: #57cbde !important;
-      background: none !important;
-      border: none !important;
     }
 
     .status-ingame {
       color: #90ba3c !important;
-      background: none !important;
-      border: none !important;
     }
 
     .status-offline {
       color: #8f98a0 !important;
-      background: none !important;
-      border: none !important;
     }
 
-    .stat-line {
-      font-size: 1.2rem;
-      color: #ccc;
+    /* КРАСИВЫЙ СТИЛЬ БИО В СТИЛЕ ОПИСАНИЯ STEAM */
+    #profBio {
+      color: #bbbbbb;
       margin: 10px 0;
+      font-size: 1.05rem;
+      font-family: sans-serif !important;
+      line-height: 1.5;
     }
 
-    .highlight {
-      color: var(--nfs-yellow);
+    /* ПРАВАЯ СТОРОНА HUD */
+    .right-stats-area {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+    }
+
+    .steam-level-box {
+      background: rgba(20, 20, 20, 0.8);
+      border: 1px solid #333;
+      padding: 12px;
+      text-align: left;
+    }
+
+    .steam-level-text {
+      font-size: 1.2rem;
       font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
-    /*EDIT PROFILE BUTTON*/
+    .stat-block-custom {
+      text-align: left;
+      padding-left: 5px;
+    }
+
+    .stat-label-custom {
+      font-size: 0.8rem;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
     .btn-tuning {
-      position: absolute;
-      top: 30px;
-      right: 30px;
       background-color: #222222;
       border: 2px solid var(--nfs-yellow);
       color: var(--nfs-yellow);
@@ -365,16 +404,16 @@
       font-weight: bold;
       font-size: 0.75rem;
       transition: all 0.3s ease;
+
+      width: max-content !important;
+      min-width: 120px;
+      align-self: flex-start;
     }
 
     .btn-tuning:hover {
       color: #fff;
       border-color: white;
       background-color: #c10e0e;
-    }
-
-    .nfs-font {
-      font-family: 'Wallpoet', sans-serif !important;
     }
 
     #addCarBtn {
@@ -406,7 +445,6 @@
       text-transform: uppercase;
       display: block;
       width: 100%;
-      transition: 0.2s;
     }
 
     .gallery-title {
@@ -429,15 +467,14 @@
       padding: 5px;
       position: relative;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      cursor: zoom-in; /* Курсор лупы */
+      cursor: zoom-in;
       overflow: hidden;
     }
 
-    /* ЭФФЕКТ НАВЕДЕНИЯ НА КАРТОЧКИ */
     .car-card:hover {
       border-color: var(--nfs-yellow);
       transform: scale(1.05) translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 0 15px rgba(241, 196, 15, 0.3);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(241, 196, 15, 0.3);
       z-index: 10;
     }
 
@@ -445,17 +482,12 @@
       width: 100%;
       height: 180px;
       object-fit: cover;
+      display: block;
       transition: 0.3s;
     }
 
     .car-card:hover img {
       filter: brightness(1.1);
-    }
-
-    .car-card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
     }
 
     .admin-glow {
@@ -474,6 +506,7 @@
       border-radius: 3px;
       margin-right: 8px;
       font-weight: bold;
+      display: inline-block;
     }
 
     .badge-admin {
@@ -488,17 +521,11 @@
       border: 2px solid #000;
     }
 
-    /* ФУТЕР С ВЕРТИКАЛЬНЫМ ГРАДИЕНТОМ И РАЗМЫТИЕМ */
     .bottom-bar {
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: linear-gradient(
-        to top,
-        rgba(0, 0, 0, 1) 0%,
-        rgba(10, 10, 10, 0.95) 50%,
-        rgba(20, 20, 20, 0.9) 100%
-      );
+      background: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(10, 10, 10, 0.95) 50%, rgba(20, 20, 20, 0.9) 100%);
       backdrop-filter: blur(4px);
       padding: 15px 0;
       border-top: 2px solid var(--nfs-yellow);
@@ -513,26 +540,7 @@
       display: none !important;
     }
 
-    .swal-avatar-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-    }
-
-    .swal-avatar-item {
-      width: 60px;
-      height: 60px;
-      cursor: pointer;
-      border: 2px solid transparent;
-    }
-
-    .swal-avatar-item.selected {
-      border-color: var(--nfs-yellow);
-      transform: scale(1.1);
-    }
-
-    /* Общий контейнер для рамки */
+    /* Рамки для аватарок */
     .avatar-container {
       position: relative;
       width: 190px;
@@ -540,74 +548,56 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 5px; /* Толщина рамки */
+      padding: 5px;
       transition: transform 0.3s ease;
     }
 
-    /* 🟠 MOST WANTED */
     .frame-mw {
-      background: repeating-linear-gradient(
-        -45deg,
-        #ff8c00, #ff8c00 15px,
-        #000 15px, #000 30px
-      );
+      background: repeating-linear-gradient(-45deg, #ff8c00, #ff8c00 15px, #000 15px, #000 30px);
       box-shadow: 0 0 20px rgba(255, 140, 0, 0.4);
       border: 2px solid #000;
     }
 
-    /* 🟡 VIP */
-    .frame-vip {
-      background: linear-gradient(135deg, #f1c40f 0%, #9b7b00 50%, #f1c40f 100%);
-      border: 2px solid #444;
-      box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
-    }
-
-    /* Внутренний бокс для фото */
     .avatar-container .avatar-big {
       width: 100%;
       height: 100%;
       background: #000;
-      border: none; /* Убираем старую рамку */
+      border: none;
       z-index: 2;
     }
 
-    /* Класс для выбранной аватарки в окне выбора */
     .swal-avatar-item.active-choice {
       border-color: #f1c40f !important;
       transform: scale(1.1);
       box-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
     }
 
-    /* ==========================================================================
-   ПОЛНЫЙ УСИЛЕННЫЙ БЛОК АДАПТИВНОСТИ (ЗАМЕНИТЬ СТАРЫЙ)
-   ========================================================================== */
-    @media screen and (max-width: 768px) {
+    .nfs-font {
+      font-family: 'Wallpoet', sans-serif !important;
+    }
 
-      /* 1. ШАПКА САЙТА */
+    /* АДАПТИВНОСТЬ */
+    @media screen and (max-width: 768px) {
       .top-navbar {
         position: fixed !important;
         padding: 0 15px !important;
       }
 
-      .logo {
-        font-size: 1.1rem !important;
-      }
-
       #displayNick {
+        font-family: 'Wallpoet', sans-serif !important;
         max-width: 80px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
       }
 
-      /* 2. ЖЕСТКИЙ ПЕРЕНОС САЙДБАРА НАВЕРХ */
       aside.sidebar {
-        position: relative !important; /* Принудительно убираем fixed */
+        position: relative !important;
         top: 0 !important;
         left: 0 !important;
         width: 100% !important;
         height: auto !important;
-        margin-top: 70px !important; /* Встает ровно под фиксированную шапку */
+        margin-top: 70px !important;
         padding-top: 0 !important;
         border-right: none !important;
         border-bottom: 2px solid var(--nfs-border) !important;
@@ -623,7 +613,7 @@
       }
 
       .nav-item {
-        flex: 1 1 30% !important; /* Вкладки делят экран поровну */
+        flex: 1 1 30% !important;
         min-width: 95px !important;
         padding: 12px 5px !important;
         font-size: 0.75rem !important;
@@ -632,22 +622,15 @@
         box-sizing: border-box !important;
       }
 
-      .nav-item:hover, .nav-item.active {
-        border-left: none !important;
-        border-bottom: 3px solid var(--nfs-yellow) !important;
-      }
-
-      /* 3. КОНТЕНТНЫЙ БЛОК (ПРОФИЛЬ) */
       .container {
-        margin-left: 0 !important; /* Полностью убираем десктопный сдвиг в 280px */
-        padding: 20px 15px 140px 15px !important; /* Уменьшаем верхний паддинг, так как сайдбар сверху стал статичным */
+        margin-left: 0 !important;
+        padding: 20px 15px 140px 15px !important;
         box-sizing: border-box !important;
         width: 100% !important;
       }
 
       .profile-card {
-        flex-direction: column !important; /* Аватарка встает НАД текстом */
-        align-items: center !important;
+        grid-template-columns: 1fr !important;
         gap: 20px !important;
         padding: 20px !important;
         text-align: center !important;
@@ -656,41 +639,35 @@
       .avatar-area {
         width: 100% !important;
         max-width: 190px !important;
+        margin: 0 auto;
       }
 
       .info-area {
-        width: 100% !important;
-      }
-
-      .info-area h1 {
-        justify-content: center !important;
-        font-size: 1.8rem !important;
-        flex-wrap: wrap !important;
-      }
-
-      .status-badge {
         align-items: center !important;
       }
 
-      .btn-tuning {
-        position: static !important;
-        width: 100% !important;
-        margin-bottom: 15px !important;
+      .steam-location-row {
+        justify-content: center !important;
       }
 
-      /* СЕТКА ГАРАЖА */
+      .right-stats-area {
+        text-align: center !important;
+        align-items: center;
+      }
+
+      .steam-level-box {
+        text-align: center !important;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .stat-block-custom {
+        text-align: center !important;
+      }
+
       .gallery {
-        grid-template-columns: 1fr !important; /* Машины выстраиваются строго по одной в ряд */
+        grid-template-columns: 1fr !important;
         gap: 15px !important;
-      }
-
-      /* 4. НИЖНИЕ ВИДЖЕТЫ */
-      .search-widget {
-        position: static !important;
-        width: 100% !important;
-        margin-top: 20px !important;
-        box-sizing: border-box !important;
-        box-shadow: none !important;
       }
 
       .bottom-bar {
@@ -703,115 +680,47 @@
 <body>
 
 <header class="top-navbar">
-  <div style="
-             display: flex;
-             align-items: center;
-             gap: 15px;">
-    <img src="https://i.postimg.cc/KjhYnZ7S/IMG-4583.png"
-         alt="NFS Logo"
-         style="
-               height: 65px;
-               width: auto;
-               filter: drop-shadow(2px 2px 5px #000);">
-
-    <div style="
-               font-size: 1.6rem;
-               font-weight: 900;
-               letter-spacing: 2px;
-               text-shadow: 2px 2px 5px #000;
-               font-style: italic;
-               text-transform: uppercase;">
+  <div style="display: flex; align-items: center; gap: 15px;">
+    <img src="https://i.postimg.cc/KjhYnZ7S/IMG-4583.png" alt="NFS Logo"
+         style="height: 65px; width: auto; filter: drop-shadow(2px 2px 5px #000);">
+    <div
+      style="font-size: 1.6rem; font-weight: 900; letter-spacing: 2px; text-shadow: 2px 2px 5px #000; font-style: italic; text-transform: uppercase;">
       PLAYER PROFILE
     </div>
   </div>
 
-  <div class="user-area" style="
-                               display: flex;
-                               align-items: center;
-                               gap: 20px;">
-
-    <div class="notifications-wrapper"
-         id="notifyWrapper"
-         style="
-               position: relative;
-               display: flex;
-               align-items: center;">
-
-      <div id="notifyBell"
-           onclick="toggleNotifyPopup()"
-           style="
-                 cursor: pointer;
-                 display: flex;
-                 align-items: center;">
-        <svg class="bell-icon"
-             xmlns="http://www.w3.org/2000/svg"
-             width="24"
-             height="24"
-             viewBox="0 0 24 24"
-             fill="none"
-             stroke="currentColor"
-             stroke-width="2">
+  <div class="user-area" style="display: flex; align-items: center; gap: 20px;">
+    <div class="notifications-wrapper" id="notifyWrapper"
+         style="position: relative; display: flex; align-items: center;">
+      <div id="notifyBell" onclick="toggleNotifyPopup()" style="cursor: pointer; display: flex; align-items: center;">
+        <svg class="bell-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
         </svg>
-        <span id="notifyCount"
-              style="
-                    margin-left: 5px;">0</span>
+        <span id="notifyCount" style="margin-left: 5px;">0</span>
       </div>
 
       <div id="notifyPopup"
-           style="
-                 display: none;
-                 position: absolute;
-                 top: 100%;
-                 right: 0;
-                 background: #1a1a1a;
-                 border: 1px solid #333;
-                 z-index: 100;
-                 min-width: 200px;
-                 margin-top: 10px;">
+           style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
         <div class="notify-header nfs-font"
-             style="
-                   padding: 10px;
-                   color: #fff;
-                   border-bottom: 1px solid #333;
-                   font-family: sans-serif;
-                   text-transform: uppercase;
-                   font-size: 0.8rem;">Friend requests</div>
+             style="padding: 10px; color: #fff; border-bottom: 1px solid #333; text-transform: uppercase; font-size: 0.8rem;">
+          Friend requests
+        </div>
         <div id="notifyList"></div>
       </div>
+    </div>
 
-    </div> <button class="btn-login" id="loginBtn"
-                   onclick="openModal()"
-                   style="
-                         display: none;">LOGIN</button>
+    <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;">LOGIN</button>
 
-    <div class="user-info"
-         id="userInfo"
-         style="
-               display: flex;
-               align-items: center;
-               gap: 15px;">
-    <span id="displayNick"
-          style="
-                font-weight: bold;
-                cursor: pointer;
-                color: #ffffff;
-                text-shadow: 0 0 8px rgba(0,0,0,0.6);"
-          onclick="window.location.href='profile.html'">
-      Davenport
-    </span>
+    <div class="user-info" id="userInfo" style="display: flex; align-items: center; gap: 15px;">
+      <span id="displayNick"
+            style="font-weight: bold; cursor: pointer; color: #ffffff; text-shadow: 0 0 8px rgba(0,0,0,0.6);"
+            onclick="window.location.href='profile.html'">
+        Davenport
+      </span>
       <button onclick="handleLogout()" class="nfs-font btn-exit"
-              style="
-                    background: rgba(0,0,0,0.6);
-                    border: 1px solid #333;
-                    border-radius: 5px;
-                    color: #ff4444;
-                    cursor: pointer;
-                    font-size: 0.75rem;
-                    padding: 6px 12px;
-                    font-weight: bold;
-                    text-transform: uppercase;">
+              style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
         EXIT
       </button>
     </div>
@@ -831,695 +740,492 @@
 
 <div class="container">
   <div class="profile-card">
-    <button id="editBtn"
-            class="btn-tuning nfs-font hidden"
-            onclick="openEditProfile()">EDIT PROFILE</button>
+
     <div class="avatar-area">
-      <div id="avatarFrame"
-           class="avatar-container"
-           onclick="openAvatarPicker()"
-           style="
-                 cursor: pointer;
-                 position: relative;
-                 z-index: 10;">
-        <div class="avatar-big"
-             id="avatarBox">
+      <div id="avatarFrame" class="avatar-container" onclick="openAvatarPicker()"
+           style="cursor: pointer; position: relative; z-index: 10;">
+        <div class="avatar-big" id="avatarBox">
           <span class="avatar-letter">?</span>
         </div>
       </div>
 
-      <select id="statusSelect"
-              class="hidden" onchange="updateUserStatus()">
-        <option value="ONLINE">ONLINE</option>
-        <option value="IN-GAME">IN-GAME</option>
+      <select id="statusSelect" class="nfs-font hidden" onchange="updateUserStatus()">
+        <option value="ONLINE">NOT LOOKING</option>
         <option value="LOOKING FOR GAME">LOOKING FOR GAME</option>
       </select>
-      <button id="msgBtn"
-              class="btn-nfs nfs-font hidden"
-              style="border-radius: 6px"
-              onclick="goToChat()">✉ TO WRITE</button>
-      <button id="friendBtn"
-              style="border-radius: 6px"
-              class="btn-nfs nfs-font hidden">ADD TO FRIENDS</button>
+      <button id="msgBtn" class="btn-nfs nfs-font hidden" style="border-radius: 6px" onclick="goToChat()">✉ TO WRITE
+      </button>
+      <button id="friendBtn" style="border-radius: 6px" class="btn-nfs nfs-font hidden">ADD TO FRIENDS</button>
     </div>
+
     <div class="info-area">
-      <div style="
-                 display: flex;
-                 align-items: center;
-                 gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
         <span id="badgeContainer"></span>
-        <h1 style="margin:0;">
-          <span id="profName">Loading...</span>
-        </h1>
+        <h1><span id="profName">Loading...</span></h1>
+      </div>
+
+      <div class="steam-location-row">
+        <img src="https://flagcdn.com/w20/us.png" srcset="https://flagcdn.com/w40/us.png 2x" width="20" alt="USA"
+             style="display: inline-block; border: 1px solid #111;">
+        <span>United States</span>
       </div>
 
       <div id="muteInfo"></div>
 
-      <p id="profBio"
-         style="
-               color: #aaa;
-               font-style: italic;
-               margin: 10px 0;
-               font-size: 1.1rem;">Loading...</p>
+      <p id="profBio">Loading...</p>
 
-      <div id="statusIndicator"
-           class="status-badge status-online">OFFLINE</div>
+      <div id="statusIndicator" class="status-badge status-online">OFFLINE</div>
 
-      <div style="
-                 display: grid;
-                 grid-template-columns: 1fr 1fr;
-                 gap: 20px;
-                 margin-top: 15px;
-                 border-top: 1px solid #333;
-                 padding-top: 15px;">
-        <div>
-          <div style="
-                     font-size: 0.8rem;
-                     color: #666;
-                     text-transform: uppercase;">Rating</div>
-          <div class="highlight"
-               id="profRating"
-               style="
-                     font-size: 1.4rem;">★ 0</div>
-        </div>
-        <div>
-          <div style="
-                     font-size: 0.8rem;
-                     color: #666;
-                     text-transform: uppercase;">World rank</div>
-          <div class="highlight"
-               id="rankDisplay"
-               style="
-                     font-size: 1.4rem;">#--</div>
-        </div>
-      </div>
-
-      <button id="adminMuteBtn"
-              class="btn-nfs hidden"
-              style="
-                    background: #c0392b;
-                    color: #fff;
-                    border: 1px solid #ff4d4d;
-                    margin-top: 15px;"
-                    onclick="openMuteModal()">
+      <button id="adminMuteBtn" class="btn-nfs nfs-font hidden"
+              style="background: #c0392b; color: #fff; border: 1px solid #ff4d4d; margin-top: 15px; max-width: 200px;"
+              onclick="openMuteModal()">
         ⚠ ISSUE A MUT
       </button>
     </div>
+
+    <div class="right-stats-area">
+      <div class="steam-level-box">
+        <span class="steam-level-text nfs-font">Level <span class="highlight" id="profLevel">1</span></span>
+      </div>
+
+      <button id="editBtn" class="btn-tuning nfs-font hidden" onclick="openEditProfile()">Edit Profile</button>
+
+      <div class="stat-block-custom" style="margin-top: 10px; border-top: 1px solid #222; padding-top: 15px;">
+        <div class="stat-label-custom nfs-font">Rating</div>
+        <div class="highlight nfs-font" style="font-size: 1.3rem;">
+          <span id="profRating">★ 0</span> <span id="rankDisplay"
+                                                 style="font-style: italic; font-size: 1.1rem; color: #fff; margin-left: 5px;">(#--)</span>
+        </div>
+      </div>
+    </div>
+
   </div>
-  <div style="
-             display: flex;
-             justify-content: space-between;
-             align-items: center;
-             margin-bottom: 20px;">
-    <div class="gallery-title"
-         id="garageTitle">RACER'S GARAGE</div>
-    <button id="addCarBtn"
-            class="btn-tuning nfs-font hidden"
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="gallery-title" id="garageTitle">RACER'S GARAGE</div>
+    <button id="addCarBtn" class="btn-tuning nfs-font hidden" style="width: auto !important; padding: 10px 20px;"
             onclick="addNewCarPhoto()">+ ADD A CAR
     </button>
   </div>
-  <div class="gallery"
-       id="garageContainer"></div>
+  <div class="gallery" id="garageContainer"></div>
 </div>
 
 <footer class="bottom-bar">
-  <div>ONLINE: <span class="highlight"
-                     id="footerOnline">0</span> | IN THE RACE:
-    <span class="highlight"
-          id="footerPlaying">0</span></div>
+  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight"
+                                                                                       id="footerPlaying">0</span></div>
 </footer>
 
-  <script>
-    const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script>
+  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
+  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    if (typeof onlineUsers === 'undefined') window.onlineUsers = {};
+  if (typeof onlineUsers === 'undefined') window.onlineUsers = {};
 
-    // Константы
-    const AVATAR_OPTIONS = [
-      'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png',
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEveKMVakzm3H74-BgFH8JGuoTkavsfgIAaw&s',
-      'https://static.wikia.nocookie.net/needforspeed/images/e/ee/TazProfileIcon.png/revision/latest/scale-to-width-down/220?cb=20160105211008&path-prefix=ru',
-      'https://static.wikia.nocookie.net/nfs/images/6/6f/Sonny.png/revision/latest/smart/width/250/height/250?cb=20150519180637&path-prefix=es'
-    ];
+  const AVATAR_OPTIONS = [
+    'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png',
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEveKMVakzm3H74-BgFH8JGuoTkavsfgIAaw&s',
+    'https://static.wikia.nocookie.net/needforspeed/images/e/ee/TazProfileIcon.png/revision/latest/scale-to-width-down/220?cb=20160105211008&path-prefix=ru',
+    'https://static.wikia.nocookie.net/nfs/images/6/6f/Sonny.png/revision/latest/smart/width/250/height/250?cb=20150519180637&path-prefix=es'
+  ];
 
-    function formatLastSeen(dateString) {
-      if (!dateString) return "Long ago";
+  function formatLastSeen(dateString) {
+    if (!dateString) return "Long ago";
+    const now = new Date();
+    const lastSeen = new Date(dateString);
+    const diffInSeconds = Math.floor((now - lastSeen) / 1000);
+    if (diffInSeconds < 60) return "Just now";
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min. ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} h. ago`;
+    return lastSeen.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
+  }
 
-      const now = new Date();
-      const lastSeen = new Date(dateString);
-      const diffInSeconds = Math.floor((now - lastSeen) / 1000);
+  window.currentUserId = null;
+  window.myProfile = null;
+  window.profileData = null;
 
-      if (diffInSeconds < 60) return "Just now";
-      if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min. ago`;
-      if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} h. ago`;
+  window.onload = async () => {
+    const {data: {user}} = await _supabase.auth.getUser();
+    if (!user) {
+      window.location.href = 'auth.html';
+      return;
+    }
+    window.currentUserId = user.id;
 
-      return lastSeen.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    const {data: me} = await _supabase.from('profiles').select('*').eq('id', window.currentUserId).single();
+    if (me) {
+      window.myProfile = me;
+      const nickEl = document.getElementById('displayNick');
+      if (nickEl) nickEl.innerText = me.username;
+      if (typeof updateFriendNotifications === 'function') updateFriendNotifications();
+      if (typeof initGlobalStatus === 'function') initGlobalStatus(_supabase, me);
+      if (typeof updateGlobalMsgBadge === 'function') updateGlobalMsgBadge(_supabase, me.id);
     }
 
-    // Делаем переменные железно доступными везде
-    window.currentUserId = null;
-    window.myProfile = null;
-    window.profileData = null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetName = urlParams.get('u');
 
-    window.onload = async () => {
-      // 1. Проверка авторизации
-      const { data: { user } } = await _supabase.auth.getUser();
-      if (!user) { window.location.href = 'auth.html'; return; }
-      window.currentUserId = user.id;
-
-      // 2. Загрузка личных данных
-      const { data: me } = await _supabase.from('profiles').select('*').eq('id', window.currentUserId).single();
-      if (me) {
-        window.myProfile = me;
-
-        const nickEl = document.getElementById('myNickTop') || document.getElementById('displayNick');
-        if (nickEl) nickEl.innerText = me.username;
-
-        if (typeof updateFriendNotifications === 'function') {
-          updateFriendNotifications();
-        }
-
-        if (typeof initGlobalStatus === 'function') {
-          initGlobalStatus(_supabase, me);
-        }
-
-        if (typeof updateGlobalMsgBadge === 'function') {
-          updateGlobalMsgBadge(_supabase, me.id);
-        }
-      }
-
-      // 3. Логика отображения профиля
-      const urlParams = new URLSearchParams(window.location.search);
-      const targetName = urlParams.get('u');
-
-      if (targetName) {
-        const { data } = await _supabase.from('profiles').select('*').ilike('username', targetName).maybeSingle();
-        if (data) {
-          window.profileData = data;
-
-          // ВОТ ТУТ ВКЛЮЧАЕМ РЕАЛТАЙМ ДЛЯ ЧУЖОГО ПРОФИЛЯ
-          setupProfileRealtimeListener();
-
-          renderFullProfile(data, data.id === window.currentUserId);
-          updateRacerRank(data.id);
-          if (data.id !== window.currentUserId) checkFriendshipStatus(data.id);
-        } else {
-          loadMyOwnProfile(user.id);
-        }
+    if (targetName) {
+      const {data} = await _supabase.from('profiles').select('*').ilike('username', targetName).maybeSingle();
+      if (data) {
+        window.profileData = data;
+        setupProfileRealtimeListener();
+        renderFullProfile(data, data.id === window.currentUserId);
+        updateRacerRank(data.id);
+        if (data.id !== window.currentUserId) checkFriendshipStatus(data.id);
       } else {
         loadMyOwnProfile(user.id);
       }
-    };
+    } else {
+      loadMyOwnProfile(user.id);
+    }
+  };
 
-    window.updateLiveStatusUI = function() {
-      const el = document.getElementById('statusIndicator');
-      if (!el || !window.profileData) return;
+  window.updateLiveStatusUI = function() {
+    const el = document.getElementById('statusIndicator');
+    if (!el || !window.profileData) return;
 
-      // 1. Проверяем радар
-      const presence = (typeof onlineUsers !== 'undefined' ? onlineUsers[window.profileData.username] : null);
-      const isItMe = (window.myProfile && window.profileData.id === window.myProfile.id);
+    const presence = (typeof onlineUsers !== 'undefined' ? onlineUsers[window.profileData.username] : null);
+    const isItMe = (window.myProfile && window.profileData.id === window.myProfile.id);
 
-      if (!presence && !isItMe) {
-        let lastSeenTime = "long ago";
-        if (window.profileData.last_seen) {
-          lastSeenTime = formatLastSeen(window.profileData.last_seen);
-        }
+    // Если юзера нет в сети
+    if (!presence && !isItMe) {
+      let lastSeenTime = "long ago";
+      if (window.profileData.last_seen) lastSeenTime = formatLastSeen(window.profileData.last_seen);
+      el.innerHTML = `<div>Currently Offline</div><div style="font-size: 1.05rem; font-weight: normal; color: #8f98a0; margin-top: 2px;">Last Online ${lastSeenTime}</div>`;
+      el.className = 'status-badge status-offline';
+    } else {
+      // Если в сети, проверяем ручную опцию
+      let s = 'ONLINE';
+      if (presence && presence[0] && presence[0].status) s = presence[0].status;
+      else s = window.profileData.status || 'ONLINE';
 
-        el.innerHTML = `
-          <div>Currently Offline</div>
-          <div style="
-               font-size: 1.05rem;
-               font-weight: normal;
-               color: #8f98a0;
-               margin-top: 2px;">Last Online ${lastSeenTime}</div>
-        `;
-        el.className = 'status-badge status-offline';
+      // Выводим либо сочное каноничное LFG, либо просто базовый красивый Online
+      if (s === 'LOOKING FOR GAME') {
+        el.innerHTML = `<div>LFG</div>`;
+        el.className = 'status-badge status-ingame';
       } else {
-        let s = 'ONLINE';
-        if (presence && presence[0] && presence[0].status) {
-          s = presence[0].status;
-        } else {
-          s = window.profileData.status || 'ONLINE';
-        }
-
-        // Нормализуем написание игры
-        if (s === 'IN GAME') s = 'IN-GAME';
-
-        const loc = presence ? presence[0].location : '';
-
-        if (loc === 'chats.html') {
-          el.innerHTML = '<div>IN CHAT</div>';
-          el.className = 'status-badge status-ingame';
-        }
-        else if (s === 'IN-GAME' || s === 'LOOKING FOR GAME') {
-          el.innerHTML = `<div>${s}</div>`;
-          el.className = 'status-badge status-ingame';
-        }
-        else {
-          el.innerHTML = '<div>Currently Online</div>';
-          el.className = 'status-badge status-online';
-        }
-      }
-    };
-
-    async function loadMyOwnProfile(userId) {
-      try {
-        const { data, error } = await _supabase.from('profiles').select('*').eq('id', userId).single();
-        if (error) throw error;
-        if (data) {
-          window.profileData = data;
-
-          setupProfileRealtimeListener();
-
-          renderFullProfile(data, true);
-          updateRacerRank(data.id);
-        }
-      } catch (err) {
-        console.error("Error loading your profile:", err);
-        document.getElementById('profName').innerText = "ERROR!";
+        el.innerHTML = '<div>Currently Online</div>';
+        el.className = 'status-badge status-online';
       }
     }
+  };
 
-    async function updateRacerRank(targetUserId) {
-      const { data: racers } = await _supabase.from('profiles').select('id').order('rating', { ascending: false });
-      if (racers) {
-        const rank = racers.findIndex(r => r.id === targetUserId) + 1;
-        const rankEl = document.getElementById('rankDisplay');
-        if (rankEl) rankEl.innerText = `#${rank}`;
+  async function loadMyOwnProfile(userId) {
+    try {
+      const {data, error} = await _supabase.from('profiles').select('*').eq('id', userId).single();
+      if (error) throw error;
+      if (data) {
+        window.profileData = data;
+        setupProfileRealtimeListener();
+        renderFullProfile(data, true);
+        updateRacerRank(data.id);
       }
+    } catch (err) {
+      console.error("Error loading your profile:", err);
+      document.getElementById('profName').innerText = "ERROR!";
+    }
+  }
+
+  async function updateRacerRank(targetUserId) {
+    const {data: racers} = await _supabase.from('profiles').select('id').order('rating', {ascending: false});
+    if (racers) {
+      const rank = racers.findIndex(r => r.id === targetUserId) + 1;
+      const rankEl = document.getElementById('rankDisplay');
+      if (rankEl) rankEl.innerText = `(#${rank})`;
+    }
+  }
+
+  function renderFullProfile(data, isMine) {
+    const nameEl = document.getElementById('profName');
+    const badgeEl = document.getElementById('badgeContainer');
+    const frameEl = document.getElementById('avatarFrame');
+
+    if (frameEl) {
+      frameEl.className = 'avatar-container';
+      if (data.selected_frame) frameEl.classList.add(data.selected_frame);
+      else if (data.username === 'Davenport' || data.username === 'test1') frameEl.classList.add('frame-mw');
+      else if (data.is_admin) frameEl.classList.add('frame-admin');
+      else if (data.is_mod) frameEl.classList.add('frame-mod');
+      else if (data.is_vip) frameEl.classList.add('frame-vip');
+      else frameEl.classList.add('frame-default');
     }
 
-    function renderFullProfile(data, isMine) {
-      const topNick = document.getElementById('myNickTop');
-      if (topNick && window.myProfile) topNick.innerText = window.myProfile.username;
-
-      const nameEl = document.getElementById('profName');
-      const badgeEl = document.getElementById('badgeContainer');
-
-      // Логика рамок
-      const frameEl = document.getElementById('avatarFrame');
-      if (frameEl) {
-        frameEl.className = 'avatar-container';
-        if (data.selected_frame) {
-          frameEl.classList.add(data.selected_frame);
-        } else if (data.username === 'Davenport' || data.username === 'test1') {
-          frameEl.classList.add('frame-mw');
-        } else if (data.is_admin) {
-          frameEl.classList.add('frame-admin');
-        } else if (data.is_mod) {
-          frameEl.classList.add('frame-mod');
-        } else if (data.is_vip) {
-          frameEl.classList.add('frame-vip');
-        } else {
-          frameEl.classList.add('frame-default');
-        }
-      }
-
-      // Имя и бейджи
-      if (nameEl) {
-        nameEl.innerText = data.username;
-        if (data.is_admin) {
-          nameEl.classList.add('admin-glow');
-          badgeEl.innerHTML = `<span class="badge badge-admin">ADM</span>`;
-        } else if (data.is_vip) {
-          nameEl.classList.add('vip-glow');
-          badgeEl.innerHTML = `<span class="badge badge-vip">VIP</span>`;
-        } else {
-          badgeEl.innerHTML = '';
-        }
-      }
-
-      if (typeof renderMuteStatus === 'function') {
-        renderMuteStatus(data);
-      }
-
-      const adminMuteBtn = document.getElementById('adminMuteBtn');
-      if (adminMuteBtn) {
-        if (window.myProfile && window.myProfile.is_admin && !isMine) {
-          adminMuteBtn.classList.remove('hidden');
-        } else {
-          adminMuteBtn.classList.add('hidden');
-        }
-      }
-
-      document.getElementById('profBio').innerText = data.bio || "Elite racer of Rockport";
-      document.getElementById('profRating').innerText = `★ ${data.rating.toLocaleString()}`;
-
-      const box = document.getElementById('avatarBox');
-      if (box) {
-        box.innerHTML = data.avatar_url
-          ? `<img src="${data.avatar_url}" style="width:100%; height:100%; object-fit:cover;">`
-          : `<span class="avatar-letter">${data.username[0].toUpperCase()}</span>`;
-      }
-
-      renderGarage(data.photos);
-
-      // Первичный пинок рендеринга статуса
-      window.updateLiveStatusUI();
-
-      // Кнопки управления
-      const editBtn = document.getElementById('editBtn');
-      const statusSelect = document.getElementById('statusSelect');
-      const addCarBtn = document.getElementById('addCarBtn');
-      const msgBtn = document.getElementById('msgBtn');
-      const friendBtn = document.getElementById('friendBtn');
-
-      if (isMine) {
-        if (editBtn) editBtn.classList.remove('hidden');
-        if (statusSelect) {
-          statusSelect.classList.remove('hidden');
-          statusSelect.value = data.status || 'ONLINE';
-        }
-        if (addCarBtn) addCarBtn.classList.remove('hidden');
-        if (msgBtn) msgBtn.classList.add('hidden');
-        if (friendBtn) friendBtn.classList.add('hidden');
+    if (nameEl) {
+      nameEl.innerText = data.username;
+      if (data.is_admin) {
+        nameEl.classList.add('admin-glow');
+        badgeEl.innerHTML = `<span class="badge badge-admin">ADM</span>`;
+      } else if (data.is_vip) {
+        nameEl.classList.add('vip-glow');
+        badgeEl.innerHTML = `<span class="badge badge-vip">VIP</span>`;
       } else {
-        if (editBtn) editBtn.classList.add('hidden');
-        if (statusSelect) statusSelect.classList.add('hidden');
-        if (addCarBtn) addCarBtn.classList.add('hidden');
-        if (msgBtn) msgBtn.classList.remove('hidden');
-        if (friendBtn) friendBtn.classList.remove('hidden');
+        badgeEl.innerHTML = '';
       }
     }
 
-    function renderGarage(photos) {
-      const container = document.getElementById('garageContainer');
-      if (!container) return;
-      container.innerHTML = photos?.length ? '' : '<p style="color:#555">Avoid...</p>';
-      photos?.forEach((url, i) => {
-        container.innerHTML += `
+    if (typeof renderMuteStatus === 'function') renderMuteStatus(data);
+
+    const adminMuteBtn = document.getElementById('adminMuteBtn');
+    if (adminMuteBtn) {
+      if (window.myProfile && window.myProfile.is_admin && !isMine) adminMuteBtn.classList.remove('hidden');
+      else adminMuteBtn.classList.add('hidden');
+    }
+
+    document.getElementById('profBio').innerText = data.bio || "Elite racer of Rockport";
+    document.getElementById('profRating').innerText = `★ ${data.rating.toLocaleString()}`;
+
+    const levelEl = document.getElementById('profLevel');
+    if (levelEl) {
+      levelEl.innerText = data.level || 1;
+    }
+
+    const box = document.getElementById('avatarBox');
+    if (box) {
+      box.innerHTML = data.avatar_url
+        ? `<img src="${data.avatar_url}">`
+        : `<span class="avatar-letter">${data.username[0].toUpperCase()}</span>`;
+    }
+
+    renderGarage(data.photos);
+    window.updateLiveStatusUI();
+
+    const editBtn = document.getElementById('editBtn');
+    const statusSelect = document.getElementById('statusSelect');
+    const addCarBtn = document.getElementById('addCarBtn');
+    const msgBtn = document.getElementById('msgBtn');
+    const friendBtn = document.getElementById('friendBtn');
+
+    if (isMine) {
+      if (editBtn) editBtn.classList.remove('hidden');
+      if (statusSelect) {
+        statusSelect.classList.remove('hidden');
+        statusSelect.value = data.status || 'ONLINE';
+      }
+      if (addCarBtn) addCarBtn.classList.remove('hidden');
+      if (msgBtn) msgBtn.classList.add('hidden');
+      if (friendBtn) friendBtn.classList.add('hidden');
+    } else {
+      if (editBtn) editBtn.classList.add('hidden');
+      if (statusSelect) statusSelect.classList.add('hidden');
+      if (addCarBtn) addCarBtn.classList.add('hidden');
+      if (msgBtn) msgBtn.classList.remove('hidden');
+      if (friendBtn) friendBtn.classList.remove('hidden');
+    }
+  }
+
+  function renderGarage(photos) {
+    const container = document.getElementById('garageContainer');
+    if (!container) return;
+    container.innerHTML = photos?.length ? '' : '<p style="color:#555">Avoid...</p>';
+    photos?.forEach((url) => {
+      container.innerHTML += `
           <div class="car-card" onclick="viewFullImage('${url}')">
             <img src="${url}">
-            <div style="padding:10px; display:flex; justify-content:space-between; background:rgba(0,0,0,0.8);">
-              <span style="color:var(--nfs-yellow); font-size:0.8rem; font-weight:bold;">PHOTO #${i+1}</span>
-            </div>
           </div>`;
-      });
-    }
+    });
+  }
 
-    function viewFullImage(url) {
-      Swal.fire({
-        imageUrl: url,
-        background: 'rgba(0,0,0,0.9)',
-        showConfirmButton: false,
-        showCloseButton: true,
-        width: 'auto'
-      });
-    }
+  function viewFullImage(url) {
+    Swal.fire({
+      imageUrl: url,
+      background: 'rgba(0,0,0,0.9)',
+      showConfirmButton: false,
+      showCloseButton: true,
+      width: 'auto'
+    });
+  }
 
-    async function addNewCarPhoto() {
-      const { value: url } = await Swal.fire({
-        title: 'GARAGE TUNING',
-        background: '#0a0a0a',
-        color: '#fff',
-        input: 'url',
-        inputLabel: 'STEP 1: Add your photo on PostImages\nSTEP 2: Insert a DIRECT LINK below (.jpg, .png)',
-        inputPlaceholder: 'https://i.postimg.cc/..../image.jpg',
-        confirmButtonText: 'IN GARAGE',
-        confirmButtonColor: '#f1c40f',
-        footer: '<a href="https://postimages.org/" target="_blank" style="color: #f1c40f; font-weight: bold; text-decoration: underline;">TO OPEN POSTIMAGES.ORG</a>',
-        showCancelButton: true,
-        cancelButtonText: 'CANCEL'
-      });
+  async function addNewCarPhoto() {
+    const {value: url} = await Swal.fire({
+      title: 'GARAGE TUNING',
+      background: '#0a0a0a',
+      color: '#fff',
+      input: 'url',
+      inputLabel: 'STEP 1: Add your photo on PostImages\nSTEP 2: Insert a DIRECT LINK below (.jpg, .png)',
+      inputPlaceholder: 'https://i.postimg.cc/..../image.jpg',
+      confirmButtonText: 'IN GARAGE',
+      confirmButtonColor: '#373737',
+      footer: `
+        <a href="https://postimages.org/" target="_blank" class="nfs-font"
+           style="color: #f1c40f; font-weight: bold; text-decoration: none; transition: color 0.2s ease;"
+           onmouseover="this.style.color='#ff0000'; this.style.textDecoration='underline';"
+           onmouseout="this.style.color='#f1c40f'; this.style.textDecoration='none';">
+          TO OPEN POSTIMAGES.ORG
+        </a>`,
+      showCancelButton: true,
+      cancelButtonText: 'CANCEL',
+      customClass: {popup: 'nfs-font', title: 'nfs-font', confirmButton: 'nfs-font', cancelButton: 'nfs-font'}
+    });
 
-      if (url) {
-        if (!url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-          Swal.fire({ title: 'ERROR', text: 'That`s not direct link!', icon: 'error', background: '#0a0a0a', color: '#fff' });
-          return;
-        }
-
-        const currentPhotos = Array.isArray(window.profileData.photos) ? window.profileData.photos : [];
-        const updatedPhotos = [...currentPhotos, url];
-
-        const { error } = await _supabase.from('profiles').update({ photos: updatedPhotos }).eq('id', window.currentUserId);
-        if (!error) {
-          if (typeof nfsNotify === 'function') nfsNotify('Your auto has been added!');
-          setTimeout(() => location.reload(), 1200);
-        }
+    if (url) {
+      if (!url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+        Swal.fire({
+          title: 'ERROR',
+          text: 'That`s not direct link!',
+          icon: 'error',
+          background: '#0a0a0a',
+          color: '#fff'
+        });
+        return;
       }
-    }
-
-    async function updateUserStatus() {
-      const s = document.getElementById('statusSelect').value;
-      const { error } = await _supabase.from('profiles').update({ status: s }).eq('id', window.currentUserId);
-
+      const currentPhotos = Array.isArray(window.profileData.photos) ? window.profileData.photos : [];
+      const updatedPhotos = [...currentPhotos, url];
+      const {error} = await _supabase.from('profiles').update({photos: updatedPhotos}).eq('id', window.currentUserId);
       if (!error) {
-        if (window.profileData) window.profileData.status = s;
-        if (window.myProfile) window.myProfile.status = s;
-
-        if (typeof window.trackMyStatus === 'function') {
-          await window.trackMyStatus(s);
-        }
-
-        // 🌟 Фикс: мгновенно перерисовываем свой статус на экране при выборе
-        window.updateLiveStatusUI();
-
-        if (typeof nfsNotify === 'function') {
-          nfsNotify('Статус обновлен: ' + s);
-        }
+        if (typeof nfsNotify === 'function') nfsNotify('Your auto has been added!');
+        setTimeout(() => location.reload(), 1200);
       }
     }
+  }
 
-    async function openEditProfile() {
-      const frames = [
-        { id: 'frame-default', name: 'Stardart' },
-        { id: 'frame-mw', name: 'Most Wanted' },
-      ];
+  async function updateUserStatus() {
+    const s = document.getElementById('statusSelect').value;
+    const {error} = await _supabase.from('profiles').update({status: s}).eq('id', window.currentUserId);
+    if (!error) {
+      if (window.profileData) window.profileData.status = s;
+      if (window.myProfile) window.myProfile.status = s;
+      if (typeof window.trackMyStatus === 'function') await window.trackMyStatus(s);
+      window.updateLiveStatusUI();
+      if (typeof nfsNotify === 'function') nfsNotify('Status updated: ' + s);
+    }
+  }
 
-      let framesHtml = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">';
-      frames.forEach(f => {
-        const isSelected = window.profileData.selected_frame === f.id ? 'border: 2px solid var(--nfs-yellow);' : 'border: 1px solid #333;';
-        framesHtml += `
-          <div onclick="selectFrame('${f.id}')" id="${f.id}" class="frame-preview ${f.id}" style="cursor:pointer; padding:10px; ${isSelected} background: rgba(0,0,0,0.5); font-size: 0.7rem;">
-            ${f.name.toUpperCase()}
-          </div>`;
-      });
-      framesHtml += '</div>';
+  async function openEditProfile() {
+    const frames = [
+      {id: 'frame-default', name: 'Standart'},
+      {id: 'frame-mw', name: 'Most Wanted'},
+    ];
+    let framesHtml = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">';
+    frames.forEach(f => {
+      const isSelected = window.profileData.selected_frame === f.id ? 'border: 2px solid var(--nfs-yellow);' : 'border: 1px solid #333;';
+      framesHtml += `<div onclick="selectFrame('${f.id}')" id="${f.id}" class="frame-preview ${f.id}" style="cursor:pointer; padding:10px; ${isSelected} background: rgba(0,0,0,0.5); font-size: 0.7rem;">${f.name.toUpperCase()}</div>`;
+    });
+    framesHtml += '</div>';
 
-      const { value: formValues } = await Swal.fire({
-        background: '#0a0a0a', color: '#fff',
-        html: `
-          <p style="font-size:0.8rem;">BIO:</p>
-          <input id="swal-bio" class="swal2-input" value="${window.profileData.bio || ''}" style="background:#111; color:#fff; width:80%;">
-          <p style="margin-top:15px; font-size:0.8rem;">FRAME SELECTION:</p>
+    const {value: formValues} = await Swal.fire({
+      background: '#0a0a0a', color: '#fff',
+      html: `
+          <p style="font-size:0.8rem; text-align:left;">BIO:</p>
+          <input id="swal-bio" class="swal2-input" value="${window.profileData.bio || ''}" style="background:#111; color:#fff; width:100%; box-sizing:border-box;">
+          <p style="margin-top:15px; font-size:0.8rem; text-align:left;">FRAME SELECTION:</p>
           ${framesHtml}
         `,
-        showCancelButton: true,
-        confirmButtonText: 'TO SET IT!',
-        preConfirm: () => {
-          return {
-            bio: document.getElementById('swal-bio').value,
-            frame: window.tempSelectedFrame || window.profileData.selected_frame
-          }
-        }
-      });
-
-      if (formValues) {
-        const { error } = await _supabase.from('profiles').update({ bio: formValues.bio, selected_frame: formValues.frame }).eq('id', window.currentUserId);
-        if (!error) location.reload();
-      }
-    }
-
-    window.selectFrame = (id) => {
-      window.tempSelectedFrame = id;
-      document.querySelectorAll('.frame-preview').forEach(el => el.style.border = '1px solid #333');
-      document.getElementById(id).style.border = '2px solid var(--nfs-yellow)';
-    };
-
-    async function checkFriendshipStatus(targetUserId) {
-      const {data: request} = await _supabase.from('friend_requests').select('*').or(`and(sender_id.eq.${window.myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${window.myProfile.id})`).maybeSingle();
-      const btn = document.getElementById('friendBtn');
-      if (!btn) return;
-      btn.classList.remove('hidden');
-      if (!request) {
-        btn.innerText = "ADD TO FRIENDS";
-        btn.onclick = () => sendFriendRequest(targetUserId);
-      } else if (request.status === 'pending') {
-        if (request.sender_id === window.myProfile.id) {
-          btn.innerText = "THE REQUEST HAS BEEN SENT";
-          btn.disabled = true;
-        } else {
-          btn.innerText = "ACCEPT THE REQUEST";
-          btn.onclick = () => acceptFriendRequest(request.id);
-        }
-      } else if (request.status === 'accepted') {
-        btn.innerText = "REMOVE FROM FRIENDS";
-        btn.style.background = "#e74c3c";
-        btn.style.color = "#fff";
-        btn.style.border = "2px solid #c0392b";
-        btn.style.boxShadow = "0 0 10px rgba(231, 76, 60, 0.4)";
-        btn.onclick = () => removeFriend(request.id);
-      }
-    }
-
-    async function sendFriendRequest(targetId) { await _supabase.from('friend_requests').insert([{ sender_id: window.myProfile.id, receiver_id: targetId, sender_name: window.myProfile.username }]); location.reload(); }
-    async function acceptFriendRequest(requestId) { await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', requestId); location.reload(); }
-    async function removeFriend(requestId) { await _supabase.from('friend_requests').delete().eq('id', requestId); location.reload(); }
-
-    async function openMuteModal() {
-      if (!window.myProfile || !window.myProfile.is_admin || !window.profileData) return;
-
-      const { value: minutes } = await Swal.fire({
-        title: 'ВЫДАТЬ МУТ',
-        input: 'select',
-        inputOptions: { '15': '15 минут', '60': '1 час', '1440': '24 часа', '10080': '7 дней' },
-        inputPlaceholder: 'Выберите срок наказания',
-        showCancelButton: true,
-        background: '#0a0a0a',
-        color: '#ffffff',
-        confirmButtonColor: '#ff4d4d',
-        confirmButtonText: 'ЗАМУТИТЬ'
-      });
-
-      if (minutes) {
-        const mutedUntil = new Date(Date.now() + minutes * 60000).toISOString();
-        const { error } = await _supabase.from('profiles').update({ muted_until: mutedUntil }).eq('id', window.profileData.id);
-
-        if (!error) {
-          if (typeof nfsNotify === 'function') nfsNotify('НАРУШИТЕЛЬ ОШТРАФОВАН!');
-          window.profileData.muted_until = mutedUntil;
-          renderMuteStatus(window.profileData);
-          setTimeout(() => location.reload(), 1200);
+      showCancelButton: true,
+      confirmButtonText: 'TO SET IT!',
+      confirmButtonColor: '#373737',
+      customClass: {popup: 'nfs-font', title: 'nfs-font', confirmButton: 'nfs-font', cancelButton: 'nfs-font'},
+      preConfirm: () => {
+        return {
+          bio: document.getElementById('swal-bio').value,
+          frame: window.tempSelectedFrame || window.profileData.selected_frame
         }
       }
+    });
+
+    if (formValues) {
+      const {error} = await _supabase.from('profiles').update({
+        bio: formValues.bio,
+        selected_frame: formValues.frame
+      }).eq('id', window.currentUserId);
+      if (!error) location.reload();
     }
+  }
 
-    // ⚡ Функция живой подписки: следит за обновлением строки этого игрока в БД
-    function setupProfileRealtimeListener() {
-      if (!window.profileData) return;
+  window.selectFrame = (id) => {
+    window.tempSelectedFrame = id;
+    document.querySelectorAll('.frame-preview').forEach(el => el.style.border = '1px solid #333');
+    document.getElementById(id).style.border = '2px solid var(--nfs-yellow)';
+  };
 
-      // Удаляем старый канал, если он был, чтобы не плодить дубли
-      _supabase.removeChannel(_supabase.channel(`profile-db-changes-${window.profileData.id}`));
-
-      _supabase.channel(`profile-db-changes-${window.profileData.id}`)
-        .on('postgres_changes', {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'profiles',
-          filter: `id=eq.${window.profileData.id}`
-        }, (payload) => {
-          console.log("⚡ Живой профиль поймал изменение в БД:", payload.new);
-          window.profileData = payload.new; // Перезаписываем старый кэш новыми данными из базы
-          window.updateLiveStatusUI(); // Мгновенно перерисовываем плашку на экране!
-        })
-        .subscribe();
-    }
-
-    function renderMuteStatus(profile) {
-      const container = document.getElementById('muteInfo');
-      if (!container || !profile.muted_until) { if(container) container.innerHTML = ''; return; }
-
-      const now = new Date();
-      const muteDate = new Date(profile.muted_until);
-
-      if (muteDate > now) {
-        const diffMins = Math.ceil((muteDate - now) / 60000);
-        const diffHours = Math.floor(diffMins / 60);
-        const remainingMins = diffMins % 60;
-        let timeText = diffHours > 0 ? `${diffHours} h. ${remainingMins} min.` : `${diffMins} min.`;
-
-        container.innerHTML = `
-          <div style="background: rgba(255, 77, 77, 0.2); border-left: 4px solid #ff4d4d; padding: 12px; margin: 15px 0; color: #ff4d4d; font-family: 'Segoe UI', sans-serif; box-shadow: 0 0 15px rgba(255, 77, 77, 0.1);">
-            <div style="font-weight: 900; letter-spacing: 1px; font-size: 0.85rem; text-transform: uppercase;">⚠ STATUS: PLAYER IN MUTE</div>
-            <div style="color: #fff; font-size: 0.8rem; margin-top: 5px; font-style: italic;">ACCESS IS LIMITED. <br>The term expires in: <span style="color: #ff4d4d; font-weight: bold;">${timeText}</span></div>
-          </div>`;
+  async function checkFriendshipStatus(targetUserId) {
+    const {data: request} = await _supabase.from('friend_requests').select('*').or(`and(sender_id.eq.${window.myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${window.myProfile.id})`).maybeSingle();
+    const btn = document.getElementById('friendBtn');
+    if (!btn) return;
+    btn.classList.remove('hidden');
+    if (!request) {
+      btn.innerText = "ADD TO FRIENDS";
+      btn.onclick = () => sendFriendRequest(targetUserId);
+    } else if (request.status === 'pending') {
+      if (request.sender_id === window.myProfile.id) {
+        btn.innerText = "THE REQUEST HAS BEEN SENT";
+        btn.disabled = true;
       } else {
-        container.innerHTML = '';
+        btn.innerText = "ACCEPT THE REQUEST";
+        btn.onclick = () => acceptFriendRequest(request.id);
+      }
+    } else if (request.status === 'accepted') {
+      btn.innerText = "REMOVE FROM FRIENDS";
+      btn.style.background = "#e74c3c";
+      btn.style.color = "#fff";
+      btn.style.border = "2px solid #c0392b";
+      btn.onclick = () => removeFriend(request.id);
+    }
+  }
+
+  async function sendFriendRequest(targetId) {
+    await _supabase.from('friend_requests').insert([{
+      sender_id: window.myProfile.id,
+      receiver_id: targetId,
+      sender_name: window.myProfile.username
+    }]);
+    location.reload();
+  }
+
+  async function acceptFriendRequest(requestId) {
+    await _supabase.from('friend_requests').update({status: 'accepted'}).eq('id', requestId);
+    location.reload();
+  }
+
+  async function removeFriend(requestId) {
+    await _supabase.from('friend_requests').delete().eq('id', requestId);
+    location.reload();
+  }
+
+  async function openMuteModal() {
+    if (!window.myProfile || !window.myProfile.is_admin || !window.profileData) return;
+    const {value: minutes} = await Swal.fire({
+      title: 'ВЫДАТЬ МУТ',
+      input: 'select',
+      inputOptions: {'15': '15 минут', '60': '1 час', '1440': '24 часа', '10080': '7 дней'},
+      inputPlaceholder: 'Выберите срок наказания',
+      showCancelButton: true,
+      background: '#0a0a0a', color: '#ffffff', confirmButtonColor: '#ff4d4d', confirmButtonText: 'ЗАМУТИТЬ'
+    });
+
+    if (minutes) {
+      const mutedUntil = new Date(Date.now() + minutes * 60000).toISOString();
+      const {error} = await _supabase.from('profiles').update({muted_until: mutedUntil}).eq('id', window.profileData.id);
+      if (!error) {
+        if (typeof nfsNotify === 'function') nfsNotify('НАРУШИТЕЛЬ ОШТРАФОВАН!');
+        window.profileData.muted_until = mutedUntil;
+        renderMuteStatus(window.profileData);
+        setTimeout(() => location.reload(), 1200);
       }
     }
+  }
 
-    function goToChat() { window.location.href = `chats.html?to=${window.profileData.username}`; }
+  function setupProfileRealtimeListener() {
+    if (!window.profileData) return;
+    _supabase.removeChannel(_supabase.channel(`profile-db-changes-${window.profileData.id}`));
+    _supabase.channel(`profile-db-changes-${window.profileData.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'profiles',
+        filter: `id=eq.${window.profileData.id}`
+      }, (payload) => {
+        window.profileData = payload.new;
+        window.updateLiveStatusUI();
+      })
+      .subscribe();
+  }
 
-    async function handleLogout() {
-      if (window.currentUserId) await _supabase.from('profiles').update({ status: 'OFFLINE' }).eq('id', window.currentUserId);
-      await _supabase.auth.signOut();
-      window.location.href = 'auth.html';
+  window.updateSteamFriendsWidgetOnly = function () {
+    if (typeof refreshSteamFriendsList === 'function' && window.myProfile) {
+      refreshSteamFriendsList(_supabase, window.myProfile);
     }
-
-    async function openAvatarPicker() {
-      if (!window.myProfile || window.profileData.id !== window.myProfile.id) return;
-
-      let iconsHtml = '<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px; padding:10px;">';
-      AVATAR_OPTIONS.forEach(url => {
-        const isSelected = window.profileData.avatar_url === url;
-        iconsHtml += `<img src="${url}" class="swal-avatar-item ${isSelected ? 'active-choice' : ''}" style="width:80px; height:80px; cursor:pointer; border:3px solid transparent; border-radius:5px; transition:0.2s;" onclick="selectSwalAvatarOnly(this)">`;
-      });
-      iconsHtml += '</div>';
-
-      const { value: selectedUrl } = await Swal.fire({
-        title: 'IMAGE SELECTION',
-        background: '#0a0a0a',
-        color: '#fff',
-        // Добавили класс nfs-font к параграфу, чтобы текст внутри точно забрал нужный шрифт
-        html: `<p class="nfs-font" style="font-size:0.9rem; color: #f1c40f; margin-bottom:15px;">CHOOSE A NEW IMAGE:</p>${iconsHtml}`,
-        showCancelButton: true,
-        confirmButtonText: 'TO SET IT!',
-        confirmButtonColor: '#f1c40f',
-
-        // ЖЕСТКАЯ ПРИВЯЗКА КЛАССА К ЭЛЕМЕНТАМ ОКНА SWEETALERT
-        customClass: {
-          popup: 'nfs-font',       // Для всего модального окна
-          title: 'nfs-font',       // Для главного заголовка
-          confirmButton: 'nfs-font', // Для желтой кнопки
-          cancelButton: 'nfs-font'   // Для кнопки отмены
-        },
-
-        preConfirm: () => window.tempAvatarUrl || window.profileData.avatar_url
-      });
-
-      if (selectedUrl) {
-        const { error } = await _supabase.from('profiles').update({ avatar_url: selectedUrl }).eq('id', window.currentUserId);
-        if (!error) location.reload();
-      }
-    }
-
-    function toggleNotifyPopup() {
-      const p = document.getElementById('notifyPopup');
-      p.style.display = p.style.display === 'block' ? 'none' : 'block';
-    }
-
-    async function updateFriendNotifications() {
-      if (!window.myProfile) return;
-      const { data: requests } = await _supabase.from('friend_requests').select('*').eq('receiver_id', window.myProfile.id).eq('status', 'pending');
-      const countEl = document.getElementById('notifyCount');
-      const listEl = document.getElementById('notifyList');
-
-      if (requests && requests.length > 0) {
-        countEl.innerText = requests.length; countEl.style.display = 'block'; listEl.innerHTML = '';
-        requests.forEach(req => {
-          listEl.innerHTML += `<div class="notify-item"><b>${req.sender_name}</b> wants to be friends<div class="notify-btns"><button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button><button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">NO</button></div></div>`;
-        });
-      } else {
-        countEl.style.display = 'none'; listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">There are no requests</div>';
-      }
-    }
-
-    async function respondFriend(reqId, status) {
-      try {
-        if (status === 'accepted') {
-          await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
-          if (typeof nfsNotify === 'function') nfsNotify('Racer added to friends!');
-        } else {
-          await _supabase.from('friend_requests').delete().eq('id', reqId);
-          if (typeof nfsNotify === 'function') nfsNotify('Your request has been reject', 'info');
-        }
-        await updateFriendNotifications();
-        if (typeof loadSidebarFriends === 'function') await loadSidebarFriends();
-      } catch (err) { console.error(err); }
-    }
-
-    window.selectSwalAvatarOnly = (el) => {
-      document.querySelectorAll('.swal-avatar-item').forEach(img => img.classList.remove('active-choice'));
-      el.classList.add('active-choice'); window.tempAvatarUrl = el.src;
-    };
-
-    window.updateSteamFriendsWidgetOnly = function() {
-      if (typeof refreshSteamFriendsList === 'function' && window.myProfile) {
-        refreshSteamFriendsList(_supabase, window.myProfile);
-      }
-    };
+  };
 </script>
 </body>
 </html>
