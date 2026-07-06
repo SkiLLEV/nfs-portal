@@ -25,7 +25,7 @@ function nfsNotify(title, icon = 'success') {
     background: '#0a0a0a',
     color: '#cca609',
     iconColor: '#cca609',
-    customClass: { popup: 'nfs-toast-border' }
+    customClass: {popup: 'nfs-toast-border'}
   });
 }
 
@@ -40,7 +40,7 @@ function formatLastSeen(dateString) {
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min. ago`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} h. ago`;
 
-  return lastSeen.toLocaleDateString('en-EN', { day: 'numeric', month: 'short' });
+  return lastSeen.toLocaleDateString('en-EN', {day: 'numeric', month: 'short'});
 }
 
 /**
@@ -49,9 +49,9 @@ function formatLastSeen(dateString) {
 async function updateGlobalMsgBadge(supabase, myId) {
   if (!supabase || !myId) return;
 
-  const { count, error } = await supabase
+  const {count, error} = await supabase
     .from('direct_messages')
-    .select('*', { count: 'exact', head: true })
+    .select('*', {count: 'exact', head: true})
     .eq('receiver_id', myId)
     .eq('is_read', false);
 
@@ -73,7 +73,7 @@ async function markChatAsRead(supabase, myId, senderId) {
   if (!supabase || !myId || !senderId) return;
   await supabase
     .from('direct_messages')
-    .update({ is_read: true })
+    .update({is_read: true})
     .eq('receiver_id', myId)
     .eq('sender_id', senderId)
     .eq('is_read', false);
@@ -99,7 +99,7 @@ async function initGlobalStatus(supabase, profile) {
   });
 
   // --- STEP 1: HANDLERS (Radar sync) ---
-  statusChannel.on('presence', { event: 'sync' }, () => {
+  statusChannel.on('presence', {event: 'sync'}, () => {
     onlineUsers = statusChannel.presenceState();
 
     const footerOnline = document.getElementById('footerOnline');
@@ -110,17 +110,17 @@ async function initGlobalStatus(supabase, profile) {
     if (typeof window.updateSteamFriendsWidgetOnly === 'function') window.updateSteamFriendsWidgetOnly();
   });
 
-  // Global status tracking broadcaster
+  // Global status tracking broadcaster (Проверяет локальную память)
   window.trackMyStatus = async (newStatus) => {
     if (!profile) return;
+    const savedStatus = localStorage.getItem('driver_status') || profile.status || 'ONLINE';
     await statusChannel.track({
       user: profile.username,
       location: currentPage,
-      status: newStatus || profile.status || 'ONLINE'
+      status: newStatus || savedStatus
     });
   };
 
-  // Inject overlay if authorized
   if (profile) {
     injectSteamFriendsWidget(supabase, profile);
   }
@@ -128,20 +128,23 @@ async function initGlobalStatus(supabase, profile) {
   // --- STEP 2: SUBSCRIPTION & LAST SEEN UPDATES ---
   statusChannel.subscribe(async (status) => {
     if (status === 'SUBSCRIBED' && profile) {
-      await window.trackMyStatus();
+      // Подтягиваем сохранённый статус, чтобы утилиты не затирали его при переходе на новую страницу
+      const savedStatus = localStorage.getItem('driver_status') || 'ONLINE';
+      profile.status = savedStatus;
+
+      await window.trackMyStatus(savedStatus);
 
       const now = new Date().toISOString();
       await supabase
         .from('profiles')
-        .update({ last_seen: now })
+        .update({status: savedStatus, last_seen: now})
         .eq('id', profile.id);
 
-      // Pull actual counter upon re-login/refresh securely
       await updateGlobalMsgBadge(supabase, profile.id);
     }
   });
 
-  // --- STEP 2.5: Realtime direct message interceptor with sound triggers ---
+  // --- STEP 2.5: Realtime direct message interceptor ---
   if (profile) {
     supabase.channel('global-audio-messages')
       .on('postgres_changes', {
@@ -160,16 +163,19 @@ async function initGlobalStatus(supabase, profile) {
       .subscribe();
   }
 
-  // --- STEP 3: VISIBILITY/OFFLINE MANAGEMENT ---
+  // --- STEP 3: VISIBILITY/OFFLINE MANAGEMENT (Исправлено!) ---
   if (profile) {
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
-        const now = new Date().toISOString();
-        supabase
-          .from('profiles')
-          .update({ status: 'OFFLINE', last_seen: now })
-          .eq('id', profile.id)
-          .then();
+        const savedStatus = localStorage.getItem('driver_status') || 'ONLINE';
+        if (savedStatus !== 'LOOKING FOR GAME') {
+          const now = new Date().toISOString();
+          supabase
+            .from('profiles')
+            .update({status: 'OFFLINE', last_seen: now})
+            .eq('id', profile.id)
+            .then();
+        }
       }
     });
   }
@@ -319,7 +325,7 @@ async function initGlobalStatus(supabase, profile) {
     const body = document.getElementById('steamFriendsBody');
     if (!body) return;
 
-    const { data: friendships } = await supabaseClient.from('friend_requests')
+    const {data: friendships} = await supabaseClient.from('friend_requests')
       .select('*')
       .eq('status', 'accepted')
       .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`);
@@ -331,7 +337,7 @@ async function initGlobalStatus(supabase, profile) {
 
     const friendIds = friendships.map(f => f.sender_id === myProfile.id ? f.receiver_id : f.sender_id);
 
-    const { data: profiles } = await supabaseClient.from('profiles')
+    const {data: profiles} = await supabaseClient.from('profiles')
       .select('id, username, avatar_url, status, last_seen')
       .in('id', friendIds);
 
@@ -375,8 +381,7 @@ async function initGlobalStatus(supabase, profile) {
               </div>
             </div>
           `;
-        }
-        else {
+        } else {
           onlineCount++;
           dotColorClass = 'steam-text-online';
           borderClass = 'steam-border-online';
@@ -432,7 +437,7 @@ async function initGlobalStatus(supabase, profile) {
     body.innerHTML = finalHTML;
   }
 
-  window.updateSteamFriendsWidgetOnly = function() {
+  window.updateSteamFriendsWidgetOnly = function () {
     const win = document.getElementById('steamFriendsWin');
     if (win && win.style.display === 'flex') {
       refreshSteamFriendsList(supabase, profile);
@@ -443,14 +448,13 @@ async function initGlobalStatus(supabase, profile) {
    * GLOBAL SWEETALERT AUTHORIZATION
    */
   async function openModal() {
-    const { value: formValues } = await Swal.fire({
+    const {value: formValues} = await Swal.fire({
       title: 'RACE AUTHORIZATION',
-      background: '#0a0a0a',
-      color: '#fff',
-      confirmButtonColor: '#cca609',
-      html:
-        '<input id="swal-email" class="swal2-input" placeholder="Email" type="email" style="background:#111; color:#fff;">' +
-        '<input id="swal-password" class="swal2-input" placeholder="Password" type="password" style="background:#111; color:#fff;">',
+      background: '#0a0a0a', color: '#fff',
+      html: `
+          <input id="swal-email" class="swal2-input" placeholder="Email" type="email" style="background:#111; color:#fff;">
+          <input id="swal-password" class="swal2-input" placeholder="Password" type="password" style="background:#111; color:#fff;">
+        `,
       focusConfirm: false,
       preConfirm: () => {
         return {
@@ -461,13 +465,13 @@ async function initGlobalStatus(supabase, profile) {
     });
 
     if (formValues) {
-      const { error } = await supabase.auth.signInWithPassword({
+      const {error} = await supabase.auth.signInWithPassword({
         email: formValues.email,
         password: formValues.password,
       });
 
       if (error) {
-        Swal.fire({ icon: 'error', title: 'ERROR', text: error.message, background: '#0a0a0a', color: '#fff' });
+        Swal.fire({icon: 'error', title: 'ERROR', text: error.message, background: '#0a0a0a', color: '#fff'});
       } else {
         nfsNotify('Welcome back to Rockport!');
         setTimeout(() => location.reload(), 1000);
