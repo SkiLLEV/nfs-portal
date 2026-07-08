@@ -17,7 +17,6 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="utils.js"></script>
 
-
   <style>
     :root {
       --nfs-yellow: #f1c40f;
@@ -28,10 +27,16 @@
       margin: 0;
       padding: 0;
       background: linear-gradient(to bottom, #181818, #0e0e0e) fixed;
-      box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+      box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
       color: #fff;
       font-family: 'Wallpoet', sans-serif !important;
       padding-bottom: 60px;
+
+      /* ЖЕСТКИЙ ФИКС ДЛЯ РАСТЯГИВАНИЯ НА ВЕСЬ ЭКРАН БЭКГРАУНДА */
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
     }
 
     .container {
@@ -163,6 +168,7 @@
     }
 
     .back-link {
+      font-family: 'Arial', 'Helvetica', sans-serif !important;
       color: #888;
       text-decoration: none;
       display: inline-block;
@@ -348,16 +354,13 @@
     ` : '';
   }
 
-  // Функция для форматирования скрытых тегов [reply:username] в неоново-зеленый текст
   function formatCommentText(text, currentUserName) {
     if (!text) return "";
 
     return text.replace(/\[reply:(.+?)\]/g, (match, username) => {
-      // Если тегнули НАС — горит неоново-зелёным
       if (username === currentUserName) {
         return `<span style="color: #00ff66; font-weight: bold; text-shadow: 0 0 5px rgba(0,255,102,0.4); font-family: 'Arial', sans-serif !important;">@${username}</span>`;
       } else {
-        // Если мы или кто-то другой отвечает третьему лицу — аккуратный серый цвет
         return `<span style="color: #666; font-weight: bold; font-family: 'Arial', sans-serif !important;">@${username}</span>`;
       }
     });
@@ -442,7 +445,7 @@
         `;
       });
     } else {
-      list.innerHTML += '<p style="color: #444; font-size: 0.8rem; font-style: italic; padding-left: 5px;">It`s quiet here for now...</p>';
+      list.innerHTML += '<p style="color: #444; font-size: 0.8rem; font-style: italic; padding-left: 5px; font-family: \'Arial\', \'Helvetica\', sans-serif !important;">It`s quiet here for now...</p>';
     }
   }
 

@@ -16,6 +16,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="utils.js"></script>
+
   <title>NFS Portal | Main</title>
 
   <style>
@@ -348,6 +349,12 @@
       border-radius: 3px;
     }
 
+    .btn-race:hover {
+      color: white;
+      background-color: #c10e0e;
+      transition: 0.2s;
+    }
+
     .racer-link {
       color: var(--nfs-yellow);
       font-weight: bold;
@@ -356,8 +363,8 @@
     }
 
     .racer-link:hover {
-      color: #fff;
-      text-shadow: 0 0 8px var(--nfs-yellow);
+      color: #ff0000;
+      text-decoration: underline;
     }
 
     .bottom-bar {
@@ -380,6 +387,7 @@
       font-weight: bold;
     }
 
+    /* СТИЛИ НЕЗАВИСИМОЙ КАПСУЛЫ ПОИСКА СЛЕВА ВНИЗУ */
     .search-widget {
       position: fixed;
       bottom: 70px;
@@ -414,7 +422,7 @@
       width: 100%;
       background: #0a0a0a;
       border: 1px solid #252525;
-      border-radius: 20px; 
+      border-radius: 20px;
       color: #fff;
       padding: 8px 12px 8px 36px;
       font-size: 0.8rem;
@@ -431,6 +439,32 @@
 
     .search-clean-input:focus + .search-icon-inside {
       stroke: var(--nfs-yellow);
+    }
+
+    /* СТИЛИ ПЕРЕКЛЮЧАТЕЛЯ ЯЗЫКОВ */
+    .lang-switcher {
+      font-family: 'Wallpoet', sans-serif !important;
+      font-size: 0.8rem;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+
+    .lang-btn {
+      cursor: pointer;
+      color: #555;
+      transition: color 0.2s, text-shadow 0.2s;
+    }
+
+    .lang-btn:hover {
+      color: #fff;
+    }
+
+    .lang-btn.active {
+      color: var(--nfs-yellow) !important;
+      text-shadow: 0 0 8px rgba(241, 196, 15, 0.6);
     }
 
     .user-info {
@@ -570,6 +604,12 @@
   </div>
 
   <div class="user-area" style="display: flex; align-items: center; gap: 20px;">
+    <div class="lang-switcher">
+      <span onclick="setLanguage('en')" id="lang-en" class="lang-btn active">EN</span>
+      <span style="color: #222;">|</span>
+      <span onclick="setLanguage('ua')" id="lang-ua" class="lang-btn">UA</span>
+    </div>
+
     <div class="notifications-wrapper" id="notifyWrapper"
          style="position: relative; display: flex; align-items: center;">
       <div id="notifyBell" onclick="toggleNotifyPopup()" style="cursor: pointer; display: flex; align-items: center;">
@@ -584,14 +624,16 @@
       <div id="notifyPopup"
            style="display: none; position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid #333; z-index: 100; min-width: 200px; margin-top: 10px;">
         <div class="notify-header nfs-font"
-             style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;">
+             style="padding: 10px; color: #fff; border-bottom: 1px solid #333; font-family: sans-serif; text-transform: uppercase; font-size: 0.8rem;"
+             data-i18n="friend_requests">
           Friend requests
         </div>
         <div id="notifyList"></div>
       </div>
     </div>
 
-    <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;">LOGIN</button>
+    <button class="btn-login" id="loginBtn" onclick="openModal()" style="display: none;" data-i18n="btn_login">LOGIN
+    </button>
 
     <div class="user-info" id="userInfo" style="display: flex; align-items: center; gap: 15px;">
       <span id="displayNick"
@@ -600,7 +642,8 @@
         Davenport
       </span>
       <button onclick="handleLogout()" class="nfs-font btn-exit"
-              style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;">
+              style="background: rgba(0,0,0,0.6); border: 1px solid #333; border-radius: 5px; color: #ff4444; cursor: pointer; font-size: 0.75rem; padding: 6px 12px; font-weight: bold; text-transform: uppercase;"
+              data-i18n="btn_exit">
         EXIT
       </button>
     </div>
@@ -609,17 +652,18 @@
 
 <aside class="sidebar">
   <nav>
-    <a href="index.html" class="nav-item active">MAIN</a>
-    <a href="forum.html" class="nav-item">FORUM</a>
-    <a href="chats.html" class="nav-item">MESSENGER<span id="msgBadge">0</span></a>
-    <a href="lobby.html" class="nav-item">SEARCH THE GAME</a>
-    <a href="leaderboard.html" class="nav-item">LEADERBOARD</a>
-    <a href="profile.html" class="nav-item">MY PROFILE</a>
+    <a href="index.html" class="nav-item active" data-i18n="nav_main">MAIN</a>
+    <a href="forum.html" class="nav-item" data-i18n="nav_forum">FORUM</a>
+    <a href="chats.html" class="nav-item"><span data-i18n="nav_messenger">MESSENGER</span><span
+      id="msgBadge">0</span></a>
+    <a href="lobby.html" class="nav-item" data-i18n="nav_lobby">SEARCH THE GAME</a>
+    <a href="leaderboard.html" class="nav-item" data-i18n="nav_leaderboard">LEADERBOARD</a>
+    <a href="profile.html" class="nav-item" data-i18n="nav_profile">MY PROFILE</a>
   </nav>
 </aside>
 
 <div class="right-calendar-widget">
-  <div class="calendar-title" id="calendarMonth">Calendar</div>
+  <div class="calendar-title" id="calendarMonth" data-i18n="calendar_title">Calendar</div>
   <table class="u-calendar">
     <thead>
     <tr>
@@ -638,20 +682,22 @@
 
 <main class="main-content">
   <div class="content-box">
-    <h1 style="color: var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;">
+    <h1 style="color: var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;"
+        data-i18n="welcome_title">
       Welcome to Need For Speed Portal!
     </h1>
-    <p style="font-size: 1.2rem; color: #fff; line-height: 1.5; font-weight: 300;">
+    <p style="font-size: 1.2rem; color: #fff; line-height: 1.5; font-weight: 300;" data-i18n="welcome_desc">
       Thank you for support! All of you.
     </p>
 
     <div class="radar-box" id="matchmakingRadar" style="margin-top: 40px;">
       <h2
-        style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 0.9rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; letter-spacing: 2px;">
+        style="color: var(--nfs-yellow); font-style: italic; text-transform: uppercase; font-size: 0.9rem; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; letter-spacing: 2px;"
+        data-i18n="radar_title">
         FREQUENCY INTERCEPTION: LOOKING FOR GAME
       </h2>
       <div id="radarList" style="margin-top: 15px;">
-        <p style="color: #444; font-size: 0.8rem;">Signal scanning...</p>
+        <p style="color: #444; font-size: 0.8rem;" data-i18n="radar_scanning">Signal scanning...</p>
       </div>
     </div>
   </div>
@@ -666,6 +712,7 @@
            id="globalSearchInput"
            class="search-clean-input"
            name="search_driver_field"
+           data-i18n-placeholder="search_placeholder"
            autocomplete="new-password"
            autocorrect="off"
            autocapitalize="off"
@@ -673,7 +720,6 @@
            placeholder="Enter nickname..."
            onkeypress="if(event.key === 'Enter') performGlobalSearch()">
 
-    <!-- Лупа внутри инпута -->
     <svg class="search-icon-inside" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"
          stroke-linejoin="round">
       <circle cx="11" cy="11" r="8"></circle>
@@ -715,7 +761,14 @@
     const todayDate = now.getDate();
 
     const calendarTitleEl = document.getElementById('calendarMonth');
-    if (calendarTitleEl) calendarTitleEl.innerText = `${monthNames[currentMonth]} ${currentYear}`;
+    if (calendarTitleEl) {
+      const currentLang = localStorage.getItem('safehouse_lang') || 'en';
+      if (currentLang === 'ua' && typeof translations !== 'undefined') {
+        calendarTitleEl.innerText = `${translations.ua.calendar_title} — ${monthNames[currentMonth]} ${currentYear}`;
+      } else {
+        calendarTitleEl.innerText = `${monthNames[currentMonth]} ${currentYear}`;
+      }
+    }
 
     const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
     const startDay = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
@@ -752,6 +805,7 @@
   }
 
   window.onload = async () => {
+    if (typeof applyLanguage === 'function') applyLanguage(); // ИНИЦИАЛИЗАЦИЯ ЯЗЫКА СРАЗУ
     initCalendarHeader();
     const {data: {user}} = await _supabase.auth.getUser();
 
@@ -864,15 +918,17 @@
     const {data: requests} = await _supabase.from('friend_requests').select('*').eq('receiver_id', myProfile.id).eq('status', 'pending');
     const countEl = document.getElementById('notifyCount');
     const listEl = document.getElementById('notifyList');
+    const currentLang = localStorage.getItem('safehouse_lang') || 'en';
 
     if (requests && requests.length > 0) {
       countEl.innerText = requests.length;
       countEl.style.display = 'block';
       listEl.innerHTML = '';
       requests.forEach(req => {
+        const textWants = (typeof translations !== 'undefined') ? translations[currentLang]['wants_friends'] : 'wants to be friends';
         listEl.innerHTML += `
                     <div class="notify-item">
-                        <b>${req.sender_name}</b> wants to be friends
+                        <b>${req.sender_name}</b> ${textWants}
                         <div class="notify-btns">
                             <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')">ОК</button>
                             <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')">NO</button>
@@ -881,7 +937,8 @@
       });
     } else {
       countEl.style.display = 'none';
-      listEl.innerHTML = '<div style="padding:10px; font-size:10px; color:#444; text-align:center;">There are no requests</div>';
+      const textNoReq = (typeof translations !== 'undefined') ? translations[currentLang]['no_requests'] : 'There are no requests';
+      listEl.innerHTML = `<div style="padding:10px; font-size:10px; color:#444; text-align:center;">${textNoReq}</div>`;
     }
   }
 
@@ -927,8 +984,11 @@
     const list = document.getElementById('radarList');
     if (!list) return;
 
+    const currentLang = localStorage.getItem('safehouse_lang') || 'en';
+
     if (!data || data.length === 0) {
-      list.innerHTML = '<p style="color:#444; font-size:0.8rem;">It`s empty here for now...</p>';
+      const textEmpty = (typeof translations !== 'undefined') ? translations[currentLang]['radar_empty'] : 'It\'s empty here for now...';
+      list.innerHTML = `<p style="color:#444; font-size:0.8rem;">${textEmpty}</p>`;
       return;
     }
 
@@ -941,7 +1001,7 @@
             <img src="${racer.avatar_url || 'https://via.placeholder.com/30'}" style="width:30px; height:30px; border: 1px solid var(--nfs-yellow); object-fit:cover;">
             <span class="racer-link" onclick="window.location.href='profile.html?u=${racer.username}'">${racer.username}</span>
           </div>
-          ${!isMe ? `<button class="btn-race" onclick="window.location.href='chats.html?to=${racer.username}'">CHALLENGE</button>` : '<small style="color:var(--nfs-yellow); font-weight:bold;">YOU</small>'}
+          ${!isMe ? `<button class="btn-race nfs-font" onclick="window.location.href='chats.html?to=${racer.username}'">CHALLENGE</button>` : '<small style="color:var(--nfs-yellow); font-weight:bold;">YOU</small>'}
         </div>`;
     });
   }

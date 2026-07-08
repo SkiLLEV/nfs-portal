@@ -122,9 +122,11 @@ async function initGlobalStatus(supabase, profile) {
   };
 
   if (profile) {
-    injectSteamFriendsWidget(supabase, profile);
+    // Если в адресе страницы есть "topic.html", виджет просто не будет создаваться
+    if (!window.location.pathname.includes('topic.html')) {
+      injectSteamFriendsWidget(supabase, profile);
+    }
   }
-
   // --- STEP 2: SUBSCRIPTION & LAST SEEN UPDATES ---
   statusChannel.subscribe(async (status) => {
     if (status === 'SUBSCRIBED' && profile) {
@@ -205,6 +207,11 @@ async function initGlobalStatus(supabase, profile) {
         z-index: 2001;
         box-shadow: 0 0 10px rgba(0,0,0,0.5);
         transition: 0.2s;
+
+        /* ВЫРАВНИВАНИЕ ИКОНКИ И ТЕКСТА ПО СКЕТЧУ */
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
       }
 
       .steam-friends-window {
@@ -294,7 +301,14 @@ async function initGlobalStatus(supabase, profile) {
 
     const btn = document.createElement('button');
     btn.className = 'steam-friends-toggle-btn';
-    btn.innerText = 'Friends';
+    // Добавляем иконку силуэта перед текстом по наброску
+    btn.innerHTML = `
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="display: inline-block;">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+      </svg>
+      <span>Friends</span>
+    `;
+
     btn.onclick = () => {
       const win = document.getElementById('steamFriendsWin');
       if (win) {
