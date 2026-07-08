@@ -593,6 +593,17 @@
     loadFullTopic();
     loadComments();
   };
+
+  window.insertReplyTag = function(authorName) {
+    const textarea = document.getElementById('commentText');
+    if (!textarea) return;
+
+    const replyTag = `[reply:${authorName}] `;
+
+    textarea.value = replyTag + textarea.value;
+
+    textarea.focus();
+  };
 </script>
 </body>
 </html>
