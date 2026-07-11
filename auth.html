@@ -2,9 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <title>NFS Portal | Login</title>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFS Portal | Login</title>
 
   <link rel="shortcut icon" href="/IMG_3707.ico" type="image/x-icon">
 
@@ -16,8 +15,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
   <script src="utils.js"></script>
+
   <style>
     :root {
       --nfs-yellow: #f1c40f;
@@ -30,17 +29,50 @@
       background-size: cover;
       font-family: 'Wallpoet', sans-serif !important;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       margin: 0;
+      overflow: hidden;
+    }
+
+    /* БОЛЬШИЕ ЗАГОЛОВКИ НА ФОНЕ */
+    .bg-game-title {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-style: italic;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 4px 4px 0px #000, 0 0 20px rgba(255, 255, 255, 0.1);
+      letter-spacing: 4px;
+      margin-bottom: 20px;
+      text-align: center;
+      user-select: none;
+    }
+
+    .bg-game-subtitle {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-style: italic;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--nfs-yellow);
+      text-shadow: 3px 3px 0px #000, 0 0 15px rgba(241, 196, 15, 0.3);
+      letter-spacing: 8px;
+      margin-top: 25px;
+      text-align: center;
+      user-select: none;
     }
 
     .auth-box {
-      background: rgba(0,0,0,0.9);
-      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.92);
+      border: 1px solid var(--nfs-border);
+      box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
       padding: 40px;
-      width: 350px;
+      width: 420px;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 10;
     }
 
     h2 {
@@ -49,6 +81,9 @@
       border-bottom: 2px solid var(--nfs-border);
       padding-bottom: 10px;
       margin-top: 0;
+      font-size: 1.2rem;
+      color: var(--nfs-yellow);
+      letter-spacing: 1px;
     }
 
     input {
@@ -61,11 +96,14 @@
       color: #fff;
       box-sizing: border-box;
       font-size: 0.9rem;
+      font-family: 'Arial', sans-serif !important;
     }
 
-    input:focus { border-color: var(--nfs-yellow); outline: none; }
+    input:focus {
+      border-color: var(--nfs-yellow);
+      outline: none;
+    }
 
-    /* ОБЫЧНАЯ ПРЯМОУГОЛЬНАЯ КНОПКА */
     .btn {
       width: 100%;
       padding: 14px;
@@ -110,12 +148,87 @@
       background: rgba(255, 77, 77, 0.1);
       padding: 8px;
       border-left: 3px solid #ff4d4d;
+      font-family: 'Arial', sans-serif !important;
+    }
+
+    /* ПОЛИРОВКА СТИЛЯ: RESIDENT EVIL NOISE ANIMATION */
+    .cover-noise {
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      right: -50%;
+      bottom: -50%;
+      width: 200%;
+      height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.038;
+      pointer-events: none;
+      z-index: 9999;
+      animation: reNoiseAnimation 0.15s steps(2) infinite;
+    }
+
+    @keyframes reNoiseAnimation {
+      0% {
+        transform: translate(0, 0);
+      }
+      10% {
+        transform: translate(-1%, -1%);
+      }
+      20% {
+        transform: translate(-2%, 1%);
+      }
+      30% {
+        transform: translate(1%, -2%);
+      }
+      40% {
+        transform: translate(-1%, 3%);
+      }
+      50% {
+        transform: translate(-2%, 1%);
+      }
+      60% {
+        transform: translate(1%, 2%);
+      }
+      70% {
+        transform: translate(2%, -2%);
+      }
+      80% {
+        transform: translate(-1%, -1%);
+      }
+      90% {
+        transform: translate(2%, 1%);
+      }
+      100% {
+        transform: translate(1%, -1%);
+      }
+    }
+
+    /* АДАПТИВНОСТЬ ДЛЯ ДИСКОВ/МОБИЛОК */
+    @media screen and (max-width: 480px) {
+      .auth-box {
+        width: 90% !important;
+        padding: 25px 20px !important;
+      }
+
+      .bg-game-title {
+        font-size: 2rem;
+      }
+
+      .bg-game-subtitle {
+        font-size: 1.6rem;
+      }
     }
   </style>
 </head>
 <body>
 
+<div class="cover-noise"></div>
+
+<div class="bg-game-title">NEED FOR SPEED</div>
+
 <div class="auth-box">
+  <h2 id="formTitle">Enter the game</h2>
+
   <div id="errorMsg" class="error"></div>
 
   <div id="authFields">
@@ -127,14 +240,17 @@
   <button class="btn btn-primary"
           id="mainBtn"
           style="border-radius: 10px"
-          onclick="handleAuth()">Log in</button>
+          onclick="handleAuth()">Log in
+  </button>
 
   <div style="text-align: center;">
     <button class="btn btn-secondary" id="toggleBtn" onclick="toggleForm()">
-      No account? Sign up.
+      No account? Sign up!
     </button>
   </div>
 </div>
+
+<div class="bg-game-subtitle">PORTAL</div>
 
 <script>
   const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
@@ -150,9 +266,9 @@
 
     document.getElementById('formTitle').innerText = isLogin ? "Enter the game" : "Racer Registration";
     document.getElementById('username').style.display = isLogin ? "none" : "block";
-    document.getElementById('mainBtn').innerText = isLogin ? "Loh in" : "Create profile";
+    document.getElementById('mainBtn').innerText = isLogin ? "Log in" : "Create profile";
     document.getElementById('toggleBtn').innerText = isLogin ?
-      "No account? Sign up." : "Already have a profile? Log in.";
+      "No account? Sign up!" : "Already have a profile? Log in.";
   }
 
   async function handleAuth() {
@@ -167,16 +283,16 @@
 
     if (isLogin) {
       // ЛОГИН
-      const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
+      const {data, error} = await _supabase.auth.signInWithPassword({email, password});
       if (error) showError(error.message);
-      else window.location.href = 'index.html'; // После входа лучше на главную
+      else window.location.href = 'index.html';
     } else {
       // РЕГИСТРАЦИЯ
-      const { data, error } = await _supabase.auth.signUp({
+      const {data, error} = await _supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { username: username },
+          data: {username: username},
           emailRedirectTo: window.location.origin + '/index.html'
         }
       });
