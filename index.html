@@ -125,6 +125,17 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
     }
 
+    .support-link {
+      color: var(--nfs-yellow) !important;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .support-link:hover {
+      color: #ff4444 !important;
+      text-decoration: underline;
+    }
+
     .notify-header {
       padding: 10px;
       background: #1a1a1a;
@@ -305,8 +316,8 @@
     }
 
     .btn-login:hover {
-      background: #fff;
-      transform: scale(1.05);
+      background: #c10e0e;
+      color: #fff;
     }
 
     .radar-box {
@@ -455,6 +466,7 @@
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
       z-index: 2000;
     }
 
@@ -464,15 +476,35 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background: #111;
+      background: #0d0d0d;
       padding: 40px;
       border: 2px solid var(--nfs-yellow);
       width: 320px;
       z-index: 2100;
       text-align: center;
+      border-radius: 12px;
     }
 
-    /* ПОЛИРОВКА СТИЛЯ: RESIDENT EVIL NOISE X ADAPTIVE CLAMP (В ДВИЖЕНИИ) */
+    /* Поля ввода внутри модалок (саппорт и логин) */
+    .modal input[type="text"], .modal input[type="email"], .modal input[type="password"], .modal textarea {
+      width: 100%;
+      background: #141414;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 0.9rem;
+      font-family: 'Arial', sans-serif !important;
+    }
+
+    .modal input:focus, .modal textarea:focus {
+      border-color: var(--nfs-yellow);
+      outline: none;
+    }
+
+    /* ПОЛИРОВКА СТИЛЯ: RESIDENT EVIL NOISE X ADAPTIVE CLAMP */
     .cover-noise {
       position: fixed;
       top: -50%;
@@ -691,7 +723,6 @@
     <a href="forum.html" class="nav-item" data-i18n="nav_forum">FORUM</a>
     <a href="chats.html" class="nav-item"><span data-i18n="nav_messenger">MESSENGER</span><span
       id="msgBadge">0</span></a>
-    <a href="lobby.html" class="nav-item" data-i18n="nav_lobby">SEARCH THE GAME</a>
     <a href="leaderboard.html" class="nav-item" data-i18n="nav_leaderboard">LEADERBOARD</a>
     <a href="profile.html" class="nav-item" data-i18n="nav_profile">MY PROFILE</a>
   </nav>
@@ -764,8 +795,11 @@
 </div>
 
 <footer class="bottom-bar">
-  <div>ONLINE: <span class="highlight" id="footerOnline">0</span> | IN THE RACE: <span class="highlight"
-                                                                                       id="footerPlaying">0</span></div>
+  <div>
+    ONLINE: <span class="highlight" id="footerOnline">0</span> |
+    IN THE RACE: <span class="highlight" id="footerPlaying">0</span> |
+    <span class="support-link" onclick="openSupportModal()">Support<span id="supportAlertBadge"></span></span>
+  </div>
 </footer>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
@@ -778,6 +812,53 @@
     Don't have an account yet? <a href="auth.html"
                                   style="color: var(--nfs-yellow); text-decoration: none; font-weight: bold; text-transform: uppercase;">Register
     Here</a>
+  </div>
+</div>
+
+<div class="modal-overlay" id="supportModalOverlay" onclick="closeSupportModal()"></div>
+<div class="modal" id="supportModal" style="width: 450px; padding: 25px;">
+  <h2 style="color: var(--nfs-yellow); text-transform: uppercase; font-style: italic; margin-top: 0;">Contact
+    Support</h2>
+
+  <div id="supportReplyContainer"
+       style="display:none; background: rgba(241, 196, 15, 0.05); border: 1px solid rgba(241, 196, 15, 0.2); border-left: 4px solid var(--nfs-yellow); padding: 15px; margin-bottom: 20px; text-align: left; border-radius: 4px; max-height: 200px; overflow-y: auto;">
+    <div style="font-size: 0.75rem; color: #555; text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">
+      Ticket Subject:
+    </div>
+    <div id="supportUserSubject"
+         style="color: var(--nfs-yellow); font-weight: bold; font-size: 0.95rem; text-transform: uppercase; font-style: italic; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;"></div>
+
+    <div style="font-size: 0.75rem; color: #888; text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">Your
+      Message:
+    </div>
+    <p id="supportUserDescriptionText"
+       style="margin: 0 0 12px 0; color: #ccc; font-size: 0.9rem; font-family: 'Arial', sans-serif !important; line-height: 1.4; white-space: pre-line;"></p>
+
+    <div id="adminResponseLabel"
+         style="font-size: 0.75rem; color: var(--nfs-yellow); text-transform: uppercase; font-weight: bold; margin-bottom: 4px;">
+      Support Response:
+    </div>
+    <p id="supportReplyText"
+       style="margin: 0; color: #eee; font-size: 0.9rem; font-family: 'Arial', sans-serif !important; line-height: 1.4; white-space: pre-line;"></p>
+
+    <div id="closeTicketSection"
+         style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); text-align: right;">
+      <span onclick="closeAndArchieveTicket()"
+            style="color: #888; font-size: 0.75rem; text-decoration: underline; cursor: pointer; text-transform: uppercase; font-weight: bold; transition: color 0.2s;"
+            onmouseover="this.style.color='#ff4444'" onmouseout="this.style.color='#888'">
+        ✖ Close Ticket & Create New
+      </span>
+    </div>
+  </div>
+
+  <div id="supportFormFields">
+    <input type="text" id="supportSubject" placeholder="PROBLEM SUBJECT (e.g. Profile Error)">
+    <textarea id="supportDescription" rows="2" placeholder="Describe your issue in detail here..."
+              style="font-family: 'Arial', sans-serif !important; resize: none;"></textarea>
+    <button class="btn-login nfs-font" id="supportSubmitBtn"
+            style="width: 100%; margin-top: 15px; border-radius: 8px; padding: 10px;" onclick="submitSupportTicket()">
+      SEND TICKET
+    </button>
   </div>
 </div>
 
@@ -860,7 +941,9 @@
         updateGlobalMsgBadge(_supabase, myProfile.id);
         updateFriendNotifications();
         loadSidebarFriends();
+        checkAdminReplies();
 
+        // Чат реального времени
         _supabase.channel('index-realtime')
           .on('postgres_changes', {
             event: 'INSERT',
@@ -871,6 +954,22 @@
             updateGlobalMsgBadge(_supabase, myProfile.id);
             if (typeof playNotificationSound === 'function') playNotificationSound();
             if (typeof nfsNotify === 'function') nfsNotify('YOU GOT A NEW MESSAGE!', 'info');
+          })
+          .subscribe();
+
+        // Саппорт реального времени
+        _supabase.channel('support-realtime')
+          .on('postgres_changes', {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'support_tickets',
+            filter: `user_id=eq.${myProfile.id}`
+          }, (payload) => {
+            checkAdminReplies();
+            if (payload.new.status === 'resolved' && !payload.new.is_read) {
+              if (typeof playNotificationSound === 'function') playNotificationSound();
+              if (typeof nfsNotify === 'function') nfsNotify('NEW RESPONSE FROM SUPPORT!', 'info');
+            }
           })
           .subscribe();
       }
@@ -1064,6 +1163,223 @@
     const password = document.getElementById('passInput').value.trim();
     const {error} = await _supabase.auth.signInWithPassword({email, password});
     if (error) alert(error.message); else location.reload();
+  }
+
+  // ID открытого тикета для диалогов
+  let currentActiveTicketId = null;
+
+  async function openSupportModal() {
+    document.getElementById('supportModalOverlay').style.display = 'block';
+    document.getElementById('supportModal').style.display = 'block';
+
+    if (myProfile) {
+      await _supabase
+        .from('support_tickets')
+        .update({is_read: true})
+        .eq('user_id', myProfile.id)
+        .eq('status', 'resolved');
+
+      document.getElementById('supportAlertBadge').innerText = '';
+    }
+  }
+
+  function closeSupportModal() {
+    document.getElementById('supportModalOverlay').style.display = 'none';
+    document.getElementById('supportModal').style.display = 'none';
+  }
+
+  async function submitSupportTicket() {
+    if (!myProfile) {
+      Swal.fire({
+        title: 'ERROR',
+        text: 'You must be logged in to contact support.',
+        icon: 'error',
+        background: '#111',
+        color: '#fff',
+        confirmButtonColor: '#f1c40f'
+      });
+      return;
+    }
+
+    const description = document.getElementById('supportDescription').value.trim();
+    if (!description) {
+      Swal.fire({
+        title: 'WARNING',
+        text: 'Please enter your message.',
+        icon: 'warning',
+        background: '#111',
+        color: '#fff',
+        confirmButtonColor: '#f1c40f'
+      });
+      return;
+    }
+
+    // РЕЖИМ ОТВЕТА (Если тикет уже существует, обновляем его ветку)
+    if (currentActiveTicketId) {
+      const currentDesc = document.getElementById('supportUserDescriptionText').innerText;
+      const updatedDescription = `${currentDesc}\n\n👉 You (Reply):\n${description}`;
+
+      const {error} = await _supabase
+        .from('support_tickets')
+        .update({
+          description: updatedDescription,
+          status: 'pending',
+          is_read: false
+        })
+        .eq('id', currentActiveTicketId);
+
+      if (error) {
+        Swal.fire({
+          title: 'ERROR',
+          text: 'Failed to send reply.',
+          icon: 'error',
+          background: '#111',
+          color: '#fff',
+          confirmButtonColor: '#f1c40f'
+        });
+      } else {
+        document.getElementById('supportDescription').value = '';
+        closeSupportModal();
+        Swal.fire({
+          title: 'SUCCESS',
+          text: 'Your reply has been sent to support!',
+          icon: 'success',
+          background: '#111',
+          color: '#fff',
+          confirmButtonColor: '#f1c40f'
+        });
+        checkAdminReplies();
+      }
+    }
+    // РЕЖИМ СОЗДАНИЯ НОВОГО ТИКЕТА
+    else {
+      const subject = document.getElementById('supportSubject').value.trim();
+      if (!subject) {
+        Swal.fire({
+          title: 'WARNING',
+          text: 'Please enter a subject.',
+          icon: 'warning',
+          background: '#111',
+          color: '#fff',
+          confirmButtonColor: '#f1c40f'
+        });
+        return;
+      }
+
+      const {error} = await _supabase.from('support_tickets').insert([{
+        user_id: myProfile.id,
+        username: myProfile.username,
+        subject: subject,
+        description: `👉 You:\n${description}`
+      }]);
+
+      if (error) {
+        Swal.fire({
+          title: 'ERROR',
+          text: 'Failed to send ticket.',
+          icon: 'error',
+          background: '#111',
+          color: '#fff',
+          confirmButtonColor: '#f1c40f'
+        });
+      } else {
+        document.getElementById('supportSubject').value = '';
+        document.getElementById('supportDescription').value = '';
+        closeSupportModal();
+        Swal.fire({
+          title: 'SUCCESS',
+          text: 'Your ticket has been sent to the admin!',
+          icon: 'success',
+          background: '#111',
+          color: '#fff',
+          confirmButtonColor: '#f1c40f'
+        });
+        checkAdminReplies();
+      }
+    }
+  }
+
+  // Функция закрытия текущего тикета
+  async function closeAndArchieveTicket() {
+    if (!currentActiveTicketId) return;
+
+    const {error} = await _supabase
+      .from('support_tickets')
+      .update({status: 'closed'})
+      .eq('id', currentActiveTicketId);
+
+    if (error) {
+      Swal.fire({
+        title: 'ERROR',
+        text: 'Failed to close ticket.',
+        icon: 'error',
+        background: '#111',
+        color: '#fff',
+        confirmButtonColor: '#f1c40f'
+      });
+    } else {
+      Swal.fire({
+        title: 'CLOSED',
+        text: 'Ticket closed! Now you can create a new one.',
+        icon: 'success',
+        background: '#111',
+        color: '#fff',
+        confirmButtonColor: '#f1c40f'
+      });
+      document.getElementById('supportSubject').value = '';
+      document.getElementById('supportDescription').value = '';
+      await checkAdminReplies();
+    }
+  }
+
+  // Единая, чистая функция проверки состояния саппорта
+  async function checkAdminReplies() {
+    if (!myProfile) return;
+
+    const {data: tickets} = await _supabase
+      .from('support_tickets')
+      .select('*')
+      .eq('user_id', myProfile.id)
+      .neq('status', 'closed')
+      .order('created_at', {ascending: false});
+
+    if (tickets && tickets.length > 0) {
+      const latestTicket = tickets[0];
+      currentActiveTicketId = latestTicket.id;
+
+      if (latestTicket.status === 'resolved' && !latestTicket.is_read) {
+        document.getElementById('supportAlertBadge').innerHTML = ' <span style="color: #ff4444; font-weight: 900;">(1)</span>';
+      } else {
+        document.getElementById('supportAlertBadge').innerText = '';
+      }
+
+      document.getElementById('supportUserSubject').innerText = latestTicket.subject || 'No Subject';
+      document.getElementById('supportUserDescriptionText').innerText = latestTicket.description;
+
+      document.getElementById('supportSubject').style.display = 'none';
+      document.getElementById('supportDescription').placeholder = "Type your reply to support here...";
+      document.getElementById('supportSubmitBtn').innerText = "SEND REPLY";
+
+      if (latestTicket.admin_reply) {
+        document.getElementById('supportReplyText').innerText = latestTicket.admin_reply;
+        document.getElementById('adminResponseLabel').style.display = 'block';
+        document.getElementById('supportReplyText').style.display = 'block';
+        document.getElementById('closeTicketSection').style.display = 'block';
+      } else {
+        document.getElementById('adminResponseLabel').style.display = 'none';
+        document.getElementById('supportReplyText').style.display = 'none';
+        document.getElementById('closeTicketSection').style.display = 'none';
+      }
+
+      document.getElementById('supportReplyContainer').style.display = 'block';
+    } else {
+      currentActiveTicketId = null;
+      document.getElementById('supportAlertBadge').innerText = '';
+      document.getElementById('supportSubject').style.display = 'block';
+      document.getElementById('supportDescription').placeholder = "Describe your issue in detail here...";
+      document.getElementById('supportSubmitBtn').innerText = "SEND TICKET";
+      document.getElementById('supportReplyContainer').style.display = 'none';
+    }
   }
 
   window.loadSidebarFriends = loadSidebarFriends;
