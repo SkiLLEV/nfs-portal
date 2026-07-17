@@ -165,7 +165,95 @@ async function initGlobalStatus(supabase, profile) {
       .subscribe();
   }
 
-  // --- STEP 3: VISIBILITY/OFFLINE MANAGEMENT (Исправлено!) ---
+  // --- STEP 2.6: ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК ОБЪЯВЛЕНИЙ АДМИНИСТРАЦИИ (ВЕРХНИЙ БАННЕР В РЕАЛЬНОМ ВРЕМЕНИ) ---
+  supabase.channel('global-announcements')
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'forum_topics'
+    }, async (payload) => {
+      const newTopic = payload.new;
+
+      // Проверяем: если автором топика является администратор "Davenport"
+      if (newTopic.author_name === 'Davenport') {
+
+        // Удаляем предыдущий баннер, если он уже висит на экране, чтобы избежать дублирования
+        const oldBanner = document.getElementById('nfsGlobalTopBanner');
+        if (oldBanner) oldBanner.remove();
+
+        // Создаем новый элемент верхнего баннера
+        const banner = document.createElement('div');
+        banner.id = 'nfsGlobalTopBanner';
+        banner.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          background: linear-gradient(180deg, #111113 0%, #050506 100%);
+          border-bottom: 2px solid var(--nfs-yellow, #f1c40f);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+          color: #fff;
+          z-index: 99999; /* Очень высокий z-index, чтобы баннер перекрывал навигационную панель */
+          padding: 10px 20px;
+          box-sizing: border-box;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-family: 'Courier New', Courier, monospace;
+          font-size: 0.9rem;
+          animation: slideDownNfsBanner 0.4s ease-out forwards;
+        `;
+
+        // Внутренняя разметка баннера с мигающей красной точкой и "NEWS:"
+        banner.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 15px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding-right: 20px;">
+          <div style="position: relative; width: 10px; height: 10px; flex-shrink: 0; display: inline-block;">
+            <span class="nfs-live-dot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #ff3333; border-radius: 50%; will-change: opacity; animation: nfsPulseRed 0.8s infinite alternate; z-index: 2;"></span>
+            <span class="nfs-live-dot" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #ff3333; border-radius: 50%; filter: blur(4px); will-change: opacity; animation: nfsPulseRed 0.8s infinite alternate; z-index: 1;"></span>
+          </div>
+
+          <span class="nfs-font" style="color: var(--nfs-yellow, #f1c40f); font-weight: bold; letter-spacing: 1px; flex-shrink: 0;">
+            NEWS:
+          </span>
+          <span style="font-weight: bold; color: #fff;">${newTopic.title}</span>
+          <span style="color: #aaa; text-overflow: ellipsis; overflow: hidden;">— ${newTopic.content.substring(0, 100)}${newTopic.content.length > 100 ? '...' : ''}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 15px; flex-shrink: 0;">
+          <a href="topic.html?id=${newTopic.id}" class="nfs-font" style="color: var(--nfs-yellow, #f1c40f); text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--nfs-yellow, #f1c40f); padding: 4px 10px; transition: 0.2s;" onmouseover="this.style.background='var(--nfs-yellow, #f1c40f)'; this.style.color='#000';" onmouseout="this.style.background='transparent'; this.style.color='var(--nfs-yellow, #f1c40f)';">
+            OPEN
+          </a>
+          <span onclick="document.getElementById('nfsGlobalTopBanner').remove()" style="color: #ff4444; cursor: pointer; font-weight: bold; font-size: 1.1rem; padding: 0 5px;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#ff4444'">
+            ×
+          </span>
+        </div>
+      `;
+
+        // Динамически внедряем безопасные стили анимаций
+        if (!document.getElementById('nfsBannerAnimation')) {
+          const style = document.createElement('style');
+          style.id = 'nfsBannerAnimation';
+          style.innerHTML = `
+          @keyframes slideDownNfsBanner {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+          }
+          /* Чистая пульсация прозрачности — видеокарта физически не сможет нарисовать квадрат */
+          @keyframes nfsPulseRed {
+            from { opacity: 0.2; }
+            to { opacity: 1; }
+          }
+          body { transition: padding-top 0.4s ease-out; }
+        `;
+          document.head.appendChild(style);
+        }
+
+        // Рендерим баннер на странице
+        document.body.appendChild(banner);
+      }
+    })
+    .subscribe();
+
+  // --- STEP 3: VISIBILITY/OFFLINE MANAGEMENT ---
   if (profile) {
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
@@ -183,7 +271,7 @@ async function initGlobalStatus(supabase, profile) {
   }
 
   /**
-   * 5. STEAM OVERLAY LOOKALIKE FRIENDS WIDGET
+   * 5. STEAM OVERLIKE FRIENDS WIDGET
    */
   function injectSteamFriendsWidget(supabaseClient, myProfile) {
     if (!supabaseClient || !myProfile) return;
@@ -207,8 +295,6 @@ async function initGlobalStatus(supabase, profile) {
         z-index: 2001;
         box-shadow: 0 0 10px rgba(0,0,0,0.5);
         transition: 0.2s;
-
-        /* ВЫРАВНИВАНИЕ ИКОНКИ И ТЕКСТА ПО СКЕТЧУ */
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -296,12 +382,17 @@ async function initGlobalStatus(supabase, profile) {
       .steam-text-ingame { color: #90ba3c; }
       .steam-text-offline { color: #8f98a0; }
       .steam-friend-status-text { font-size: 0.7rem; }
+
+      .crt-alert-border {
+        border: 3px solid #1f2833 !important;
+        box-shadow: 0 0 25px rgba(102, 252, 241, 0.35) !important;
+        border-radius: 0px !important;
+      }
     `;
     document.head.appendChild(style);
 
     const btn = document.createElement('button');
     btn.className = 'steam-friends-toggle-btn';
-    // Добавляем иконку силуэта перед текстом по наброску
     btn.innerHTML = `
       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="display: inline-block;">
         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
