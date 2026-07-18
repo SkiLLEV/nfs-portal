@@ -427,7 +427,12 @@
       if (editBtn) editBtn.classList.add('hidden');
       if (statusSelect) statusSelect.classList.add('hidden');
       if (addCarBtn) addCarBtn.classList.add('hidden');
-      if (msgBtn) msgBtn.classList.remove('hidden');
+
+      if (msgBtn) {
+        msgBtn.classList.remove('hidden');
+        msgBtn.onclick = () => goToChat(data.username);
+      }
+
       if (friendBtn) friendBtn.classList.remove('hidden');
     }
 
@@ -682,6 +687,12 @@
     }
     await _supabase.auth.signOut();
     window.location.href = 'auth.html';
+  }
+
+  function goToChat(username) {
+    if (!username) return;
+    // Перенаправляем в мессенджер и передаем GET-параметр с никнеймом
+    window.location.href = `chats.html?to=${username}`;
   }
 
   // ==========================================================================
