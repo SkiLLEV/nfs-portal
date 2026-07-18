@@ -497,15 +497,18 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   border: 2px solid #000;
 }
 
+#msgBtn, #friendBtn {
+  transition: all 0.3s ease-in-out !important;
+}
+
 #msgBtn {
   border: 2px solid #d1a80a;
 }
 
 #msgBtn:hover {
-  background-color: #c10e0e;
-  color: #ffffff;
-  transition: 0.3s;
-  border-color: white;
+  background-color: #c10e0e !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
 }
 
 #friendBtn:hover {
