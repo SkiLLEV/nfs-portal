@@ -499,6 +499,7 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 
 #msgBtn, #friendBtn {
   transition: all 0.3s ease-in-out !important;
+  border-radius: 6px !important;
 }
 
 #msgBtn {
