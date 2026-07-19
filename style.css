@@ -497,28 +497,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   border: 2px solid #000;
 }
 
-#msgBtn, #friendBtn {
-  transition: all 0.3s ease-in-out !important;
-  border-radius: 6px !important;
-}
-
-#msgBtn {
-  border: 2px solid #d1a80a;
-}
-
-#msgBtn:hover {
-  background-color: #c10e0e !important;
-  color: #ffffff !important;
-  border-color: #ffffff !important;
-}
-
-#friendBtn:hover {
-  background-color: #ff3333 !important;
-  color: #ffffff !important;
-  border-color: #ffffff !important;
-  cursor: pointer;
-}
-
 /* ==========================================================================
    5. Стили Специфических Страниц
    ========================================================================== */
@@ -2209,4 +2187,33 @@ body.error-404-page .police-code {
   color: #555;
   font-family: monospace;
   letter-spacing: 1px;
+}
+
+#msgBtn, #friendBtn {
+  transition: all 0.3s ease-in-out !important;
+  border-radius: 6px !important;
+  display: inline-block !important;
+  width: auto !important;
+}
+
+#msgBtn {
+  border: 2px solid #d1a80a !important;
+}
+
+#friendBtn {
+  border: 2px solid #333 !important;
+}
+
+#msgBtn:hover {
+  background-color: #c10e0e !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  cursor: pointer !important;
+}
+
+#friendBtn:hover {
+  background-color: #ff3333 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  cursor: pointer !important;
 }
