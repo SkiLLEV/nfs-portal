@@ -2192,12 +2192,11 @@ body.error-404-page .police-code {
 #msgBtn, #friendBtn {
   transition: all 0.3s ease-in-out !important;
   border-radius: 6px !important;
-  display: inline-block !important;
   width: auto !important;
 }
 
 #msgBtn {
-  border: 2px solid #d1a80a !important;
+  border: 2px solid #333333 !important;
 }
 
 #friendBtn {
