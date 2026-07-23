@@ -94,8 +94,17 @@
         <option value="ONLINE">NOT LOOKING</option>
         <option value="LOOKING FOR GAME">LOOKING FOR GAME</option>
       </select>
-      <button id="msgBtn" class="btn-nfs nfs-font hidden"  style="border-radius: 6px" onclick="goToChat()">✉ TO WRITE</button>
-      <button id="friendBtn" style="border-radius: 6px" class="btn-nfs nfs-font hidden">ADD TO FRIENDS</button>
+
+      <!-- Блок кнопок действий под аватаркой с фиксированной шириной -->
+      <div class="profile-action-buttons"
+           style="display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 200px; margin-top: 10px;">
+        <button id="msgBtn" class="btn-nfs nfs-font hidden"
+                style="border-radius: 6px; width: 100%; box-sizing: border-box;" onclick="goToChat()">✉ TO WRITE
+        </button>
+        <button id="friendBtn" class="btn-nfs nfs-font hidden"
+                style="border-radius: 6px; width: 100%; box-sizing: border-box;">ADD TO FRIENDS
+        </button>
+      </div>
     </div>
 
     <div class="info-area">
@@ -212,13 +221,6 @@
 
   if (typeof onlineUsers === 'undefined') window.onlineUsers = {};
 
-  const AVATAR_OPTIONS = [
-    'https://cs9.pikabu.ru/post_img/2017/02/16/9/1487255861137287071.png',
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSEveKMVakzm3H74-BgFH8JGuoTkavsfgIAaw&s',
-    'https://static.wikia.nocookie.net/needforspeed/images/e/ee/TazProfileIcon.png/revision/latest/scale-to-width-down/220?cb=20160105211008&path-prefix=ru',
-    'https://static.wikia.nocookie.net/nfs/images/6/6f/Sonny.png/revision/latest/smart/width/250/height/250?cb=20150519180637&path-prefix=es'
-  ];
-
   function formatLastSeen(dateString) {
     if (!dateString) return "Long ago";
     const now = new Date();
@@ -259,9 +261,8 @@
       if (typeof initGlobalStatus === 'function') initGlobalStatus(_supabase, me);
       if (typeof updateGlobalMsgBadge === 'function') updateGlobalMsgBadge(_supabase, me.id);
 
-      checkAdminReplies(); // Проверка обращений в саппорт при загрузке
+      checkAdminReplies();
 
-      // Подписка на обновление ответов поддержки в реальном времени
       _supabase.channel('support-realtime')
         .on('postgres_changes', {
           event: 'UPDATE',
@@ -285,15 +286,19 @@
       const {data} = await _supabase.from('profiles').select('*').ilike('username', targetName).maybeSingle();
       if (data) {
         window.profileData = data;
-        setupProfileRealtimeListener();
+        if (typeof setupProfileRealtimeListener === 'function') setupProfileRealtimeListener();
         renderFullProfile(data, data.id === window.currentUserId);
-        updateRacerRank(data.id);
-        if (data.id !== window.currentUserId) checkFriendshipStatus(data.id);
+        if (typeof updateRacerRank === 'function') updateRacerRank(data.id);
+
+        // Запускаем проверку кнопок для любого профиля (своей функции хватит ума их скрыть, если это свой ID)
+        checkFriendshipStatus(data.id);
       } else {
-        loadMyOwnProfile(user.id);
+        await loadMyOwnProfile(user.id);
+        checkFriendshipStatus(user.id);
       }
     } else {
-      loadMyOwnProfile(user.id);
+      await loadMyOwnProfile(user.id);
+      checkFriendshipStatus(user.id);
     }
   };
 
@@ -413,29 +418,40 @@
     const msgBtn = document.getElementById('msgBtn');
     const friendBtn = document.getElementById('friendBtn');
 
+    // Очищаем старые инлайновые display
+    [editBtn, statusSelect, addCarBtn, msgBtn, friendBtn].forEach(el => {
+      if (el) el.style.display = '';
+    });
+
     if (isMine) {
+      // СВОЙ ПРОФИЛЬ
       if (editBtn) editBtn.classList.remove('hidden');
+      if (addCarBtn) addCarBtn.classList.remove('hidden');
       if (statusSelect) {
         statusSelect.classList.remove('hidden');
         statusSelect.value = localStorage.getItem('driver_status') || data.status || 'ONLINE';
       }
-      if (addCarBtn) addCarBtn.classList.remove('hidden');
+
+      // Железно скрываем социальные кнопки
       if (msgBtn) msgBtn.classList.add('hidden');
       if (friendBtn) friendBtn.classList.add('hidden');
+
     } else {
+      // ЧУЖОЙ ПРОФИЛЬ
       if (editBtn) editBtn.classList.add('hidden');
-      if (statusSelect) statusSelect.classList.add('hidden');
       if (addCarBtn) addCarBtn.classList.add('hidden');
+      if (statusSelect) statusSelect.classList.add('hidden');
 
       if (msgBtn) {
         msgBtn.classList.remove('hidden');
         msgBtn.onclick = () => goToChat(data.username);
       }
-
-      if (friendBtn) friendBtn.classList.remove('hidden');
+      if (friendBtn) {
+        friendBtn.classList.remove('hidden');
+      }
     }
 
-    window.updateLiveStatusUI();
+    if (typeof window.updateLiveStatusUI === 'function') window.updateLiveStatusUI();
   }
 
   function renderGarage(photos) {
@@ -583,12 +599,34 @@
   }
 
   async function checkFriendshipStatus(targetUserId) {
-    const {data: request} = await _supabase.from('friend_requests').select('*').or(`and(sender_id.eq.${window.myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${window.myProfile.id})`).maybeSingle();
     const btn = document.getElementById('friendBtn');
+    const msgBtn = document.getElementById('msgBtn');
+
+    // ЕСЛИ ЭТО СВОЙ ПРОФИЛЬ — ЯВНО ПРЯЧЕМ КНОПКИ И ВЫХОДИМ
+    if (!window.myProfile || targetUserId === window.myProfile.id) {
+      if (btn) btn.classList.add('hidden');
+      if (msgBtn) msgBtn.classList.add('hidden');
+      return;
+    }
+
+    const {data: request} = await _supabase
+      .from('friend_requests')
+      .select('*')
+      .or(`and(sender_id.eq.${window.myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${window.myProfile.id})`)
+      .maybeSingle();
+
     if (!btn) return;
+
+    // Если это чужой профиль — показываем кнопки
     btn.classList.remove('hidden');
+    if (msgBtn) msgBtn.classList.remove('hidden');
+
     if (!request) {
       btn.innerText = "ADD TO FRIENDS";
+      btn.style.background = "";
+      btn.style.color = "";
+      btn.style.border = "";
+      btn.disabled = false;
       btn.onclick = () => sendFriendRequest(targetUserId);
     } else if (request.status === 'pending') {
       if (request.sender_id === window.myProfile.id) {
@@ -596,6 +634,7 @@
         btn.disabled = true;
       } else {
         btn.innerText = "ACCEPT THE REQUEST";
+        btn.disabled = false;
         btn.onclick = () => acceptFriendRequest(request.id);
       }
     } else if (request.status === 'accepted') {
@@ -603,6 +642,7 @@
       btn.style.background = "#e74c3c";
       btn.style.color = "#fff";
       btn.style.border = "2px solid #c0392b";
+      btn.disabled = false;
       btn.onclick = () => removeFriend(request.id);
     }
   }
@@ -690,7 +730,6 @@
 
   function goToChat(username) {
     if (!username) return;
-    // Перенаправляем в мессенджер и передаем GET-параметр с никнеймом
     window.location.href = `chats.html?to=${username}`;
   }
 
