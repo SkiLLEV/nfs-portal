@@ -97,7 +97,7 @@
 
   <div class="chat-window">
     <div class="chat-header">
-      <div>Чат: <strong id="chatWithTitle" style="color: var(--nfs-yellow);">GENERAL CHANNEL</strong></div>
+      <div>Chat: <strong id="chatWithTitle" style="color: var(--nfs-yellow);">GENERAL CHANNEL</strong></div>
       <div id="chatStatus" style="font-size: 0.7rem; color: #444;">PUBLIC SESSION</div>
     </div>
     <div class="messages-area" id="msgBox"></div>
@@ -256,17 +256,18 @@
         }
 
         container.innerHTML += `
-    <div id="chat-${id}" class="chat-item ${activeChatType === 'private' && activeIdStr === currentIdStr ? 'active' : ''}" onclick="switchChat('${id}', '${val.name}', 'private')">
-      <div class="avatar-wrapper">
-        <div class="chat-avatar">${val.avatar ? `<img src="${val.avatar}">` : val.name[0]}</div>
-        <div class="status-dot" style="background: ${dotColor}; ${presence ? 'box-shadow: 0 0 5px ' + dotColor : ''}"></div>
+  <div id="chat-${id}" class="chat-item ${activeChatType === 'private' && activeIdStr === currentIdStr ? 'active' : ''}" onclick="switchChat('${id}', '${val.name}', 'private')">
+    <div class="avatar-wrapper">
+      <div class="chat-avatar" style="border: 2px solid ${dotColor};">
+        ${val.avatar ? `<img src="${val.avatar}">` : val.name[0]}
       </div>
-      <div class="chat-item-info">
-        <div style="font-weight: bold; color: ${presence ? '#fff' : '#888'}">${val.name}</div>
-        <div class="chat-item-preview-text">${val.lastMsg.substring(0, 20)}${val.lastMsg.length > 20 ? '...' : ''}</div>
-      </div>
-      ${val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : ''}
-    </div>`;
+    </div>
+    <div class="chat-item-info">
+      <div style="font-weight: bold; color: ${presence ? '#fff' : '#888'}">${val.name}</div>
+      <div class="chat-item-preview-text">${val.lastMsg.substring(0, 20)}${val.lastMsg.length > 20 ? '...' : ''}</div>
+    </div>
+    ${val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : ''}
+  </div>`;
       });
     } catch (err) {
       console.error("Error of uploading DMs:", err);
@@ -278,7 +279,16 @@
     activeChatType = type;
     targetUserName = name;
 
-    document.getElementById('chatWithTitle').innerText = name;
+    const titleEl = document.getElementById('chatWithTitle');
+    if (titleEl) {
+      titleEl.innerHTML = `<span class="back-to-chats-btn" onclick="closeMobileChat(event)">&larr; </span>${name}`;
+    }
+
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer) {
+      appContainer.classList.add('mobile-chat-open');
+    }
+
     document.querySelectorAll('.chat-item').forEach(el => el.classList.remove('active'));
 
     if (type === 'private') {
@@ -303,6 +313,14 @@
 
     if (typeof updateGlobalMsgBadge === 'function') {
       updateGlobalMsgBadge(_supabase, myProfile.id);
+    }
+  }
+
+  function closeMobileChat(e) {
+    if (e) e.stopPropagation();
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer) {
+      appContainer.classList.remove('mobile-chat-open');
     }
   }
 
@@ -338,7 +356,7 @@
       <div class="msg-info">
         <div class="avatar-wrapper" onclick="window.location.href='profile.html?u=${sender}'">
           ${avatarHTML}
-          <div class="status-dot" style="background: ${color};"></div>
+          <span class="status-square" style="background: ${color};"></span>
         </div>
         <span class="racer-link ${userData.admin ? 'admin-glow' : ''}" onclick="window.location.href='profile.html?u=${sender}'">${sender}</span>
         ${userData.admin ? '<span class="badge-admin">ADM</span>' : ''} • ${time} ${adminTools}

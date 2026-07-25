@@ -266,7 +266,7 @@
 
       let statusText = "OFFLINE";
       let statusClass = "offline";
-      let dotColor = "#555";
+      let borderColor = "#444444"; // Серый цвет по умолчанию (для оффлайн)
 
       if (presence && presence[0]) {
         statusClass = 'online';
@@ -274,10 +274,10 @@
 
         if (pData.status === 'IN-GAME' || pData.status === 'LOOKING FOR GAME') {
           statusText = pData.status === 'LOOKING FOR GAME' ? 'LFG' : pData.status;
-          dotColor = 'var(--nfs-yellow)';
+          borderColor = 'var(--nfs-yellow)'; // Желтая рамка, если в игре / ищет игру
         } else {
           statusText = 'ONLINE';
-          dotColor = '#2ecc71';
+          borderColor = '#2ecc71'; // Зеленая рамка, если просто онлайн
         }
       }
 
@@ -297,9 +297,12 @@
         nameStyle = "color: #cd7f32; text-shadow: 0 0 10px #cd7f32;";
       }
 
+      // Цвет рамки подставляется динамически (зеленый / желтый / серый)
+      const avatarStyle = `border: 2px solid ${borderColor}; transition: border-color 0.3s;`;
+
       const avatarHTML = racer.avatar_url
-        ? `<img src="${racer.avatar_url}" class="racer-avatar" style="${rank <= 3 ? 'border-color: var(--nfs-yellow);' : ''}">`
-        : `<div class="racer-avatar" style="display:flex; align-items:center; justify-content:center; color:#555; font-weight:900; background:#111; border: 2px solid #444;">?</div>`;
+        ? `<img src="${racer.avatar_url}" class="racer-avatar" style="${avatarStyle}">`
+        : `<div class="racer-avatar" style="display:flex; align-items:center; justify-content:center; color:#555; font-weight:900; background:#111; ${avatarStyle}">?</div>`;
 
       const row = document.createElement('tr');
       row.className = 'blacklist-row';
@@ -313,19 +316,8 @@
           #${rank}
         </td>
         <td>
-           <div style="position: relative; display: inline-block;">
+           <div style="display: inline-block;">
               ${avatarHTML}
-              <div style="
-                width:10px;
-                height:10px;
-                border-radius:50%;
-                background: ${dotColor};
-                position: absolute;
-                bottom: 0;
-                right: 0;
-                border: 2px solid #000;
-                ${presence ? `box-shadow: 0 0 5px ${dotColor};` : ''}
-              "></div>
            </div>
         </td>
         <td>
@@ -337,7 +329,7 @@
           ${(racer.rating || 0).toLocaleString()}
         </td>
         <td>
-          <span class="racer-status ${statusClass}" style="border-color: ${dotColor}; color: ${dotColor}; transition: 0.3s;">
+          <span class="racer-status ${statusClass}" style="border-color: ${borderColor}; color: ${borderColor}; transition: 0.3s;">
             ${statusText}
           </span>
         </td>
