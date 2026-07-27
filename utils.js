@@ -11,22 +11,11 @@ function playNotificationSound() {
 }
 
 /**
- * 1. NFS Notifications
+ * NFS Notifications — полностью отключено
  */
 function nfsNotify(title, icon = 'success') {
-  if (typeof Swal === 'undefined') return;
-  Swal.fire({
-    title: title.toUpperCase(),
-    icon: icon,
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    background: '#0a0a0a',
-    color: '#cca609',
-    iconColor: '#cca609',
-    customClass: {popup: 'nfs-toast-border'}
-  });
+  // Функция вызвана, но ничего не отрисовывает
+  return;
 }
 
 function formatLastSeen(dateString) {
@@ -40,7 +29,7 @@ function formatLastSeen(dateString) {
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min. ago`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} h. ago`;
 
-  return lastSeen.toLocaleDateString('en-EN', {day: 'numeric', month: 'short'});
+  return lastSeen.toLocaleDateString('en-US', {day: 'numeric', month: 'short'});
 }
 
 /**
@@ -121,12 +110,17 @@ async function initGlobalStatus(supabase, profile) {
     });
   };
 
+  // ТУТ МОЖНО УБРАТЬ ВКЛАДКУ FRIENDS ДЛЯ КОНКРЕТНОЙ СТРАНИЦЫ
   if (profile) {
-    // Если в адресе страницы есть "topic.html", виджет просто не будет создаваться
-    if (!window.location.pathname.includes('topic.html')) {
+    // Виджет не будет создаваться на странице топиков и в чатах
+    const isChatPage = window.location.pathname.includes('chats.html');
+    const isTopicPage = window.location.pathname.includes('topic.html');
+
+    if (!isChatPage && !isTopicPage) {
       injectSteamFriendsWidget(supabase, profile);
     }
   }
+
   // --- STEP 2: SUBSCRIPTION & LAST SEEN UPDATES ---
   statusChannel.subscribe(async (status) => {
     if (status === 'SUBSCRIBED' && profile) {
@@ -468,7 +462,7 @@ async function initGlobalStatus(supabase, profile) {
         const liveStatus = pData.status || 'ONLINE';
         const avatarSrc = friend.avatar_url || 'https://via.placeholder.com/34';
 
-        if (liveStatus === 'IN GAME' || liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME' || pData.location === 'chats.html') {
+        if (liveStatus === 'IN-GAME' || liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME' || pData.location === 'chats.html') {
           playingCount++;
           dotColorClass = 'steam-text-ingame';
           borderClass = 'steam-border-ingame';
@@ -578,8 +572,9 @@ async function initGlobalStatus(supabase, profile) {
       if (error) {
         Swal.fire({icon: 'error', title: 'ERROR', text: error.message, background: '#0a0a0a', color: '#fff'});
       } else {
-        nfsNotify('Welcome back to Rockport!');
-        setTimeout(() => location.reload(), 1000);
+        // Закрываем модальное окно и сразу перезагружаем
+        Swal.close();
+        location.reload();
       }
     }
   }
