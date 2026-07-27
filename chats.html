@@ -172,13 +172,17 @@
   };
 
   function getStatusColor(username, statusFromDb) {
-    const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[username] : null;
-    if (!presence) return '#555';
+    if (typeof onlineUsers === 'undefined' || !onlineUsers || !onlineUsers[username]) {
+      return '#555555';
+    }
+
+    const presence = onlineUsers[username];
+    if (!presence || !presence[0]) return '#555555';
 
     const pData = presence[0];
     const liveStatus = pData.status || 'ONLINE';
 
-    if (liveStatus === 'LOOKING FOR GAME') return 'var(--nfs-yellow)';
+    if (liveStatus === 'LOOKING FOR GAME') return '#f1c40f';
 
     return '#2ecc71';
   }
@@ -243,28 +247,19 @@
         const activeIdStr = String(activeChatId);
         const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[val.name] : null;
 
-        let dotColor = '#555';
-        if (presence) {
-          const pData = presence[0];
-          const liveStatus = pData.status || 'ONLINE';
-
-          if (liveStatus === 'LOOKING FOR GAME') {
-            dotColor = 'var(--nfs-yellow)';
-          } else {
-            dotColor = '#2ecc71';
-          }
-        }
+        // Вычисляем цвет статуса (зелёный / жёлтый / серый)
+        const borderColor = getStatusColor(val.name, val.status);
 
         container.innerHTML += `
   <div id="chat-${id}" class="chat-item ${activeChatType === 'private' && activeIdStr === currentIdStr ? 'active' : ''}" onclick="switchChat('${id}', '${val.name}', 'private')">
     <div class="avatar-wrapper">
-      <div class="chat-avatar" style="border: 2px solid ${dotColor};">
-        ${val.avatar ? `<img src="${val.avatar}">` : val.name[0]}
+      <div class="chat-avatar" style="border-width: 2px; border-color: ${borderColor};">
+        ${val.avatar ? `<img src="${val.avatar}">` : (val.name ? val.name[0] : 'U')}
       </div>
     </div>
     <div class="chat-item-info">
-      <div style="font-weight: bold; color: ${presence ? '#fff' : '#888'}">${val.name}</div>
-      <div class="chat-item-preview-text">${val.lastMsg.substring(0, 20)}${val.lastMsg.length > 20 ? '...' : ''}</div>
+      <div style="font-weight: bold; color: ${presence ? '#ffffff' : '#888888'}">${val.name}</div>
+      <div class="chat-item-preview-text">${val.lastMsg ? val.lastMsg.substring(0, 20) : ''}${val.lastMsg && val.lastMsg.length > 20 ? '...' : ''}</div>
     </div>
     ${val.unreadCount > 0 ? `<div class="unread-badge">${val.unreadCount}</div>` : ''}
   </div>`;
