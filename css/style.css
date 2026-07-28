@@ -553,6 +553,28 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   animation: pulse-border 2s infinite;
 }
 
+.radar-box button,
+.radar-list button {
+  background: var(--nfs-yellow) !important;
+  color: #000000 !important;
+  border: none !important;
+  padding: 6px 14px !important;
+  font-weight: bold !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  border-radius: 3px !important;
+  font-family: 'Wallpoet', sans-serif !important;
+  transition: all 0.2s ease-in-out !important;
+  outline: none !important;
+}
+
+.radar-box button:hover,
+.radar-list button:hover {
+  background-color: #c10e0e !important;
+  color: #ffffff !important;
+}
+
 @keyframes pulse-border {
   0% {
     border-left: 3px solid #333;
@@ -629,11 +651,11 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 }
 
 .u-calendar td.u-today {
-  background: var(--nfs-yellow);
-  color: #000;
-  font-weight: bold;
-  border-radius: 2px;
-  box-shadow: 0 0 8px rgba(241, 196, 15, 0.6);
+  background: var(--nfs-yellow, #f1c40f) !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+  border-radius: 3px !important;
+  box-shadow: 0 0 12px rgba(241, 196, 15, 0.9), 0 0 4px rgba(251, 226, 110, 0.8) !important;
 }
 
 /* Блок поиска гонщика в радаре */
@@ -1170,45 +1192,73 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   color: #777;
 }
 
-.chat-input-area {
-  padding: 30px;
-  background: #0a0a0a;
-  display: flex;
-  gap: 15px;
-  border-top: 1px solid #222;
-}
-
-/* Специфичный стиль поля ввода в мессенджере с фиксом ширины */
-.chat-input-area input[type="text"] {
-  flex-grow: 1 !important;
-  width: auto !important;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  color: #fff;
-  padding: 12px;
-  outline: none;
+#chatInput,
+.chat-input-area input,
+.chat-window input[type="text"] {
+  background: #1a1a1a !important;
+  border: 1px solid #333333 !important;
+  color: #ffffff !important;
+  padding: 12px 16px !important;
+  outline: none !important;
   font-family: 'Arial', 'Helvetica', sans-serif !important;
-  font-size: 1rem;
+  font-size: 1rem !important;
+  border-radius: 4px !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
 }
 
-.chat-input-area input[type="text"]:focus {
-  border-color: var(--nfs-yellow);
+#chatInput::placeholder,
+.chat-input-area input::placeholder,
+.chat-window input[type="text"]::placeholder {
+  color: #777777 !important;
 }
 
-.send-btn {
-  background: var(--nfs-yellow);
-  border: none;
-  border-radius: 6px;
-  padding: 0 25px;
-  font-weight: bold;
-  cursor: pointer;
-  text-transform: uppercase;
+#chatInput:focus,
+.chat-input-area input:focus,
+.chat-window input[type="text"]:focus {
+  border-color: var(--nfs-yellow) !important;
+  background: #222222 !important;
 }
 
-.send-btn:hover {
-  color: white;
-  background-color: #c10e0e;
-  transition: 0.3s;
+/* 2. Контейнер, де лежать інпут і кнопка */
+.chat-input-area,
+.chat-window footer,
+.chat-footer {
+  display: flex !important;
+  align-items: center !important;
+  gap: 15px !important;
+  padding: 20px 30px !important;
+  background: #0a0a0a !important;
+  border-top: 1px solid #222222 !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+/* 3. Кнопка ENTER / SEND */
+.send-btn,
+.chat-input-area button,
+.chat-window button {
+  background: var(--nfs-yellow) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 12px 25px !important;
+  font-weight: bold !important;
+  font-family: 'Wallpoet', sans-serif !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  color: #000000 !important;
+  transition: background-color 0.2s ease, color 0.2s ease !important;
+  white-space: nowrap !important;
+}
+
+.send-btn:hover,
+.chat-input-area button:hover,
+.chat-window button:hover {
+  color: #ffffff !important;
+  background-color: #c10e0e !important;
 }
 
 .del-btn {
