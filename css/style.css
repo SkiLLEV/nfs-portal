@@ -1,0 +1,2376 @@
+/*! HTML5 Boilerplate v9.0.1 | MIT License | https://html5boilerplate.com/ */
+/* main.css 3.0.0 | MIT License | https://github.com/h5bp/main.css#readme */
+
+/* ==========================================================================
+   1. Базовые стили и Сброс (Opinionated Defaults)
+   ========================================================================== */
+html {
+  color: #222;
+  font-size: 1em;
+  line-height: 1.4;
+}
+
+::-moz-selection {
+  background: #b3d4fc;
+  text-shadow: none;
+}
+
+::selection {
+  background: #b3d4fc;
+  text-shadow: none;
+}
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
+}
+
+audio, canvas, iframe, img, svg, video {
+  vertical-align: middle;
+}
+
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ==========================================================================
+   2. Глобальные переменные и Корневые стили проекта
+   ========================================================================== */
+:root {
+  --nfs-yellow: #f1c40f;
+  --nfs-yellow-forum: #cca609;
+  --nfs-dark: rgba(15, 15, 15, 0.98);
+  --nfs-border: #333;
+  --admin-red: #e74c3c;
+  --nfs-bg: url('https://i.postimg.cc/MH55JwKB/3457975.png');
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #191919;
+  color: #fff;
+  font-family: 'Wallpoet', sans-serif !important;
+  overflow-x: hidden;
+}
+
+/* Специфические фоны для страниц (можно вешать как класс на body или оставить глобально) */
+body.main-page {
+  background: var(--nfs-bg) no-repeat center center fixed;
+  background-size: cover;
+}
+
+body.profile-page {
+  background: url('https://i.postimg.cc/bYg9Jzpp/3458089.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+body.forum-page {
+  background: url('https://i.postimg.cc/4dGrQJY1/nfs-most-wanted-2005.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+body.chats-page, body.topic-page, body.leaderboard-page {
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
+  padding-bottom: 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Утилитарные классы */
+.nfs-font {
+  font-family: 'Wallpoet', sans-serif !important;
+}
+
+.highlight {
+  color: var(--nfs-yellow) !important;
+  font-weight: bold;
+}
+
+.hidden, [hidden] {
+  display: none !important;
+}
+
+.racer-link {
+  color: var(--nfs-yellow);
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.racer-link:hover {
+  color: #ff0000;
+  text-decoration: underline;
+}
+
+.user-text-content {
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #cccccc;
+  letter-spacing: 0.5px;
+}
+
+/* ==========================================================================
+   3. Эффект шума Resident Evil (Resident Evil Noise)
+   ========================================================================== */
+.cover-noise {
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  right: -50%;
+  bottom: -50%;
+  width: 200%;
+  height: 200%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.038;
+  pointer-events: none;
+  z-index: 9999;
+  animation: reNoiseAnimation 0.15s steps(2) infinite;
+}
+
+@keyframes reNoiseAnimation {
+  0% {
+    transform: translate(0, 0);
+  }
+  10% {
+    transform: translate(-1%, -1%);
+  }
+  20% {
+    transform: translate(-2%, 1%);
+  }
+  30% {
+    transform: translate(1%, -2%);
+  }
+  40% {
+    transform: translate(-1%, 3%);
+  }
+  50% {
+    transform: translate(-2%, 1%);
+  }
+  60% {
+    transform: translate(1%, 2%);
+  }
+  70% {
+    transform: translate(2%, -2%);
+  }
+  80% {
+    transform: translate(-1%, -1%);
+  }
+  90% {
+    transform: translate(2%, 1%);
+  }
+  100% {
+    transform: translate(1%, -1%);
+  }
+}
+
+/* ==========================================================================
+   4. Общие компоненты: Шапка, Сайдбар, Футер и Модалки
+   ========================================================================== */
+/* Шапка */
+.top-navbar {
+  height: 70px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  box-sizing: border-box;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+  repeating-linear-gradient(-45deg, #0a0a0a, #0a0a0a 40px, rgba(241, 196, 15, 0.4) 40px, rgba(241, 196, 15, 0.4) 80px);
+  border-bottom: 2px solid #f1c40f;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
+}
+
+.chats-page .top-navbar {
+  height: 90px;
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 5px #000;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+#displayNick {
+  font-family: 'Wallpoet', sans-serif !important;
+  font-weight: bold;
+  cursor: pointer;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+#displayNick:hover {
+  text-decoration: underline;
+}
+
+/* Уведомления и Колокольчик */
+.notifications-wrapper {
+  position: relative;
+  margin-right: 20px;
+  display: flex;
+  align-items: center;
+}
+
+#notifyBell {
+  cursor: pointer;
+  position: relative;
+  font-size: 22px;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+#notifyBell:hover {
+  transform: scale(1.1);
+}
+
+#notifyCount {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  background: var(--admin-red);
+  color: white;
+  border-radius: 50%;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: bold;
+  border: 1px solid white;
+  display: none;
+}
+
+#notifyPopup {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 45px;
+  width: 280px;
+  background: #0a0a0a;
+  border: 2px solid #f1c40f;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  font-family: 'Wallpoet', sans-serif !important;
+}
+
+.notify-header {
+  padding: 10px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--nfs-yellow);
+  text-transform: uppercase;
+}
+
+.notify-item {
+  padding: 12px;
+  border-bottom: 1px solid #222;
+  font-family: 'Wallpoet', sans-serif !important;
+}
+
+.notify-btns {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.btn-acc, .btn-rej {
+  flex: 1;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-family: 'Wallpoet', sans-serif !important;
+}
+
+.btn-acc {
+  background: var(--nfs-yellow);
+}
+
+.btn-rej {
+  background: #333;
+  color: white;
+}
+
+/* Кнопки Авторизации и Выхода */
+.btn-login {
+  background: var(--nfs-yellow);
+  border: none;
+  padding: 10px 30px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: 0.2s;
+}
+
+.btn-login:hover {
+  background: #c10e0e;
+  color: #fff;
+}
+
+.btn-exit:hover {
+  background: rgba(255, 68, 68, 0.2) !important;
+  color: #ff6666 !important;
+  border: 1px solid #ff4444 !important;
+}
+
+/* Сайдбар */
+.sidebar, .main-sidebar {
+  width: 250px;
+  background: linear-gradient(to right, rgba(5, 5, 5, 0.98) 0%, rgba(12, 12, 12, 0.95) 60%, rgba(20, 20, 20, 0.85) 100%);
+  backdrop-filter: blur(4px);
+  height: auto;
+  position: fixed;
+  top: 70px;
+  left: 0;
+  border-right: 2px solid var(--nfs-border);
+  z-index: 999;
+}
+
+.main-sidebar {
+  padding-top: 20px;
+}
+
+.nav-item {
+  display: block;
+  padding: 20px 30px;
+  color: #bbb;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: 0.3s;
+  font-size: 0.85rem;
+  border-bottom: 1px solid #222;
+}
+
+.nav-item:hover, .nav-item.active {
+  color: #fff;
+  background: rgba(241, 196, 15, 0.1);
+}
+
+#msgBadge {
+  background: var(--nfs-yellow);
+  color: #000;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  border-radius: 2px;
+  margin-left: 8px;
+  box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
+  display: none;
+}
+
+/* Футер */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(10, 10, 10, 0.95) 50%, rgba(20, 20, 20, 0.9) 100%);
+  backdrop-filter: blur(4px);
+  padding: 15px 0;
+  border-top: 2px solid var(--nfs-yellow);
+  text-align: center;
+  font-size: 0.9rem;
+  z-index: 1000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.support-link {
+  color: var(--nfs-yellow) !important;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.support-link:hover {
+  color: #ff4444 !important;
+  text-decoration: underline;
+}
+
+/* Модальные окна */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #0d0d0d;
+  padding: 40px;
+  border: 2px solid var(--nfs-yellow);
+  width: 320px;
+  z-index: 2100;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.modal input[type="text"], .modal input[type="email"], .modal input[type="password"], .modal textarea {
+  width: 100%;
+  background: #141414;
+  border: 1px solid #333;
+  color: #fff;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+  font-family: 'Arial', sans-serif !important;
+}
+
+.modal input:focus, .modal textarea:focus {
+  border-color: var(--nfs-yellow);
+  outline: none;
+}
+
+/* Кастомизация SweetAlert2 */
+.swal2-popup, .swal2-title, .swal2-html-container, .swal2-confirm, .swal2-cancel {
+  font-family: 'Wallpoet', sans-serif !important;
+}
+
+.swal2-popup .swal2-confirm {
+  transition: all 0.2s ease-in-out !important;
+}
+
+.swal2-popup .swal2-confirm:hover {
+  background-color: #c10e0e !important;
+  color: #ffffff !important;
+}
+
+.swal2-popup .swal2-cancel:hover {
+  background-color: #333333 !important;
+  color: #ff4444 !important;
+}
+
+.nfs-swal-popup {
+  border: 2px solid var(--nfs-yellow) !important;
+}
+
+.badge {
+  font-size: 0.9rem;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-right: 8px;
+  font-weight: bold;
+  display: inline-block;
+}
+
+.badge-admin {
+  background: #ff4d4d;
+  color: white;
+  border: 2px solid #da0000;
+}
+
+.badge-vip {
+  background: var(--nfs-yellow);
+  color: black;
+  border: 2px solid #000;
+}
+
+/* ==========================================================================
+   5. Стили Специфических Страниц
+   ========================================================================== */
+
+/* --- СТРАНИЦА: MAIN --- */
+.main-content {
+  margin-left: 250px;
+  margin-right: 280px;
+  margin-top: 70px;
+  padding: 50px;
+  min-height: 100vh;
+}
+
+.content-box {
+  background: rgba(10, 10, 10, 0.92);
+  border: 1px solid #222;
+  padding: 40px;
+  max-width: 800px;
+  line-height: 1.8;
+}
+
+.content-box h1 {
+  font-family: 'Wallpoet', sans-serif !important;
+  font-size: clamp(1.5rem, 4vw, 2.2rem) !important;
+  line-height: 1.2;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.content-box p[data-i18n="welcome_desc"] {
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  font-size: clamp(1.05rem, 1vw + 0.5rem, 1.25rem) !important;
+  line-height: 1.7 !important;
+  letter-spacing: 0.8px !important;
+  color: #e0e0e0 !important;
+  font-weight: normal !important;
+}
+
+/* Радар на главной */
+.radar-box {
+  background: rgba(5, 5, 5, 0.95);
+  border: 1px solid #222;
+  padding: 20px;
+  margin-top: 30px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
+}
+
+.radar-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #1a1a1a;
+  animation: pulse-border 2s infinite;
+}
+
+.radar-box button,
+.radar-list button {
+  background: var(--nfs-yellow) !important;
+  color: #000000 !important;
+  border: none !important;
+  padding: 6px 14px !important;
+  font-weight: bold !important;
+  font-size: 0.75rem !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  border-radius: 3px !important;
+  font-family: 'Wallpoet', sans-serif !important;
+  transition: all 0.2s ease-in-out !important;
+  outline: none !important;
+}
+
+.radar-box button:hover,
+.radar-list button:hover {
+  background-color: #c10e0e !important;
+  color: #ffffff !important;
+}
+
+@keyframes pulse-border {
+  0% {
+    border-left: 3px solid #333;
+  }
+  50% {
+    border-left: 3px solid var(--nfs-yellow);
+  }
+  100% {
+    border-left: 3px solid #333;
+  }
+}
+
+.btn-race {
+  background: var(--nfs-yellow);
+  color: #000;
+  border: none;
+  padding: 5px 12px;
+  font-weight: bold;
+  font-size: 0.7rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  border-radius: 3px;
+}
+
+.btn-race:hover {
+  color: white;
+  background-color: #c10e0e;
+  transition: 0.2s;
+}
+
+/* Виджет календаря справа */
+.right-calendar-widget {
+  position: fixed;
+  top: 100px;
+  right: 40px;
+  z-index: 1001;
+  width: 220px;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 15px;
+  border: 1px solid #222;
+}
+
+.calendar-title {
+  font-size: 0.8rem;
+  color: var(--nfs-yellow);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #222;
+  padding-bottom: 6px;
+}
+
+.u-calendar {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.u-calendar th {
+  color: var(--nfs-yellow);
+  padding: 4px 0;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+
+.u-calendar td {
+  padding: 5px 0;
+  color: #e0e0e0;
+}
+
+.u-calendar td.u-today {
+  background: var(--nfs-yellow, #f1c40f) !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+  border-radius: 3px !important;
+  box-shadow: 0 0 12px rgba(241, 196, 15, 0.9), 0 0 4px rgba(251, 226, 110, 0.8) !important;
+}
+
+/* Блок поиска гонщика в радаре */
+.find-friend-box {
+  margin-top: 25px;
+  padding-top: 15px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.find-friend-title {
+  font-size: 0.85rem;
+  color: #888888;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: bold;
+  line-height: 1.3;
+}
+
+.radar-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.radar-search-wrapper .search-icon-inside {
+  position: absolute;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  color: #666666;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.friend-input {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid #333333;
+  color: #ffffff;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+.friend-input:focus {
+  border-color: var(--nfs-yellow, #f1c40f);
+  box-shadow: 0 0 10px rgba(241, 196, 15, 0.25);
+}
+
+.radar-search-wrapper:focus-within .search-icon-inside {
+  color: var(--nfs-yellow, #f1c40f);
+}
+
+.friend-input::placeholder {
+  color: #555555;
+}
+
+/* --- СТРАНИЦА: PROFILE --- */
+.container {
+  margin-left: 280px;
+  padding: 110px 40px 40px 40px;
+  box-sizing: border-box;
+}
+
+.profile-card {
+  background: rgba(0, 0, 0, 0.85);
+  padding: 40px;
+  display: grid;
+  grid-template-columns: 190px 1fr 240px;
+  gap: 40px;
+  align-items: flex-start;
+  margin-bottom: 50px;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.avatar-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 190px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Специфичный стиль для статус-селектора на странице профиля */
+.avatar-area #statusSelect {
+  width: 100% !important;
+  max-width: 190px !important;
+  box-sizing: border-box;
+  background: #111;
+  color: #fff;
+  border: 1px solid var(--nfs-yellow);
+  padding: 12px 18px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+  margin-top: 15px;
+  text-transform: uppercase;
+  font-family: 'Wallpoet', sans-serif !important;
+}
+
+.avatar-area .btn-nfs {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.avatar-container {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  box-sizing: border-box;
+  transition: transform 0.3s ease;
+}
+
+.frame-mw {
+  background: repeating-linear-gradient(-45deg, #ff8c00, #ff8c00 15px, #000 15px, #000 30px);
+  box-shadow: 0 0 20px rgba(255, 140, 0, 0.4);
+  border: 2px solid #000;
+}
+
+/* Стандартная большая аватарка (без рамки) */
+.avatar-big {
+  width: 180px;
+  height: 180px;
+  background: #111;
+  border: 3px solid var(--nfs-yellow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Аватарка, когда она находится внутри контейнера с кастомной рамкой */
+.avatar-container .avatar-big {
+  width: 100% !important;
+  height: 100% !important;
+  background: #000;
+  border: none !important;
+  z-index: 2;
+}
+
+.avatar-big img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-letter {
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--nfs-yellow);
+}
+
+.info-area {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.info-area h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.steam-location-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  color: #969696;
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  letter-spacing: 0.5px;
+}
+
+.status-badge {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  font-size: 1.1rem !important;
+  font-weight: bold !important;
+  text-transform: uppercase;
+  margin-top: 15px !important;
+}
+
+.status-online {
+  color: #57cbde !important;
+}
+
+.status-ingame {
+  color: #90ba3c !important;
+}
+
+.status-offline {
+  color: #8f98a0 !important;
+}
+
+#profBio {
+  color: #bbbbbb;
+  margin: 10px 0;
+  font-size: 1.05rem;
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  line-height: 1.6;
+  letter-spacing: 0.6px;
+}
+
+.right-stats-area {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.steam-level-box {
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid #333;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+.steam-level-text {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-block-custom {
+  text-align: left;
+  padding-left: 5px;
+}
+
+.stat-label-custom {
+  font-size: 0.8rem;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.btn-tuning {
+  background-color: #222222;
+  border: 2px solid var(--nfs-yellow);
+  color: var(--nfs-yellow);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.75rem;
+  transition: all 0.3s ease;
+  width: max-content !important;
+  min-width: 120px;
+  align-self: flex-start;
+}
+
+.btn-tuning:hover {
+  color: #fff;
+  border-color: white;
+  background-color: #c10e0e;
+}
+
+#addCarBtn {
+  position: static !important;
+  background-color: #222222 !important;
+  color: var(--nfs-yellow);
+  border: 2px solid var(--nfs-yellow);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#addCarBtn:hover {
+  color: #fff;
+  border-color: white !important;
+  background-color: #c10e0e !important;
+}
+
+.btn-nfs {
+  background: var(--nfs-yellow);
+  color: #000;
+  border: none;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  display: block;
+  width: 100%;
+}
+
+/* Гараж */
+.gallery-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  padding-left: 10px;
+  border-left: 4px solid var(--nfs-yellow);
+  text-transform: uppercase;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+  box-sizing: border-box;
+}
+
+.car-card {
+  background: #0a0a0a;
+  border: 1px solid #333;
+  padding: 5px;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  cursor: zoom-in;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.car-card:hover {
+  border-color: var(--nfs-yellow);
+  transform: scale(1.05) translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(241, 196, 15, 0.3);
+  z-index: 10;
+}
+
+.car-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  transition: 0.3s;
+}
+
+.car-card:hover img {
+  filter: brightness(1.1);
+}
+
+/* --- СТРАНИЦА: CHATS (MESSENGER) --- */
+.app-container {
+  display: flex;
+  height: calc(100vh - 90px);
+  margin-top: 90px;
+  margin-left: 250px;
+}
+
+.chat-list {
+  width: 320px;
+  background: rgba(10, 10, 10, 0.95);
+  border-right: 1px solid var(--nfs-border);
+  overflow-y: auto;
+}
+
+.chat-category {
+  padding: 20px 20px 10px;
+  font-size: 0.7rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.chat-item {
+  padding: 18px 20px;
+  border-bottom: 1px solid #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+  position: relative;
+}
+
+.chat-item:hover {
+  background: rgba(241, 196, 15, 0.05);
+}
+
+.chat-item.active {
+  border-left: 4px solid var(--nfs-yellow);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.unread-badge {
+  background: var(--nfs-yellow);
+  color: #000;
+  min-width: 18px;
+  height: 18px;
+  padding: 2px;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.avatar-wrapper {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.chat-avatar {
+  width: 50px;
+  height: 50px;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: var(--nfs-yellow);
+  border: 1px solid #333;
+  overflow: hidden;
+}
+
+.chat-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mini-avatar {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--nfs-yellow);
+  object-fit: cover;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--nfs-yellow);
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  z-index: 10;
+}
+
+.chat-window {
+  flex-grow: 1;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  padding: 15px 30px;
+  background: #0a0a0a;
+  border-bottom: 1px solid var(--nfs-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.messages-area {
+  flex-grow: 1;
+  padding: 45px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.msg {
+  max-width: 75%;
+  padding: 12px 24px;
+  border-radius: 6px;
+  position: relative;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.msg.incoming {
+  align-self: flex-start;
+  background: #1e1e1e;
+}
+
+.msg.outgoing {
+  align-self: flex-end;
+  background: #2a2a2a;
+}
+
+.msg-info {
+  font-size: 1.0rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  gap: 8px;
+}
+
+.msg-info .avatar-wrapper {
+  margin-right: 2px;
+}
+
+.msg-text {
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: #e5e5e0;
+  letter-spacing: 0.3px;
+}
+
+.chat-item-preview-text {
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  font-size: 0.8rem;
+  color: #777;
+}
+
+#chatInput,
+.chat-input-area input,
+.chat-window input[type="text"] {
+  background: #1a1a1a !important;
+  border: 1px solid #333333 !important;
+  color: #ffffff !important;
+  padding: 12px 16px !important;
+  outline: none !important;
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  font-size: 1rem !important;
+  border-radius: 4px !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+#chatInput::placeholder,
+.chat-input-area input::placeholder,
+.chat-window input[type="text"]::placeholder {
+  color: #777777 !important;
+}
+
+#chatInput:focus,
+.chat-input-area input:focus,
+.chat-window input[type="text"]:focus {
+  border-color: var(--nfs-yellow) !important;
+  background: #222222 !important;
+}
+
+/* 2. Контейнер, де лежать інпут і кнопка */
+.chat-input-area,
+.chat-window footer,
+.chat-footer {
+  display: flex !important;
+  align-items: center !important;
+  gap: 15px !important;
+  padding: 20px 30px !important;
+  background: #0a0a0a !important;
+  border-top: 1px solid #222222 !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+/* 3. Кнопка ENTER / SEND */
+.send-btn,
+.chat-input-area button,
+.chat-window button {
+  background: var(--nfs-yellow) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 12px 25px !important;
+  font-weight: bold !important;
+  font-family: 'Wallpoet', sans-serif !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  color: #000000 !important;
+  transition: background-color 0.2s ease, color 0.2s ease !important;
+  white-space: nowrap !important;
+}
+
+.send-btn:hover,
+.chat-input-area button:hover,
+.chat-window button:hover {
+  color: #ffffff !important;
+  background-color: #c10e0e !important;
+}
+
+.del-btn {
+  color: #666;
+  font-size: 0.7rem;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.del-btn:hover {
+  color: #ff4444;
+}
+
+#typingIndicator {
+  height: 20px;
+  font-size: 0.75rem;
+  color: var(--nfs-yellow);
+  font-style: italic;
+  padding: 0 25px;
+  margin-bottom: 5px;
+  opacity: 0.8;
+  transition: 0.3s;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.chat-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+  flex-grow: 1;
+  margin-left: 5px;
+}
+
+/* --- СТРАНИЦА: FORUM & TOPIC --- */
+.forum-page .container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 100px 40px 40px 40px;
+  box-sizing: border-box;
+}
+
+.topic-page .container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 40px 40px 40px;
+  box-sizing: border-box;
+}
+
+.create-topic-box {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid #333;
+  padding: 25px;
+  margin-bottom: 40px;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Стилизация полей ввода для создания темы и ответов */
+.create-topic-box input,
+.create-topic-box textarea,
+#replyBox textarea {
+  display: block !important;
+  width: 100% !important;
+  background: #111;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 12px;
+  margin-bottom: 5px;
+  box-sizing: border-box;
+  outline: none;
+  resize: none;
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  font-size: 1rem;
+  float: none;
+}
+
+.create-topic-box input:focus,
+.create-topic-box textarea:focus,
+#replyBox textarea:focus {
+  border-color: var(--nfs-yellow);
+}
+
+.btn-create {
+  background: var(--nfs-yellow-forum);
+  color: #000;
+  border: none;
+  padding: 12px 25px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.btn-create:hover {
+  color: #ffffff;
+  background-color: #c10e0e;
+  transition: 0.3s;
+}
+
+.topic-card {
+  background: rgba(15, 15, 15, 0.95);
+  padding: 25px;
+  margin-bottom: 20px;
+  transition: 0.3s;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.topic-title {
+  font-size: 1.8rem;
+  color: var(--nfs-yellow);
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 0px #000;
+}
+
+.topic-title:hover {
+  color: #ea0000;
+  text-decoration: underline;
+}
+
+.main-topic {
+  background: rgba(15, 15, 15, 0.95);
+  padding: 30px;
+  margin-bottom: 20px;
+  border: 1px solid #222;
+  box-sizing: border-box;
+}
+
+.main-topic p, .comment div {
+  white-space: pre-line;
+}
+
+.comment {
+  background: #111;
+  padding: 20px;
+  margin-bottom: 10px;
+  border: 1px solid #222;
+  box-sizing: border-box;
+}
+
+.user-text-content {
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #e0e0e0;
+  letter-spacing: 0.5px;
+}
+
+.comment-meta {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 10px;
+  font-family: 'Wallpoet', sans-serif;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.btn-forum-action {
+  background-color: #000000 !important;
+  border: none !important;
+  color: #f1c40f !important;
+  padding: 10px 20px !important;
+  border-radius: 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.75rem;
+  transition: all 0.2s ease-in-out !important;
+  display: inline-block;
+}
+
+.btn-forum-action:hover {
+  background-color: #c10e0e !important;
+  color: #ffffff !important;
+}
+
+.comment-date-clean {
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  font-size: 0.8rem !important;
+  color: #555 !important;
+  letter-spacing: 0.5px;
+  text-transform: none !important;
+}
+
+/* Кнопка отправки ответа во фрейме ответа */
+#replyBox .btn {
+  background: var(--nfs-yellow) !important;
+  border: none !important;
+  padding: 10px 25px !important;
+  font-weight: bold !important;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: 0.2s;
+  color: #000 !important;
+  display: inline-block !important;
+  border-radius: 6px !important;
+}
+
+#replyBox .btn:hover {
+  color: white !important;
+  background-color: #c10e0e !important;
+}
+
+.back-link {
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  color: #888;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: 0.2s;
+}
+
+.back-link:hover {
+  color: var(--nfs-yellow);
+}
+
+.racer-link {
+  color: var(--nfs-yellow);
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.racer-link:hover {
+  color: #ff0000;
+  text-decoration: underline;
+}
+
+/* АДАПТИВНОСТЬ ДЛЯ ФОРУМА И ТОПИКА */
+@media screen and (max-width: 768px) {
+  .forum-page .container,
+  .topic-page .container {
+    padding: 20px 15px 60px 15px !important;
+    width: 100% !important;
+  }
+
+  .back-link {
+    font-size: 0.9rem !important;
+    margin-bottom: 15px;
+  }
+
+  .main-topic {
+    padding: 15px !important;
+  }
+
+  .main-topic h1 {
+    font-size: 1.5rem !important;
+    line-height: 1.3;
+  }
+
+  .user-text-content {
+    font-size: 0.95rem !important;
+    line-height: 1.5;
+  }
+
+  #authorControls {
+    padding-left: 0 !important;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px !important;
+  }
+
+  #authorControls .btn-forum-action {
+    flex: 1;
+    text-align: center;
+    padding: 12px 5px !important;
+    font-size: 0.9rem;
+  }
+
+  .comment {
+    padding: 12px !important;
+  }
+
+  #replyBox .btn {
+    width: 100%;
+    padding: 12px !important;
+    text-align: center;
+  }
+}
+
+/* --- СТРАНИЦА: LEADERBOARD --- */
+.blacklist-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.85);
+  table-layout: fixed;
+}
+
+.blacklist-table th {
+  text-align: left;
+  padding: 12px 10px;
+  background: #111;
+  color: var(--nfs-yellow);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.blacklist-table td {
+  padding: 12px 10px;
+}
+
+.blacklist-row:hover {
+  background: rgba(241, 196, 15, 0.05);
+  cursor: pointer;
+}
+
+.rank-num {
+  font-size: 1.5rem;
+  font-weight: 900;
+  font-style: italic;
+  color: #444;
+  width: 50px;
+}
+
+.top-rank {
+  color: var(--nfs-yellow);
+  text-shadow: 0 0 10px var(--nfs-yellow);
+}
+
+.racer-avatar {
+  width: 45px;
+  height: 45px;
+  border: 2px solid #444;
+  object-fit: cover;
+  background: #111;
+  transition: 0.3s;
+}
+
+.racer-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.racer-status {
+  font-size: 0.85rem !important;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   6. Адаптивная вёрстка (Media Queries для экранов <= 768px)
+   ========================================================================== */
+@media screen and (max-width: 768px) {
+  /* Шапка сайта */
+  .top-navbar {
+    padding: 0 15px !important;
+    height: 65px !important;
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .top-navbar div[style*="font-size: 1.8rem"],
+  .top-navbar div[style*="font-size: 1.6rem"] {
+    font-size: 1.2rem !important;
+  }
+
+  #displayNick {
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Перенос сайдбара наверх */
+  .sidebar, .main-sidebar {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    margin-top: 70px !important;
+    padding-top: 0 !important;
+    border-right: none !important;
+    border-bottom: 2px solid var(--nfs-border) !important;
+    z-index: 999 !important;
+    display: block !important;
+  }
+
+  .sidebar nav, .main-sidebar nav {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: space-around !important;
+    padding: 5px 0 !important;
+  }
+
+  .nav-item {
+    flex: 1 1 30% !important;
+    min-width: 95px !important;
+    padding: 12px 5px !important;
+    font-size: 0.75rem !important;
+    text-align: center !important;
+    border-bottom: 1px solid #222 !important;
+    box-sizing: border-box !important;
+  }
+
+  .nav-item:hover, .nav-item.active {
+    border-left: none !important;
+    border-bottom: 3px solid var(--nfs-yellow) !important;
+  }
+
+  /* Главный контейнер контента */
+  .container, .main-content {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-top: 10px !important;
+    padding: 20px 15px 140px 15px !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+  }
+
+  .container {
+    padding-top: 20px !important;
+  }
+
+  .content-box {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .content-box h1, h1 {
+    font-size: 1.5rem !important;
+    margin-bottom: 20px;
+    display: block;
+    text-align: center;
+  }
+
+  /* Виджеты на мобилках */
+  .right-calendar-widget {
+    display: none !important;
+  }
+
+  .bottom-bar {
+    font-size: 0.75rem !important;
+    padding: 12px 0 !important;
+  }
+
+  .modal {
+    width: 85%;
+    padding: 25px 15px;
+  }
+
+  /* Профиль на мобилках */
+  .profile-card {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+    padding: 20px !important;
+    text-align: center !important;
+  }
+
+  .avatar-area {
+    width: 100% !important;
+    max-width: 190px !important;
+    margin: 0 auto;
+  }
+
+  .info-area {
+    align-items: center !important;
+  }
+
+  .steam-location-row {
+    justify-content: center !important;
+  }
+
+  .right-stats-area {
+    text-align: center !important;
+    align-items: center;
+  }
+
+  .steam-level-box {
+    text-align: center !important;
+    width: 50%;
+  }
+
+  .stat-block-custom {
+    text-align: center !important;
+  }
+
+  .gallery {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+
+  /* Чат на мобилках */
+  .app-container {
+    margin-left: 0 !important;
+    margin-top: 0 !important;
+    height: calc(100vh - 140px) !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .chat-list {
+    width: 100% !important;
+  }
+
+  .chat-window {
+    display: none !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 50 !important;
+    background: #050505 !important;
+  }
+
+  .app-container.open-chat .chat-list {
+    display: none !important;
+  }
+
+  .app-container.open-chat .chat-window {
+    display: flex !important;
+  }
+
+  .messages-area {
+    padding: 15px !important;
+  }
+
+  .msg {
+    max-width: 85% !important;
+    padding: 10px 18px !important;
+  }
+
+  .msg-text {
+    font-size: 1rem !important;
+  }
+
+  .msg-info {
+    font-size: 0.85rem !important;
+  }
+
+  .chat-input-area {
+    padding: 15px !important;
+    gap: 10px !important;
+  }
+
+  .send-btn {
+    padding: 0 15px !important;
+    font-size: 0.9rem !important;
+  }
+
+  /* Форум на мобилках */
+  .create-topic-box {
+    padding: 15px !important;
+    margin-bottom: 25px !important;
+  }
+
+  .btn-create {
+    width: 100%;
+    text-align: center;
+  }
+
+  .topic-card {
+    padding: 15px !important;
+    margin-bottom: 15px !important;
+  }
+
+  .topic-title {
+    font-size: 1.3rem !important;
+  }
+
+  #authorControls {
+    padding-left: 0 !important;
+    display: flex;
+    gap: 10px;
+  }
+
+  #authorControls .btn {
+    flex: 1;
+    padding: 12px 5px !important;
+  }
+
+  /* Лидерборд на мобилках */
+  .blacklist-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .blacklist-table th, .blacklist-table td {
+    padding: 10px 8px !important;
+    font-size: 0.85rem;
+  }
+
+  .rank-num {
+    font-size: 1.1rem !important;
+    width: 35px !important;
+  }
+
+  .rank-num.top-rank {
+    font-size: 1.4rem !important;
+  }
+
+  .racer-avatar {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  .racer-name {
+    font-size: 0.95rem !important;
+  }
+}
+
+@media print {
+  *, *::before, *::after {
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  a, a:visited {
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+  }
+
+  pre {
+    white-space: pre-wrap !important;
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+
+  tr, img {
+    page-break-inside: avoid;
+  }
+
+  p, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2, h3 {
+    page-break-after: avoid;
+  }
+}
+
+/* ==========================================
+   AUTH PAGE STYLES (LOGIN / REGISTRATION)
+   ========================================== */
+
+:root {
+  --nfs-yellow: #f1c40f;
+  --nfs-dark: #0a0a0a;
+  --nfs-border: #333;
+}
+
+body.auth-page {
+  background: url('https://i.postimg.cc/4NzNkdkR/Bez-nazvania.jpg') no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Wallpoet', sans-serif !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+}
+
+body.auth-page .bg-game-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 4px 4px 0px #000, 0 0 20px rgba(255, 255, 255, 0.1);
+  letter-spacing: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+  user-select: none;
+}
+
+body.auth-page .bg-game-subtitle {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--nfs-yellow);
+  text-shadow: 3px 3px 0px #000, 0 0 15px rgba(241, 196, 15, 0.3);
+  letter-spacing: 8px;
+  margin-top: 25px;
+  text-align: center;
+  user-select: none;
+}
+
+body.auth-page .auth-box {
+  background: rgba(0, 0, 0, 0.92);
+  border: 1px solid var(--nfs-border);
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
+  padding: 40px;
+  width: 420px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 10;
+}
+
+body.auth-page .auth-box h2 {
+  text-transform: uppercase;
+  font-style: italic;
+  border-bottom: 2px solid var(--nfs-border);
+  padding-bottom: 10px;
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: var(--nfs-yellow);
+  letter-spacing: 1px;
+}
+
+body.auth-page .auth-box input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  background: #1a1a1a;
+  border: 1px solid var(--nfs-border);
+  color: #fff;
+  box-sizing: border-box;
+  font-size: 0.9rem;
+  font-family: 'Arial', sans-serif !important;
+}
+
+body.auth-page .auth-box input:focus {
+  border-color: var(--nfs-yellow);
+  outline: none;
+}
+
+body.auth-page .auth-box .btn-primary {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: 0.2s;
+  font-family: inherit;
+  background: var(--nfs-yellow);
+  color: #000;
+  margin-top: 15px;
+  border-radius: 10px;
+}
+
+body.auth-page .auth-box .btn-primary:hover {
+  background: #c10e0e;
+  color: #ffffff;
+}
+
+body.auth-page .toggle-container {
+  text-align: center;
+}
+
+body.auth-page .auth-box .btn-secondary {
+  background: none;
+  color: #888;
+  font-size: 0.75rem;
+  margin-top: 20px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+body.auth-page .auth-box .btn-secondary:hover {
+  color: var(--nfs-yellow);
+  text-decoration: underline;
+}
+
+body.auth-page .error {
+  color: #ff4d4d;
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+  display: none;
+  font-weight: bold;
+  background: rgba(255, 77, 77, 0.1);
+  padding: 8px;
+  border-left: 3px solid #ff4d4d;
+  font-family: 'Arial', sans-serif !important;
+}
+
+/* MEDIA QUERIES */
+@media screen and (max-width: 480px) {
+  body.auth-page .auth-box {
+    width: 90% !important;
+    padding: 25px 20px !important;
+  }
+
+  body.auth-page .bg-game-title {
+    font-size: 2rem;
+  }
+
+  body.auth-page .bg-game-subtitle {
+    font-size: 1.6rem;
+  }
+}
+
+/* ==========================================
+   8. СТИЛИ СТРАНИЦЫ ОШИБКИ (404 PAGE)
+   ========================================== */
+body.error-404-page {
+  margin: 0;
+  padding: 0;
+  background: #0a0a0a;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+  url('https://images7.alphacoders.com/517/thumb-1920-517466.jpg');
+  background-size: cover;
+  background-position: center;
+  color: #fff;
+  font-family: 'Wallpoet', sans-serif !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* СКАНЕРНЫЕ ЛИНИИ (ЭФФЕКТ МОНИТОРА) */
+body.error-404-page::before {
+  content: " ";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+  linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+body.error-404-page .error-container {
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid #222;
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.8);
+  padding: 60px;
+  position: relative;
+  z-index: 10;
+  max-width: 500px;
+}
+
+body.error-404-page .glitch {
+  font-size: 5rem;
+  font-weight: 900;
+  margin: 0;
+  color: #f1c40f; /* Используем напрямую, так как переменная берется из :root */
+  text-transform: uppercase;
+  font-style: inherit;
+  position: relative;
+  animation: glitch 1s infinite;
+}
+
+@keyframes glitch {
+  0% {
+    transform: skew(0deg);
+  }
+  20% {
+    transform: skew(-2deg);
+    text-shadow: 2px 0 red;
+  }
+  40% {
+    transform: skew(2deg);
+    text-shadow: -2px 0 blue;
+  }
+  60% {
+    transform: skew(0deg);
+  }
+  100% {
+    transform: skew(0deg);
+  }
+}
+
+body.error-404-page h2 {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 10px 0 20px;
+  color: #ccc;
+}
+
+body.error-404-page p {
+  font-family: 'Arial', 'Helvetica', sans-serif !important;
+  font-size: 1.05rem;
+  color: #bbbbbb;
+  line-height: 1.6;
+  margin-bottom: 30px;
+  letter-spacing: 0.5px;
+}
+
+body.error-404-page .btn-back {
+  background: #f1c40f;
+  color: #000;
+  border: none;
+  padding: 15px 40px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 6px;
+  transition: 0.3s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+body.error-404-page .btn-back:hover {
+  color: #ffffff;
+  background-color: #c10e0e;
+}
+
+body.error-404-page .police-code {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 0.7rem;
+  color: #555;
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+
+#msgBtn, #friendBtn {
+  transition: all 0.3s ease-in-out !important;
+  border-radius: 6px !important;
+  width: auto !important;
+}
+
+#msgBtn {
+  border: 2px solid #333333 !important;
+}
+
+#friendBtn {
+  border: 2px solid #333 !important;
+}
+
+#msgBtn:hover {
+  background-color: #c10e0e !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  cursor: pointer !important;
+}
+
+#friendBtn:hover {
+  background-color: #ff3333 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  cursor: pointer !important;
+}
+
+/* --- АДАПТИВ ЧАТОВ ДЛЯ МОБИЛОК --- */
+@media (max-width: 768px) {
+  .app-container {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    position: relative !important;
+  }
+
+  /* По умолчанию показываем список, скрываем окно */
+  .app-container .chat-list {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .app-container .chat-window {
+    display: none !important;
+    width: 100% !important;
+  }
+
+  /* КОГДА ЧАТ ОТКРЫТ: скрываем список, принудительно ПОКАЗЫВАЕМ окно */
+  .app-container.mobile-chat-open .chat-list {
+    display: none !important;
+  }
+
+  .app-container.mobile-chat-open .chat-window {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: calc(100vh - 140px);
+    background: rgba(0, 0, 0, 0.85);
+  }
+
+  /* Кнопка «Назад» в шапке чата */
+  .back-to-chats-btn {
+    display: inline-block !important;
+    margin-right: 10px;
+    color: var(--nfs-yellow, #f1c40f);
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+}
+
+.back-to-chats-btn:hover {
+  color: #ff0000;
+}
+
+@media (min-width: 769px) {
+  .back-to-chats-btn {
+    display: none !important;
+  }
+}
+
+/* ==========================================
+   NFS CRT MODALS & ALERTS (Тёмная модалка)
+   ========================================== */
+
+/* Главный тёмный контейнер */
+.swal2-popup.nfs-crt-modal {
+  background: rgba(10, 10, 10, 0.95) !important;
+  border: 1px solid var(--nfs-yellow, #f1c40f) !important;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.9) !important;
+  border-radius: 4px !important;
+  padding: 30px !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Эффект CRT-сканера на фоне */
+.swal2-popup.nfs-crt-modal::before {
+  content: " ";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
+  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.swal2-popup.nfs-crt-modal * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Заголовок и текст */
+.swal2-popup.nfs-crt-modal .swal2-title {
+  font-family: 'Wallpoet', sans-serif !important;
+  color: #ffffff !important;
+  text-transform: uppercase;
+  font-style: italic;
+  letter-spacing: 2px;
+}
+
+.swal2-popup.nfs-crt-modal .swal2-html-container {
+  font-family: 'Arial', sans-serif !important;
+  color: #e0e0e0 !important;
+}
+
+/* Поле ввода URL */
+.swal2-popup.nfs-crt-modal .swal2-input {
+  background: #111111 !important;
+  border: 1px solid #444444 !important;
+  color: #ffffff !important;
+  font-family: 'Arial', sans-serif !important;
+}
+
+.swal2-popup.nfs-crt-modal .swal2-input:focus {
+  border-color: var(--nfs-yellow, #f1c40f) !important;
+  box-shadow: none !important;
+}
+
+/* Кнопка "IN GARAGE" */
+.swal2-popup.nfs-crt-modal .swal2-confirm {
+  background: var(--nfs-yellow, #f1c40f) !important;
+  color: #000000 !important;
+  font-family: 'Wallpoet', sans-serif !important;
+  font-weight: bold !important;
+  text-transform: uppercase;
+  border-radius: 4px !important;
+  border: none !important;
+  outline: none !important;
+  padding: 10px 25px !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: none !important; /* Убран глоу */
+}
+
+.swal2-popup.nfs-crt-modal .swal2-confirm:hover {
+  background-color: #c10e0e !important;
+  color: #ffffff !important;
+  box-shadow: none !important; /* Убран глоу при наведении */
+}
+
+.swal2-popup.nfs-crt-modal .swal2-confirm:focus {
+  box-shadow: none !important;
+}
+
+/* Кнопка "CANCEL" */
+.swal2-popup.nfs-crt-modal .swal2-cancel {
+  background: #333333 !important;
+  color: #ffffff !important;
+  font-family: 'Wallpoet', sans-serif !important;
+  border-radius: 4px !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.swal2-popup.nfs-crt-modal .swal2-cancel:hover {
+  color: #ff4444 !important;
+  background-color: #333333 !important;
+  box-shadow: none !important;
+}
