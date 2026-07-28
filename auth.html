@@ -15,7 +15,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="utils.js"></script>
+
 </head>
 <body class="auth-page">
 
@@ -47,69 +47,5 @@
 
 <div class="bg-game-subtitle">PORTAL</div>
 
-<script>
-  const SUPABASE_URL = 'https://obeavooabtzadlcmybel.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_qLmZZzwjyqF6ZO8BCoKj2A_a9oHPA2z';
-  const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  let isLogin = true;
-
-  function toggleForm() {
-    isLogin = !isLogin;
-    const errorEl = document.getElementById('errorMsg');
-    errorEl.style.display = 'none';
-
-    document.getElementById('formTitle').innerText = isLogin ? "Enter the game" : "Racer Registration";
-    document.getElementById('username').style.display = isLogin ? "none" : "block";
-    document.getElementById('mainBtn').innerText = isLogin ? "Log in" : "Create profile";
-    document.getElementById('toggleBtn').innerText = isLogin ?
-      "No account? Sign up!" : "Already have a profile? Log in.";
-  }
-
-  async function handleAuth() {
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const username = document.getElementById('username').value.trim();
-
-    if (!email || !password || (!isLogin && !username)) {
-      showError("Fill in all the fields.");
-      return;
-    }
-
-    if (isLogin) {
-      const {data, error} = await _supabase.auth.signInWithPassword({email, password});
-      if (error) showError(error.message);
-      else window.location.href = 'index.html';
-    } else {
-      const {data, error} = await _supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {username: username},
-          emailRedirectTo: window.location.origin + '/index.html'
-        }
-      });
-
-      if (error) {
-        showError(error.message);
-      } else {
-        Swal.fire({
-          title: "DONE!",
-          text: "Check your email for confirmation, or try logging in.",
-          icon: "success",
-          background: "#111",
-          color: "#fff",
-          confirmButtonColor: "#f1c40f"
-        });
-      }
-    }
-  }
-
-  function showError(text) {
-    const errorEl = document.getElementById('errorMsg');
-    errorEl.innerText = ">> " + text;
-    errorEl.style.display = 'block';
-  }
-</script>
 </body>
 </html>
