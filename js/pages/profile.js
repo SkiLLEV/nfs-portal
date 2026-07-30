@@ -1,4 +1,4 @@
-import { _supabase } from '../config.js';
+import {_supabase} from '../config.js';
 import '../widgets.js';
 import '../global.js';
 
@@ -9,21 +9,23 @@ window.myProfile = null;
 window.profileData = null;
 
 window.onload = async () => {
-  const { data: { user } } = await _supabase.auth.getUser();
+  const {data: {user}} = await _supabase.auth.getUser();
   if (!user) {
     window.location.href = 'auth.html';
     return;
   }
   window.currentUserId = user.id;
 
-  const { data: me } = await _supabase.from('profiles').select('*').eq('id', window.currentUserId).single();
+  const {data: me} = await _supabase.from('profiles').select('*').eq('id', window.currentUserId).single();
   if (me) {
     window.myProfile = me;
+
+    await checkDailyBonus(me);
 
     const savedStatus = localStorage.getItem('driver_status') || me.status || 'ONLINE';
     window.myProfile.status = savedStatus;
 
-    await _supabase.from('profiles').update({ status: savedStatus }).eq('id', user.id);
+    await _supabase.from('profiles').update({status: savedStatus}).eq('id', user.id);
     if (typeof window.trackMyStatus === 'function') await window.trackMyStatus(savedStatus);
 
     const nickEl = document.getElementById('displayNick');
@@ -53,7 +55,7 @@ window.onload = async () => {
   const targetName = urlParams.get('u');
 
   if (targetName) {
-    const { data } = await _supabase.from('profiles').select('*').ilike('username', targetName).maybeSingle();
+    const {data} = await _supabase.from('profiles').select('*').ilike('username', targetName).maybeSingle();
     if (data) {
       window.profileData = data;
       setupProfileRealtimeListener();
@@ -106,7 +108,7 @@ window.updateLiveStatusUI = function () {
 
 async function loadMyOwnProfile(userId) {
   try {
-    const { data, error } = await _supabase.from('profiles').select('*').eq('id', userId).single();
+    const {data, error} = await _supabase.from('profiles').select('*').eq('id', userId).single();
     if (error) throw error;
     if (data) {
       window.profileData = data;
@@ -125,7 +127,7 @@ async function loadMyOwnProfile(userId) {
 }
 
 async function updateRacerRank(targetUserId) {
-  const { data: racers } = await _supabase.from('profiles').select('id').order('rating', { ascending: false });
+  const {data: racers} = await _supabase.from('profiles').select('id').order('rating', {ascending: false});
   if (racers) {
     const rank = racers.findIndex(r => r.id === targetUserId) + 1;
     const rankEl = document.getElementById('rankDisplay');
@@ -233,12 +235,12 @@ window.viewFullImage = (url) => {
     showConfirmButton: false,
     showCloseButton: true,
     width: 'auto',
-    customClass: { popup: 'nfs-crt-modal' }
+    customClass: {popup: 'nfs-crt-modal'}
   });
 };
 
 window.addNewCarPhoto = async () => {
-  const { value: url } = await Swal.fire({
+  const {value: url} = await Swal.fire({
     input: 'url',
     html: `
       <div style="font-family: Arial, sans-serif !important; font-size: 1.02rem; color: #ccc; text-align: left; margin-bottom: 10px; line-height: 1.4;">
@@ -251,7 +253,7 @@ window.addNewCarPhoto = async () => {
     showCancelButton: true,
     cancelButtonText: 'CANCEL',
     footer: `<a href="https://postimages.org/" target="_blank" class="nfs-font" style="color: #f1c40f; font-weight: bold; text-decoration: none;" onmouseover="this.style.color='#ff0000'; this.style.textDecoration='underline';" onmouseout="this.style.color='#f1c40f'; this.style.textDecoration='none';">TO OPEN POSTIMAGES.ORG</a>`,
-    customClass: { popup: 'nfs-crt-modal' },
+    customClass: {popup: 'nfs-crt-modal'},
     didOpen: () => {
       const confirmBtn = Swal.getConfirmButton();
       if (confirmBtn) {
@@ -267,13 +269,13 @@ window.addNewCarPhoto = async () => {
         title: 'ERROR',
         text: 'That`s not direct link!',
         icon: 'error',
-        customClass: { popup: 'nfs-crt-modal' }
+        customClass: {popup: 'nfs-crt-modal'}
       });
       return;
     }
     const currentPhotos = Array.isArray(window.profileData.photos) ? window.profileData.photos : [];
     const updatedPhotos = [...currentPhotos, url];
-    const { error } = await _supabase.from('profiles').update({ photos: updatedPhotos }).eq('id', window.currentUserId);
+    const {error} = await _supabase.from('profiles').update({photos: updatedPhotos}).eq('id', window.currentUserId);
     if (!error) setTimeout(() => location.reload(), 1200);
   }
 };
@@ -287,14 +289,14 @@ window.updateUserStatus = async () => {
 
   window.updateLiveStatusUI();
 
-  const { error } = await _supabase.from('profiles').update({ status: s }).eq('id', window.currentUserId);
+  const {error} = await _supabase.from('profiles').update({status: s}).eq('id', window.currentUserId);
   if (!error && typeof window.trackMyStatus === 'function') {
     await window.trackMyStatus(s);
   }
 };
 
 window.openEditProfile = async () => {
-  const frames = [{ id: 'frame-default', name: 'Standart' }, { id: 'frame-mw', name: 'Most Wanted' }];
+  const frames = [{id: 'frame-default', name: 'Standart'}, {id: 'frame-mw', name: 'Most Wanted'}];
   let framesHtml = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">';
   frames.forEach(f => {
     const isSelected = window.profileData.selected_frame === f.id ? 'border: 2px solid var(--nfs-yellow);' : 'border: 1px solid #333;';
@@ -302,7 +304,7 @@ window.openEditProfile = async () => {
   });
   framesHtml += '</div>';
 
-  const { value: formValues } = await Swal.fire({
+  const {value: formValues} = await Swal.fire({
     html: `
       <p style="font-size:0.8rem; text-align: center; text-transform: uppercase;">BIO:</p>
       <input id="swal-bio" class="swal2-input" value="${window.profileData.bio || ''}" style="background:#111; color:#fff; width:100%; box-sizing:border-box; text-align: center; margin: 10px 0;">
@@ -311,7 +313,7 @@ window.openEditProfile = async () => {
     `,
     showCancelButton: true,
     confirmButtonText: 'TO SET IT!',
-    customClass: { popup: 'nfs-crt-modal' },
+    customClass: {popup: 'nfs-crt-modal'},
     didOpen: () => {
       const confirmBtn = Swal.getConfirmButton();
       if (confirmBtn) {
@@ -326,7 +328,7 @@ window.openEditProfile = async () => {
   });
 
   if (formValues) {
-    const { error } = await _supabase.from('profiles').update({
+    const {error} = await _supabase.from('profiles').update({
       bio: formValues.bio,
       selected_frame: formValues.frame
     }).eq('id', window.currentUserId);
@@ -350,7 +352,7 @@ async function checkFriendshipStatus(targetUserId) {
     return;
   }
 
-  const { data: request } = await _supabase
+  const {data: request} = await _supabase
     .from('friend_requests')
     .select('*')
     .or(`and(sender_id.eq.${window.myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${window.myProfile.id})`)
@@ -397,7 +399,7 @@ async function sendFriendRequest(targetId) {
 }
 
 async function acceptFriendRequest(requestId) {
-  await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', requestId);
+  await _supabase.from('friend_requests').update({status: 'accepted'}).eq('id', requestId);
   location.reload();
 }
 
@@ -408,25 +410,67 @@ async function removeFriend(requestId) {
 
 window.openMuteModal = async () => {
   if (!window.myProfile || !window.myProfile.is_admin || !window.profileData) return;
-  const { value: minutes } = await Swal.fire({
+  const {value: minutes} = await Swal.fire({
     title: 'ВЫДАТЬ МУТ',
     input: 'select',
-    inputOptions: { '15': '15 минут', '60': '1 час', '1440': '24 часа', '10080': '7 дней' },
+    inputOptions: {'15': '15 минут', '60': '1 час', '1440': '24 часа', '10080': '7 дней'},
     inputPlaceholder: 'Выберите срок наказания',
     showCancelButton: true,
     confirmButtonText: 'ЗАМУТИТЬ',
-    customClass: { popup: 'nfs-crt-modal' }
+    customClass: {popup: 'nfs-crt-modal'}
   });
 
   if (minutes) {
     const mutedUntil = new Date(Date.now() + minutes * 60000).toISOString();
-    const { error } = await _supabase.from('profiles').update({ muted_until: mutedUntil }).eq('id', window.profileData.id);
+    const {error} = await _supabase.from('profiles').update({muted_until: mutedUntil}).eq('id', window.profileData.id);
     if (!error) {
       window.profileData.muted_until = mutedUntil;
       setTimeout(() => location.reload(), 1200);
     }
   }
 };
+
+async function checkDailyBonus(me) {
+  if (!me) return;
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // Якщо сьогодні бонус ще не отримували
+  if (me.last_active_date !== today) {
+    const bonus = me.is_vip ? 20 : 10;
+    const currentRating = me.rating || 1000;
+    const newRating = currentRating + bonus;
+
+    // Розрахунок: 1000 = 1 level, кожні +200 rating = +1 level
+    const newLevel = 1 + Math.floor((newRating - 1000) / 200);
+
+    const {error} = await _supabase
+      .from('profiles')
+      .update({
+        rating: newRating,
+        level: newLevel,
+        last_active_date: today
+      })
+      .eq('id', me.id);
+
+    if (!error) {
+      // Оновлюємо локальний об'єкт, щоб на екрані одразу були нові цифри
+      me.rating = newRating;
+      me.level = newLevel;
+      me.last_active_date = today;
+
+      // Сповіщення користувача
+      Swal.fire({
+        title: 'DAILY BONUS!',
+        text: `+${bonus} RATING FOR DAILY ENTRY!`,
+        icon: 'success',
+        timer: 3000,
+        showConfirmButton: false,
+        customClass: {popup: 'nfs-crt-modal'}
+      });
+    }
+  }
+}
 
 function setupProfileRealtimeListener() {
   if (!window.profileData) return;
