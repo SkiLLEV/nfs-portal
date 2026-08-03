@@ -2378,6 +2378,7 @@ body.error-404-page .police-code {
    ASYMMETRIC SCI-FI HUD FRAME FOR PROFILE CARD
    ========================================================================== */
 
+.topic-card,
 .profile-card {
   position: relative !important;
   background: rgba(10, 10, 10, 0.9) !important;
@@ -2393,6 +2394,7 @@ body.error-404-page .police-code {
 }
 
 /* Имитация основной тонкой рамки со срезанными углами */
+.topic-card::after,
 .profile-card::after {
   content: "" !important;
   display: block !important;
@@ -2411,6 +2413,7 @@ body.error-404-page .police-code {
 }
 
 /* Внешние декоративные скобки (остаются только вверху-справа и внизу-слева) */
+.topic-card::before,
 .profile-card::before {
   content: "" !important;
   position: absolute !important;
