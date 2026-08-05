@@ -1908,6 +1908,10 @@ body.error-404-page .police-code {
 /* ==========================================================================
    ASYMMETRIC SCI-FI HUD FRAME FOR PROFILE CARD
    ========================================================================== */
+
+.content-box,
+.radar-box,
+.radar-search-wrapper,
 .chat-window input,
 .comment,
 #replyBox textarea,
@@ -1929,6 +1933,9 @@ body.error-404-page .police-code {
   ) !important;
 }
 
+.content-box::after,
+.radar-box::after,
+.radar-search-wrapper::after,
 .chat-window input::after,
 .comment::after,
 .create-topic-box input::after,
@@ -1950,6 +1957,9 @@ body.error-404-page .police-code {
   ) !important;
 }
 
+.content-box::before,
+.radar-box::before,
+.radar-search-wrapper::before,
 .chat-window input::before,
 .comment::before,
 .create-topic-box input::before,
