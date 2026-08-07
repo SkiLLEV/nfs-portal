@@ -1598,7 +1598,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 
 .top-rank {
   color: var(--nfs-yellow);
-  text-shadow: 0 0 10px var(--nfs-yellow);
 }
 
 .racer-avatar {
@@ -1610,9 +1609,12 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   transition: 0.3s;
 }
 
-.racer-name {
+.racer-name,
+.racer-name * {
   font-weight: bold;
   font-size: 1.1rem;
+  text-shadow: none !important;
+  filter: none !important;
 }
 
 .racer-status {
