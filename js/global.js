@@ -4,15 +4,6 @@ import { _supabase } from './config.js';
 window.currentActiveTicketId = null;
 
 /**
- * Проигрывание звукового уведомления
- */
-window.playNotificationSound = function() {
-  const audio = new Audio('https://codesandbox.io/api/v1/sandboxes/github/codesandbox/sandbox-template/files/contents/public/success.mp3');
-  audio.volume = 0.6;
-  audio.play().catch(() => console.log("Sound play prevented by browser autoplay policy"));
-};
-
-/**
  * Обновление счетчика непрочитанных сообщений
  */
 window.updateGlobalMsgBadge = async function(supabaseClient, myId) {
@@ -179,7 +170,7 @@ window.submitSupportTicket = async function() {
   if (window.currentActiveTicketId) {
     const userDescTextEl = document.getElementById('supportUserDescriptionText');
     const currentDesc = userDescTextEl ? userDescTextEl.innerText : '';
-    const updatedDescription = `${currentDesc}\n\n👉 You (Reply):\n${description}`;
+    const updatedDescription = `${currentDesc}\n\n[YOU REPLY]:\n${description}`;
 
     const { error } = await _supabase
       .from('support_tickets')
@@ -232,7 +223,7 @@ window.submitSupportTicket = async function() {
       user_id: profile.id,
       username: profile.username,
       subject: subject,
-      description: `👉 You:\n${description}`
+      description: `[YOU]:\n${description}`
     }]);
 
     if (error) {
