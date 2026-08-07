@@ -313,22 +313,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   color: white;
 }
 
-/* Кнопки Авторизации и Выхода */
-.btn-login {
-  background: var(--nfs-yellow);
-  border: none;
-  padding: 10px 30px;
-  cursor: pointer;
-  font-weight: bold;
-  text-transform: uppercase;
-  transition: 0.2s;
-}
-
-.btn-login:hover {
-  background: #c10e0e;
-  color: #fff;
-}
-
 .btn-exit:hover {
   background: rgba(255, 68, 68, 0.2) !important;
   color: #ff6666 !important;
@@ -387,25 +371,19 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   border: 1px solid var(--nfs-yellow, #f1c40f) !important;
   pointer-events: none !important;
   z-index: 2 !important;
+
+  clip-path: polygon(
+    8px 0, 100% 0,
+    100% calc(100% - 8px), calc(100% - 8px) 100%,
+    0 100%, 0 8px
+  ) !important;
+
   animation: hudBorderDraw 0.25s forwards cubic-bezier(0.25, 1, 0.5, 1) !important;
 }
 
 .nav-item:hover::before,
 .nav-item.active::before {
-  content: "" !important;
-  position: absolute !important;
-  top: -3px !important;
-  left: -3px !important;
-  right: -3px !important;
-  bottom: -3px !important;
-  pointer-events: none !important;
-  z-index: 3 !important;
-  border: 2px solid var(--nfs-yellow, #f1c40f) !important;
-  clip-path: polygon(
-    calc(100% - 10px) 0, 100% 0, 100% 10px, calc(100% - 10px) 10px,
-    0 calc(100% - 10px), 10px calc(100% - 10px), 10px 100%, 0 100%
-  ) !important;
-  animation: hudCornersPop 0.15s 0.1s ease-out both !important;
+  display: none !important;
 }
 
 @keyframes hudBorderDraw {
@@ -493,7 +471,10 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   border-radius: 12px;
 }
 
-.modal input[type="text"], .modal input[type="email"], .modal input[type="password"], .modal textarea {
+.modal input[type="text"],
+.modal input[type="email"],
+.modal input[type="password"],
+.modal textarea {
   width: 100%;
   background: #141414;
   border: 1px solid #333;
@@ -648,28 +629,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   animation: pulse-border 2s infinite;
 }
 
-.radar-box button,
-.radar-list button {
-  background: var(--nfs-yellow) !important;
-  color: #000000 !important;
-  border: none !important;
-  padding: 6px 14px !important;
-  font-weight: bold !important;
-  font-size: 0.75rem !important;
-  cursor: pointer !important;
-  text-transform: uppercase !important;
-  border-radius: 3px !important;
-  font-family: 'Wallpoet', sans-serif !important;
-  transition: all 0.2s ease-in-out !important;
-  outline: none !important;
-}
-
-.radar-box button:hover,
-.radar-list button:hover {
-  background-color: #c10e0e !important;
-  color: #ffffff !important;
-}
-
 @keyframes pulse-border {
   0% {
     border-left: 3px solid #333;
@@ -680,24 +639,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   100% {
     border-left: 3px solid #333;
   }
-}
-
-.btn-race {
-  background: var(--nfs-yellow);
-  color: #000;
-  border: none;
-  padding: 5px 12px;
-  font-weight: bold;
-  font-size: 0.7rem;
-  cursor: pointer;
-  text-transform: uppercase;
-  border-radius: 3px;
-}
-
-.btn-race:hover {
-  color: white;
-  background-color: #c10e0e;
-  transition: 0.2s;
 }
 
 /* Виджет календаря справа */
@@ -1004,32 +945,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   margin-bottom: 3px;
 }
 
-.btn-tuning {
-  background-color: #222222;
-  border: 2px solid var(--nfs-yellow);
-  color: var(--nfs-yellow);
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  text-transform: uppercase;
-  font-weight: bold;
-  font-size: 0.75rem;
-  transition: all 0.3s ease;
-  width: max-content !important;
-  min-width: 120px;
-  align-self: flex-start;
-}
-
-.btn-tuning:hover {
-  color: #fff;
-  border-color: white;
-  background-color: #c10e0e;
-}
-
-.btn-tuning:hover::after {
-  display: none !important;
-}
-
 #addCarBtn {
   position: static !important;
   background-color: #222222 !important;
@@ -1044,20 +959,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   color: #fff;
   border-color: white !important;
   background-color: #c10e0e !important;
-}
-
-.btn-nfs {
-  background: var(--nfs-yellow);
-  color: #000;
-  border: none;
-  margin-top: 10px;
-  font-size: 0.8rem;
-  padding: 10px 20px;
-  font-weight: bold;
-  cursor: pointer;
-  text-transform: uppercase;
-  display: block;
-  width: 100%;
 }
 
 /* Гараж */
@@ -1328,28 +1229,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   width: 100% !important;
 }
 
-.send-btn,
-.chat-input-area button,
-.chat-window button {
-  background: var(--nfs-yellow) !important;
-  border: none !important;
-  padding: 12px 25px !important;
-  font-weight: bold !important;
-  font-family: 'Wallpoet', sans-serif !important;
-  cursor: pointer !important;
-  text-transform: uppercase !important;
-  color: #000000 !important;
-  transition: background-color 0.2s ease, color 0.2s ease !important;
-  white-space: nowrap !important;
-}
-
-.send-btn:hover,
-.chat-input-area button:hover,
-.chat-window button:hover {
-  color: #ffffff !important;
-  background-color: #c10e0e !important;
-}
-
 .del-btn {
   color: #666;
   font-size: 0.7rem;
@@ -1383,18 +1262,19 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 }
 
 /* --- СТРАНИЦА: FORUM & TOPIC --- */
-.forum-page .container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 100px 40px 40px 40px;
-  box-sizing: border-box;
-}
-
+.forum-page .container,
 .topic-page .container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 40px 40px 40px 40px;
   box-sizing: border-box;
+}
+
+.forum-page .container {
+  padding: 100px 40px 40px 40px;
+}
+
+.topic-page .container {
+  padding: 40px 40px 40px 40px;
 }
 
 .create-topic-box {
@@ -1427,22 +1307,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 .create-topic-box textarea:focus,
 #replyBox textarea:focus {
   border-color: var(--nfs-yellow);
-}
-
-.btn-create {
-  background: var(--nfs-yellow-forum);
-  color: #000;
-  border: none;
-  padding: 12px 25px;
-  font-weight: bold;
-  cursor: pointer;
-  text-transform: uppercase;
-}
-
-.btn-create:hover {
-  color: #ffffff;
-  background-color: #c10e0e;
-  transition: 0.3s;
 }
 
 .topic-card {
@@ -1502,48 +1366,12 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   gap: 4px;
 }
 
-.btn-forum-action {
-  background-color: #000000 !important;
-  border: none !important;
-  color: #f1c40f !important;
-  padding: 10px 20px !important;
-  border-radius: 6px;
-  cursor: pointer;
-  text-transform: uppercase;
-  font-weight: bold;
-  font-size: 0.75rem;
-  transition: all 0.2s ease-in-out !important;
-  display: inline-block;
-}
-
-.btn-forum-action:hover {
-  background-color: #c10e0e !important;
-  color: #ffffff !important;
-}
-
 .comment-date-clean {
   font-family: 'Arial', 'Helvetica', sans-serif !important;
   font-size: 0.8rem !important;
   color: #555 !important;
   letter-spacing: 0.5px;
   text-transform: none !important;
-}
-
-#replyBox .btn {
-  background: var(--nfs-yellow) !important;
-  border: none !important;
-  padding: 10px 25px !important;
-  font-weight: bold !important;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: 0.2s;
-  color: #000 !important;
-  display: inline-block !important;
-}
-
-#replyBox .btn:hover {
-  color: white !important;
-  background-color: #c10e0e !important;
 }
 
 .back-link {
@@ -1624,7 +1452,7 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 }
 
 /* ==========================================
-   AUTH PAGE STYLES (LOGIN / REGISTRATION)
+   6. AUTH PAGE STYLES (LOGIN / REGISTRATION)
    ========================================== */
 body.auth-page {
   background: url('https://i.postimg.cc/4NzNkdkR/Bez-nazvania.jpg') no-repeat center center fixed;
@@ -1704,26 +1532,6 @@ body.auth-page .auth-box input:focus {
   outline: none;
 }
 
-body.auth-page .auth-box .btn-primary {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: 0.2s;
-  font-family: inherit;
-  background: var(--nfs-yellow);
-  color: #000;
-  margin-top: 15px;
-  border-radius: 10px;
-}
-
-body.auth-page .auth-box .btn-primary:hover {
-  background: #c10e0e;
-  color: #ffffff;
-}
-
 body.auth-page .toggle-container {
   text-align: center;
 }
@@ -1756,7 +1564,7 @@ body.auth-page .error {
 }
 
 /* ==========================================
-   8. СТИЛИ СТРАНИЦЫ ОШИБКИ (404 PAGE)
+   7. СТИЛИ СТРАНИЦЫ ОШИБКИ (404 PAGE)
    ========================================== */
 body.error-404-page {
   margin: 0;
@@ -1847,26 +1655,6 @@ body.error-404-page p {
   letter-spacing: 0.5px;
 }
 
-body.error-404-page .btn-back {
-  background: #f1c40f;
-  color: #000;
-  border: none;
-  padding: 15px 40px;
-  font-weight: bold;
-  text-transform: uppercase;
-  cursor: pointer;
-  font-size: 1rem;
-  border-radius: 6px;
-  transition: 0.3s;
-  text-decoration: none;
-  display: inline-block;
-}
-
-body.error-404-page .btn-back:hover {
-  color: #ffffff;
-  background-color: #c10e0e;
-}
-
 body.error-404-page .police-code {
   position: absolute;
   top: 15px;
@@ -1877,42 +1665,12 @@ body.error-404-page .police-code {
   letter-spacing: 1px;
 }
 
-#msgBtn, #friendBtn {
-  transition: all 0.3s ease-in-out !important;
-  width: auto !important;
-}
-
-#msgBtn {
-  border: 2px solid #333333 !important;
-}
-
-#friendBtn {
-  border: 2px solid #333 !important;
-}
-
-#msgBtn:hover {
-  background-color: #c10e0e !important;
-  color: #ffffff !important;
-  cursor: pointer !important;
-}
-
-#friendBtn:hover {
-  background-color: #ff3333 !important;
-  color: #ffffff !important;
-  cursor: pointer !important;
-}
-
-.back-to-chats-btn:hover {
-  color: #ff0000;
-}
-
 /* ==========================================================================
-   ASYMMETRIC SCI-FI HUD FRAME FOR PROFILE CARD
+   8. ASYMMETRIC SCI-FI HUD FRAME FOR CARDS & CONTAINERS
    ========================================================================== */
 
 .auth-box,
 .auth-box input,
-.content-box,
 .radar-box,
 .radar-search-wrapper,
 .chat-window input,
@@ -1924,7 +1682,7 @@ body.error-404-page .police-code {
 .topic-card,
 .profile-card {
   position: relative !important;
-  background: rgba(10, 10, 10, 0.9) !important;
+  background: rgba(10, 10, 10, 0.95) !important;
   box-sizing: border-box !important;
   overflow: visible !important;
   border: 1px solid #373737 !important;
@@ -1995,8 +1753,9 @@ body.error-404-page .police-code {
 }
 
 /* ==========================================================================
-   КНОПКИ: ЧИСТАЯ БЕЛАЯ РАМКА ПРИ НАВЕДЕНИИ
+   9. КНОПКИ: ЕДИНЫЕ СТИЛИ И БЕЛАЯ РАМКА ПРИ НАВЕДЕНИИ
    ========================================================================== */
+
 button,
 .btn,
 .btn-nfs,
@@ -2007,12 +1766,19 @@ button,
 .btn-forum-action,
 .btn-primary,
 .send-btn,
-.btn-back {
+.btn-back,
+.radar-box button,
+.radar-list button,
+#replyBox .btn {
   position: relative;
   overflow: visible !important;
   border-radius: 0 !important;
   box-sizing: border-box !important;
-  transition: background-color 0.2s ease, color 0.2s ease !important;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-family: 'Wallpoet', sans-serif !important;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
 
   clip-path: polygon(
     10px 0, 100% 0,
@@ -2021,6 +1787,98 @@ button,
   ) !important;
 }
 
+/* Специфические цвета и размеры кнопок по умолчанию */
+.btn-login, .btn-nfs, .btn-primary, .send-btn, .btn-back, #replyBox .btn {
+  background: var(--nfs-yellow);
+  color: #000;
+  border: none;
+}
+
+.btn-login {
+  padding: 10px 30px;
+}
+
+.btn-nfs {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  padding: 10px 20px;
+  display: block;
+  width: 100%;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+  border-radius: 10px;
+}
+
+.btn-back {
+  padding: 15px 40px;
+  font-size: 1rem;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-race, .radar-box button, .radar-list button {
+  background: var(--nfs-yellow) !important;
+  color: #000000 !important;
+  border: none !important;
+  padding: 6px 14px !important;
+  font-size: 0.75rem !important;
+  border-radius: 3px !important;
+  outline: none !important;
+}
+
+.btn-tuning {
+  background-color: #222222;
+  border: 2px solid var(--nfs-yellow);
+  color: var(--nfs-yellow);
+  padding: 10px 20px;
+  font-size: 0.75rem;
+  width: max-content !important;
+  min-width: 120px;
+  align-self: flex-start;
+}
+
+.btn-create {
+  background: var(--nfs-yellow-forum);
+  color: #000;
+  border: none;
+  padding: 12px 25px;
+}
+
+.btn-forum-action {
+  background-color: #000000 !important;
+  border: none !important;
+  color: #f1c40f !important;
+  padding: 10px 20px !important;
+  font-size: 0.75rem;
+  display: inline-block;
+}
+
+.send-btn, .chat-input-area button, .chat-window button {
+  background: var(--nfs-yellow) !important;
+  border: none !important;
+  padding: 12px 25px !important;
+  color: #000000 !important;
+  white-space: nowrap !important;
+}
+
+#msgBtn, #friendBtn {
+  transition: all 0.3s ease-in-out !important;
+  width: auto !important;
+}
+
+#msgBtn {
+  border: 2px solid #333333 !important;
+}
+
+#friendBtn {
+  border: 2px solid #333 !important;
+}
+
+/* Ховеры для всех кнопок */
 button::before,
 .btn::before,
 .btn-nfs::before,
@@ -2040,11 +1898,23 @@ button:hover,
 .btn-login:hover,
 .btn-create:hover,
 .btn-race:hover,
+.btn-tuning:hover,
 .btn-forum-action:hover,
 .btn-primary:hover,
 .send-btn:hover,
-.btn-back:hover {
+.btn-back:hover,
+.radar-box button:hover,
+.radar-list button:hover,
+#replyBox .btn:hover,
+.chat-input-area button:hover,
+.chat-window button:hover {
   background-color: #c10e0e !important;
+  color: #ffffff !important;
+  border-color: white !important;
+}
+
+#friendBtn:hover {
+  background-color: #ff3333 !important;
   color: #ffffff !important;
 }
 
@@ -2054,6 +1924,7 @@ button:hover::after,
 .btn-login:hover::after,
 .btn-create:hover::after,
 .btn-race:hover::after,
+.btn-tuning:hover::after,
 .btn-forum-action:hover::after,
 .btn-primary:hover::after,
 .send-btn:hover::after,
@@ -2075,8 +1946,12 @@ button:hover::after,
   animation: hudBorderDraw 0.2s forwards cubic-bezier(0.25, 1, 0.5, 1) !important;
 }
 
+.back-to-chats-btn:hover {
+  color: #ff0000;
+}
+
 /* ==========================================================================
-   АДАПТИВНОСТЬ (Media Queries)
+   10. АДАПТИВНОСТЬ (Media Queries)
    ========================================================================== */
 @media screen and (max-width: 768px) {
   .top-navbar {
@@ -2101,17 +1976,21 @@ button:hover::after,
   }
 
   .sidebar, .main-sidebar {
-    position: relative !important;
-    top: 0 !important;
+    width: 250px;
+    background: linear-gradient(to right, rgba(5, 5, 5, 0.98) 0%, rgba(12, 12, 12, 0.95) 60%, rgba(20, 20, 20, 0.85) 100%);
+    backdrop-filter: blur(4px);
+    height: calc(100vh - 70px) !important;
+    position: fixed !important;
+    top: 70px !important;
     left: 0 !important;
-    width: 100% !important;
-    height: auto !important;
-    margin-top: 70px !important;
-    padding-top: 0 !important;
-    border-right: none !important;
-    border-bottom: 2px solid var(--nfs-border) !important;
+    border-right: 2px solid var(--nfs-border);
     z-index: 999 !important;
-    display: block !important;
+
+    clip-path: polygon(
+      12px 0, 100% 0,
+      100% calc(100% - 12px), calc(100% - 12px) 100%,
+      0 100%, 0 12px
+    ) !important;
   }
 
   .sidebar nav, .main-sidebar nav {
@@ -2215,7 +2094,7 @@ button:hover::after,
     gap: 15px !important;
   }
 
-  /* Чат на мобилках */
+  /* Чат на мобильных устройствах */
   .app-container {
     margin-left: 0 !important;
     margin-top: 0 !important;
@@ -2291,7 +2170,7 @@ button:hover::after,
     font-size: 0.9rem !important;
   }
 
-  /* Форум и Лидерборд на мобилках */
+  /* Форум и Лидерборд на мобильных устройствах */
   .forum-page .container,
   .topic-page .container {
     padding: 20px 15px 60px 15px !important;
