@@ -103,22 +103,6 @@ async function loadBlacklist() {
       }
     }
 
-    let crown = "";
-    let nameStyle = "";
-    let rowStyle = "";
-
-    if (rank === 1) {
-      crown = "👑 ";
-      nameStyle = "color: #f1c40f; text-shadow: 0 0 15px #f1c40f; font-size: 1.3rem;";
-      rowStyle = "background: rgba(241, 196, 15, 0.08); border-left: 5px solid #f1c40f;";
-    } else if (rank === 2) {
-      crown = "🥈 ";
-      nameStyle = "color: #dfe6e9; text-shadow: 0 0 10px #dfe6e9;";
-    } else if (rank === 3) {
-      crown = "🥉 ";
-      nameStyle = "color: #cd7f32; text-shadow: 0 0 10px #cd7f32;";
-    }
-
     const avatarStyle = `border: 2px solid ${borderColor}; transition: border-color 0.3s;`;
 
     const avatarHTML = racer.avatar_url
@@ -127,8 +111,7 @@ async function loadBlacklist() {
 
     const row = document.createElement('tr');
     row.className = 'blacklist-row';
-    if (rowStyle) row.setAttribute('style', rowStyle);
-    if (isMe && rank > 1) row.style.background = "rgba(255, 255, 255, 0.08)";
+    if (isMe) row.style.background = "rgba(255, 255, 255, 0.08)";
 
     row.onclick = () => window.location.href = `profile.html?u=${racer.username}`;
 
@@ -142,8 +125,8 @@ async function loadBlacklist() {
          </div>
       </td>
       <td>
-        <span class="racer-name ${racer.is_admin ? 'admin-name' : ''}" style="${nameStyle}">
-          ${crown}${racer.username} ${isMe ? '<small style="color:var(--nfs-yellow); font-size: 0.6rem;">(YOU)</small>' : ''}
+        <span class="racer-name ${racer.is_admin ? 'admin-name' : ''}">
+          ${racer.username} ${isMe ? '<small style="color:var(--nfs-yellow); font-size: 0.6rem;">(YOU)</small>' : ''}
         </span>
       </td>
       <td style="font-weight: bold; color: var(--nfs-yellow); font-size: 1.1rem;">
