@@ -2184,10 +2184,29 @@ button:hover::after,
     font-size: 0.9rem !important;
   }
 
-  /* Форум и Лидерборд на мобильных устройствах */
-  .forum-page .container,
-  .topic-page .container {
-    margin-top: 0 !important;
+  /* 1. Форум (опускаем ниже, так как сайдбар занимает 3 ряда) */
+  body.forum-page .container {
+    margin-top: 200px !important;
+    padding-top: 15px !important;
+    padding-bottom: 60px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    width: 100% !important;
+  }
+
+  /* 2. Лидерборд */
+  body.leaderboard-page .container {
+    margin-top: 180px !important;
+    padding-top: 25px !important;
+    padding-bottom: 60px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    width: 100% !important;
+  }
+
+  /* 3. Страница конкретного топика */
+  body.topic-page .container {
+    margin-top: 10px !important;
     padding-top: 0 !important;
     padding-bottom: 60px !important;
     padding-left: 15px !important;
