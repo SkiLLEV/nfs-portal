@@ -346,10 +346,10 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   font-size: 0.85rem;
   border-bottom: 1px solid #222;
   position: relative !important;
-  overflow: visible !important;
   box-sizing: border-box !important;
-  transition: color 0.2s ease !important;
+  transition: color 0.25s ease, background-color 0.25s ease !important;
 
+  /* Базовый срез углов */
   clip-path: polygon(
     8px 0, 100% 0,
     100% calc(100% - 8px), calc(100% - 8px) 100%,
@@ -363,22 +363,31 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   background: rgba(241, 196, 15, 0.15) !important;
 }
 
-.nav-item:hover::after,
-.nav-item.active::after {
+/* Настраиваем псевдоэлемент для последовательной прорисовки граней */
+.nav-item::after {
   content: "" !important;
   position: absolute !important;
   inset: 0 !important;
-  border: 1px solid var(--nfs-yellow, #f1c40f) !important;
   pointer-events: none !important;
   z-index: 2 !important;
 
-  clip-path: polygon(
-    8px 0, 100% 0,
-    100% calc(100% - 8px), calc(100% - 8px) 100%,
-    0 100%, 0 8px
-  ) !important;
+  /* 4 грани рамки как отдельные линии */
+  background: linear-gradient(to right, var(--nfs-yellow, #f1c40f) 100%, transparent 0) top left / 0% 1px no-repeat,
+  linear-gradient(to bottom, var(--nfs-yellow, #f1c40f) 100%, transparent 0) top right / 1px 0% no-repeat,
+  linear-gradient(to left, var(--nfs-yellow, #f1c40f) 100%, transparent 0) bottom right / 0% 1px no-repeat,
+  linear-gradient(to top, var(--nfs-yellow, #f1c40f) 100%, transparent 0) bottom left / 1px 0% no-repeat;
 
-  animation: hudBorderDraw 0.25s forwards cubic-bezier(0.25, 1, 0.5, 1) !important;
+  /* Плавное синхронное появление граней без ступенчатых пауз */
+  transition: background-size 0.25s ease-in-out !important;
+}
+
+/* При наведении вытягиваем линии сразу на 100% */
+.nav-item:hover::after,
+.nav-item.active::after {
+  background-size: 100% 1px,
+  1px 100%,
+  100% 1px,
+  1px 100% !important;
 }
 
 .nav-item:hover::before,
@@ -475,21 +484,22 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 .modal input[type="email"],
 .modal input[type="password"],
 .modal textarea {
-  width: 100%;
-  background: #141414;
-  border: 1px solid #333;
-  color: #fff;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 6px;
-  box-sizing: border-box;
-  font-size: 0.9rem;
+  width: 100% !important;
+  background: #141414 !important;
+  border: 1px solid #333 !important;
+  color: #fff !important;
+  padding: 12px !important;
+  margin-top: 10px !important;
+  border-radius: 6px !important;
+  box-sizing: border-box !important;
+  font-size: 0.9rem !important;
   font-family: 'Arial', sans-serif !important;
+  clip-path: none !important;
 }
 
 .modal input:focus, .modal textarea:focus {
-  border-color: var(--nfs-yellow);
-  outline: none;
+  border-color: var(--nfs-yellow) !important;
+  outline: none !important;
 }
 
 /* Кастомизация SweetAlert2 */
@@ -1787,9 +1797,10 @@ button,
   ) !important;
 }
 
-/* Специфические цвета и размеры кнопок по умолчанию */
+/* Цвета и размеры по умолчанию */
 .btn-login, .btn-nfs, .btn-primary, .send-btn, .btn-back, #replyBox .btn {
   background: var(--nfs-yellow);
+  padding: 10px 20px !important;
   color: #000;
   border: none;
 }
@@ -1810,7 +1821,6 @@ button,
   width: 100%;
   padding: 14px;
   margin-top: 15px;
-  border-radius: 10px;
 }
 
 .btn-back {
@@ -1826,7 +1836,6 @@ button,
   border: none !important;
   padding: 6px 14px !important;
   font-size: 0.75rem !important;
-  border-radius: 3px !important;
   outline: none !important;
 }
 
@@ -1866,43 +1875,18 @@ button,
 }
 
 #msgBtn, #friendBtn {
-  transition: all 0.3s ease-in-out !important;
   width: auto !important;
-}
-
-#msgBtn {
   border: 2px solid #333333 !important;
 }
 
-#friendBtn {
-  border: 2px solid #333 !important;
-}
-
-/* Ховеры для всех кнопок */
+/* Ховеры */
 button::before,
-.btn::before,
-.btn-nfs::before,
-.btn-login::before,
-.btn-create::before,
-.btn-race::before,
-.btn-forum-action::before,
-.btn-primary::before,
-.send-btn::before,
-.btn-back::before {
+.btn::before {
   display: none !important;
 }
 
 button:hover,
 .btn:hover,
-.btn-nfs:hover,
-.btn-login:hover,
-.btn-create:hover,
-.btn-race:hover,
-.btn-tuning:hover,
-.btn-forum-action:hover,
-.btn-primary:hover,
-.send-btn:hover,
-.btn-back:hover,
 .radar-box button:hover,
 .radar-list button:hover,
 #replyBox .btn:hover,
@@ -1918,17 +1902,14 @@ button:hover,
   color: #ffffff !important;
 }
 
+/* Появление белой рамки при наведении */
 button:hover::after,
 .btn:hover::after,
-.btn-nfs:hover::after,
-.btn-login:hover::after,
-.btn-create:hover::after,
-.btn-race:hover::after,
-.btn-tuning:hover::after,
-.btn-forum-action:hover::after,
-.btn-primary:hover::after,
-.send-btn:hover::after,
-.btn-back:hover::after {
+.radar-box button:hover::after,
+.radar-list button:hover::after,
+#replyBox .btn:hover::after,
+.chat-input-area button:hover::after,
+.chat-window button:hover::after {
   content: "" !important;
   display: block !important;
   position: absolute !important;
@@ -1975,57 +1956,85 @@ button:hover::after,
     text-overflow: ellipsis;
   }
 
+  /* --- ДВУХРЯДНЫЙ САЙДБАР БЕЗ СКРОЛЛА --- */
   .sidebar, .main-sidebar {
-    width: 250px;
-    background: linear-gradient(to right, rgba(5, 5, 5, 0.98) 0%, rgba(12, 12, 12, 0.95) 60%, rgba(20, 20, 20, 0.85) 100%);
-    backdrop-filter: blur(4px);
-    height: calc(100vh - 70px) !important;
+    width: 100% !important;
+    height: auto !important; /* Высота подстраивается под 2 ряда */
     position: fixed !important;
-    top: 70px !important;
+    top: 65px !important;
     left: 0 !important;
-    border-right: 2px solid var(--nfs-border);
-    z-index: 999 !important;
+    background: rgba(10, 10, 10, 0.98) !important;
+    border-right: none !important;
+    border-bottom: 2px solid var(--nfs-yellow) !important;
+    z-index: 1000 !important;
+    clip-path: none !important;
+    padding: 0 !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
+  }
 
-    clip-path: polygon(
-      12px 0, 100% 0,
-      100% calc(100% - 12px), calc(100% - 12px) 100%,
-      0 100%, 0 12px
-    ) !important;
+  /* Скрываем полосы прокрутки */
+  .sidebar::-webkit-scrollbar,
+  .main-sidebar::-webkit-scrollbar {
+    display: none !important;
+  }
+  .sidebar, .main-sidebar {
+    scrollbar-width: none !important;
   }
 
   .sidebar nav, .main-sidebar nav {
     display: flex !important;
-    flex-wrap: wrap !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important; /* Разрешаем перенос элементов на вторую строку */
     justify-content: space-around !important;
-    padding: 5px 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
   }
 
+  /* Элементы навигации в 2 ряда */
   .nav-item {
-    flex: 1 1 30% !important;
-    min-width: 95px !important;
-    padding: 12px 5px !important;
+    flex: 1 1 45% !important; /* Автоматическая сетка по 2 компонента на строчку */
+    min-width: 120px !important;
+    height: 36px !important; /* Компактная фиксированная высота строк */
+    padding: 0 8px !important;
     font-size: 0.75rem !important;
     text-align: center !important;
-    border-bottom: 1px solid #222 !important;
+    border-bottom: 1px solid #1f1f1f !important;
+    border-right: 1px solid #1f1f1f !important;
     box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    clip-path: none !important; /* Отменяем срезанные углы на мобилке */
+  }
+
+  /* Отключаем десктопную рамку-анимацию на мобилках */
+  .nav-item::after,
+  .nav-item::before,
+  .nav-item:hover::after,
+  .nav-item.active::after {
+    display: none !important;
+    animation: none !important;
+    content: none !important;
   }
 
   .nav-item:hover, .nav-item.active {
     border-left: none !important;
-    border-bottom: 3px solid var(--nfs-yellow) !important;
+    background: rgba(241, 196, 15, 0.15) !important;
   }
 
+  /* Отступ для основного контента под шапку и двухрядный сайдбар */
   .container, .main-content {
     margin-left: 0 !important;
     margin-right: 0 !important;
-    margin-top: 10px !important;
+    margin-top: 180px !important;
     padding: 20px 15px 140px 15px !important;
     box-sizing: border-box !important;
     width: 100% !important;
   }
 
   .container {
-    padding-top: 20px !important;
+    padding-top: 25px !important;
   }
 
   .content-box {
@@ -2094,11 +2103,16 @@ button:hover::after,
     gap: 15px !important;
   }
 
+  /* Выравниваем шапку на странице чатов для мобилок */
+  .chats-page .top-navbar {
+    height: 65px !important;
+  }
+
   /* Чат на мобильных устройствах */
   .app-container {
     margin-left: 0 !important;
-    margin-top: 0 !important;
-    height: calc(100vh - 140px) !important;
+    margin-top: 160px !important;
+    height: calc(100vh - 138px) !important;
     display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
@@ -2173,7 +2187,11 @@ button:hover::after,
   /* Форум и Лидерборд на мобильных устройствах */
   .forum-page .container,
   .topic-page .container {
-    padding: 20px 15px 60px 15px !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 60px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
     width: 100% !important;
   }
 
@@ -2326,4 +2344,33 @@ button:hover::after,
   h2, h3 {
     page-break-after: avoid;
   }
+}
+
+/* Фикс для модалки поддержки */
+.modal input,
+.modal textarea,
+[id*="support"] input,
+[id*="support"] textarea {
+  background: #141414 !important;
+  color: #fff !important;
+  clip-path: none !important;
+  border: 1px solid #333 !important;
+  border-radius: 6px !important;
+  padding: 12px !important;
+}
+
+/* Отключаем кривые рамки-псевдоэлементы */
+[id*="support"] input::before,
+[id*="support"] input::after {
+  display: none !important;
+}
+
+/* Растягиваем инпут темы на 100% ширины */
+.modal input,
+[id*="support"] input,
+[class*="support"] input {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  display: block !important;
 }
