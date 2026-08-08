@@ -2184,8 +2184,18 @@ button:hover::after,
     font-size: 0.9rem !important;
   }
 
-  /* Форум и Лидерборд на мобильных устройствах */
+  /* Лидерборд и Форум на мобильных устройствах  */
   .forum-page .container,
+  .leaderboard-page .container {
+    margin-top: 180px !important;
+    padding-top: 25px !important;
+    padding-bottom: 60px !important;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    width: 100% !important;
+  }
+
+  /* Отдельно для страницы ТОПИКА */
   .topic-page .container {
     margin-top: 0 !important;
     padding-top: 0 !important;
