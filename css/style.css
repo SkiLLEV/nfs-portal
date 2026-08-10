@@ -1902,9 +1902,9 @@ button:hover,
   color: #ffffff !important;
 }
 
-/* Появление белой рамки при наведении */
-button:hover::after,
-.btn:hover::after,
+/* Появление белой рамки при наведении для всех кнопок, КРОМЕ .btn-tuning и .steam-friends-toggle-btn */
+button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
+.btn:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
 .radar-box button:hover::after,
 .radar-list button:hover::after,
 #replyBox .btn:hover::after,
@@ -1913,8 +1913,8 @@ button:hover::after,
   content: "" !important;
   display: block !important;
   position: absolute !important;
-  inset: 0 !important;
-  border: 1px solid #ffffff !important;
+  inset: 0px !important;
+  border: 2px solid #ffffff !important;
   pointer-events: none !important;
   z-index: 2 !important;
 
@@ -1923,8 +1923,12 @@ button:hover::after,
     100% calc(100% - 10px), calc(100% - 10px) 100%,
     0 100%, 0 10px
   ) !important;
+}
 
-  animation: hudBorderDraw 0.2s forwards cubic-bezier(0.25, 1, 0.5, 1) !important;
+/* Отключаем двойную рамку для указанных кнопок */
+.btn-tuning:hover::after,
+.steam-friends-toggle-btn:hover::after {
+  display: none !important;
 }
 
 .back-to-chats-btn:hover {
