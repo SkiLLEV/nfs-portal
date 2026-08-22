@@ -1,6 +1,5 @@
 /*! HTML5 Boilerplate v9.0.1 | MIT License | https://html5boilerplate.com/ */
 /* main.css 3.0.0 | MIT License | https://github.com/h5bp/main.css#readme */
-
 /* ==========================================================================
    1. Базовые стили и Сброс (Opinionated Defaults)
    ========================================================================== */
@@ -82,7 +81,7 @@ body.forum-page {
 
 body.chats-page, body.topic-page, body.leaderboard-page {
   box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
-  padding-bottom: 60px;
+  padding-bottom: 0px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -460,7 +459,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(4px);
   z-index: 2000;
 }
@@ -480,6 +478,7 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   border-radius: 12px;
 }
 
+/* РЕГИСТРАЦИЯ И ВХОД */
 .modal input[type="text"],
 .modal input[type="email"],
 .modal input[type="password"],
