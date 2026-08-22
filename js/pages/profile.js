@@ -430,48 +430,6 @@ window.openMuteModal = async () => {
   }
 };
 
-async function checkDailyBonus(me) {
-  if (!me) return;
-
-  const today = new Date().toISOString().split('T')[0];
-
-  // Якщо сьогодні бонус ще не отримували
-  if (me.last_active_date !== today) {
-    const bonus = me.is_vip ? 20 : 10;
-    const currentRating = me.rating || 1000;
-    const newRating = currentRating + bonus;
-
-    // Розрахунок: 1000 = 1 level, кожні +200 rating = +1 level
-    const newLevel = 1 + Math.floor((newRating - 1000) / 200);
-
-    const {error} = await _supabase
-      .from('profiles')
-      .update({
-        rating: newRating,
-        level: newLevel,
-        last_active_date: today
-      })
-      .eq('id', me.id);
-
-    if (!error) {
-      // Оновлюємо локальний об'єкт, щоб на екрані одразу були нові цифри
-      me.rating = newRating;
-      me.level = newLevel;
-      me.last_active_date = today;
-
-      // Сповіщення користувача
-      Swal.fire({
-        title: 'DAILY BONUS!',
-        text: `+${bonus} RATING FOR DAILY ENTRY!`,
-        icon: 'success',
-        timer: 3000,
-        showConfirmButton: false,
-        customClass: {popup: 'nfs-crt-modal'}
-      });
-    }
-  }
-}
-
 function setupProfileRealtimeListener() {
   if (!window.profileData) return;
   _supabase.removeChannel(_supabase.channel(`profile-db-changes-${window.profileData.id}`));
