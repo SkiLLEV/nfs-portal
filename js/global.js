@@ -4,7 +4,7 @@ import { _supabase } from './config.js';
 window.currentActiveTicketId = null;
 
 /**
- * Обновление счетчика непрочитанных сообщений
+ * Оновлення лічильника непрочитаних повідомлень
  */
 window.updateGlobalMsgBadge = async function(supabaseClient, myId) {
   const client = supabaseClient || _supabase;
@@ -28,7 +28,7 @@ window.updateGlobalMsgBadge = async function(supabaseClient, myId) {
 };
 
 /**
- * Выход из аккаунта
+ * Вихід з акаунту
  */
 window.handleLogout = async function() {
   const user = window.myProfile || window.currentUserId;
@@ -44,7 +44,7 @@ window.handleLogout = async function() {
 };
 
 /**
- * Переключение выпадающего списка уведомлений
+ * Перемикання списку сповіщень
  */
 window.toggleNotifyPopup = function() {
   const p = document.getElementById('notifyPopup');
@@ -52,7 +52,7 @@ window.toggleNotifyPopup = function() {
 };
 
 /**
- * Обновление уведомлений о заявках в друзья
+ * Оновлення сповіщень про заявки у друзі
  */
 window.updateFriendNotifications = async function() {
   const profile = window.myProfile || (window.currentUserId ? { id: window.currentUserId } : null);
@@ -75,7 +75,10 @@ window.updateFriendNotifications = async function() {
     countEl.style.display = 'flex';
     listEl.innerHTML = '';
     requests.forEach(req => {
-      const textWants = (typeof translations !== 'undefined') ? translations[currentLang]['wants_friends'] : 'wants to be friends';
+      const textWants = (typeof translations !== 'undefined' && translations[currentLang]?.['wants_friends'])
+        ? translations[currentLang]['wants_friends']
+        : 'wants to be friends';
+
       listEl.innerHTML += `
         <div class="notify-item" style="padding:10px; border-bottom:1px solid #222; color:#fff; font-size:0.8rem;">
           <b>${req.sender_name}</b> ${textWants}
@@ -87,13 +90,15 @@ window.updateFriendNotifications = async function() {
     });
   } else {
     countEl.style.display = 'none';
-    const textNoReq = (typeof translations !== 'undefined') ? translations[currentLang]['no_requests'] : 'There are no requests';
+    const textNoReq = (typeof translations !== 'undefined' && translations[currentLang]?.['no_requests'])
+      ? translations[currentLang]['no_requests']
+      : 'There are no requests';
     listEl.innerHTML = `<div style="padding:10px; font-size:10px; color:#444; text-align:center;">${textNoReq}</div>`;
   }
 };
 
 /**
- * Ответ на заявку в друзья
+ * Відповідь на заявку в друзі
  */
 window.respondFriend = async function(reqId, status) {
   if (typeof _supabase === 'undefined') return;
@@ -110,7 +115,7 @@ window.respondFriend = async function(reqId, status) {
 };
 
 /**
- * Логика работы модалки саппорта
+ * Логіка роботи модалки підтримки
  */
 window.openSupportModal = async function() {
   const overlay = document.getElementById('supportModalOverlay');
@@ -357,14 +362,62 @@ window.checkAdminReplies = async function() {
 };
 
 /**
- * Окно авторизации
+ * Логіка щоденного бонусу
+ */
+window.checkDailyBonus = async function(me) {
+  if (!me || typeof _supabase === 'undefined') return;
+
+  const today = new Date().toISOString().split('T')[0];
+
+  // Якщо сьогодні бонус ще не отримували
+  if (me.last_active_date !== today) {
+    const bonus = me.is_vip ? 20 : 10;
+    const currentRating = me.rating || 1000;
+    const newRating = currentRating + bonus;
+
+    // Розрахунок: 1000 = 1 level, кожні +200 rating = +1 level
+    const newLevel = 1 + Math.floor((newRating - 1000) / 200);
+
+    const { error } = await _supabase
+      .from('profiles')
+      .update({
+        rating: newRating,
+        level: newLevel,
+        last_active_date: today
+      })
+      .eq('id', me.id);
+
+    if (!error) {
+      // Оновлюємо локальний об'єкт
+      me.rating = newRating;
+      me.level = newLevel;
+      me.last_active_date = today;
+
+      // Сповіщення користувача
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          title: 'DAILY BONUS!',
+          text: `+${bonus} RATING FOR DAILY ENTRY!`,
+          icon: 'success',
+          timer: 3000,
+          showConfirmButton: false,
+          customClass: { popup: 'nfs-crt-modal' }
+        });
+      }
+    }
+  }
+};
+
+/**
+ * Вікно авторизації
  */
 window.openModal = async function() {
-  if (typeof _supabase === 'undefined') return;
+  if (typeof _supabase === 'undefined' || typeof Swal === 'undefined') return;
 
   const { value: formValues } = await Swal.fire({
     title: 'RACE AUTHORIZATION',
-    background: '#0a0a0a', color: '#fff',
+    background: '#0a0a0a',
+    color: '#fff',
     html: `
         <input id="swal-email" class="swal2-input" placeholder="Email" type="email" style="background:#111; color:#fff;">
         <input id="swal-password" class="swal2-input" placeholder="Password" type="password" style="background:#111; color:#fff;">
@@ -374,7 +427,7 @@ window.openModal = async function() {
       return {
         email: document.getElementById('swal-email').value.trim(),
         password: document.getElementById('swal-password').value.trim()
-      }
+      };
     }
   });
 
@@ -392,3 +445,36 @@ window.openModal = async function() {
     }
   }
 };
+
+/**
+ * Автоматичний запуск на кожній сторінці
+ */
+document.addEventListener('DOMContentLoaded', async () => {
+  if (typeof _supabase === 'undefined') return;
+
+  try {
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (!session?.user) return;
+
+    const { data: profile } = await _supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (profile) {
+      window.myProfile = profile;
+      window.currentUserId = profile.id;
+
+      // 1. Автоматична перевірка і нарахування щоденного бонусу
+      await window.checkDailyBonus(profile);
+
+      // 2. Оновлення всіх бейджів та сповіщень
+      await window.updateGlobalMsgBadge(_supabase, profile.id);
+      await window.updateFriendNotifications();
+      await window.checkAdminReplies();
+    }
+  } catch (err) {
+    console.error('Auto-init daily bonus error:', err);
+  }
+});
