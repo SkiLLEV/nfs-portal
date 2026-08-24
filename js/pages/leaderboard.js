@@ -6,6 +6,11 @@ let currentUserId = null;
 let myUsername = "";
 let myProfile = null;
 
+// Переменные пагинации
+let allRacers = [];
+let currentPage = 1;
+const perPage = 10;
+
 window.updateFriendsStatusOnly = function () {
   loadBlacklist();
 };
@@ -77,12 +82,22 @@ async function loadBlacklist() {
 
   if (error) return;
 
+  allRacers = data || [];
+  renderLeaderboard();
+  renderPagination();
+}
+
+function renderLeaderboard() {
   const tbody = document.getElementById('blacklistBody');
   if (!tbody) return;
   tbody.innerHTML = '';
 
-  data.forEach((racer, index) => {
-    const rank = index + 1;
+  const startIndex = (currentPage - 1) * perPage;
+  const endIndex = startIndex + perPage;
+  const pageData = allRacers.slice(startIndex, endIndex);
+
+  pageData.forEach((racer, index) => {
+    const rank = startIndex + index + 1;
     const isMe = myUsername === racer.username;
     const presence = (typeof onlineUsers !== 'undefined') ? onlineUsers[racer.username] : null;
 
@@ -109,6 +124,11 @@ async function loadBlacklist() {
       ? `<img src="${racer.avatar_url}" class="racer-avatar" style="${avatarStyle}">`
       : `<div class="racer-avatar" style="display:flex; align-items:center; justify-content:center; color:#555; font-weight:900; background:#111; ${avatarStyle}">?</div>`;
 
+    let rankClass = '';
+    if (rank === 1) rankClass = 'top-rank rank-1';
+    else if (rank === 2) rankClass = 'top-rank rank-2';
+    else if (rank === 3) rankClass = 'top-rank rank-3';
+
     const row = document.createElement('tr');
     row.className = 'blacklist-row';
     if (isMe) row.style.background = "rgba(255, 255, 255, 0.08)";
@@ -116,7 +136,7 @@ async function loadBlacklist() {
     row.onclick = () => window.location.href = `profile.html?u=${racer.username}`;
 
     row.innerHTML = `
-      <td class="rank-num ${rank <= 3 ? 'top-rank' : ''}" style="${rank <= 3 ? 'font-size: 2rem;' : ''}">
+      <td class="rank-num ${rankClass}">
         #${rank}
       </td>
       <td>
@@ -140,4 +160,56 @@ async function loadBlacklist() {
     `;
     tbody.appendChild(row);
   });
+}
+
+function renderPagination() {
+  const paginationContainer = document.getElementById('pagination');
+  if (!paginationContainer) return;
+  paginationContainer.innerHTML = '';
+
+  const totalPages = Math.ceil(allRacers.length / perPage);
+  if (totalPages <= 1) return;
+
+  // Кнопка "<" (Назад)
+  const prevBtn = document.createElement('button');
+  prevBtn.innerText = '<';
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.onclick = () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderLeaderboard();
+      renderPagination();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+  paginationContainer.appendChild(prevBtn);
+
+  // Номера страниц (1, 2, 3...)
+  for (let i = 1; i <= totalPages; i++) {
+    const pageBtn = document.createElement('button');
+    pageBtn.innerText = i;
+    if (i === currentPage) pageBtn.classList.add('active');
+
+    pageBtn.onclick = () => {
+      currentPage = i;
+      renderLeaderboard();
+      renderPagination();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    paginationContainer.appendChild(pageBtn);
+  }
+
+  // Кнопка ">" (Вперед)
+  const nextBtn = document.createElement('button');
+  nextBtn.innerText = '>';
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.onclick = () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderLeaderboard();
+      renderPagination();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+  paginationContainer.appendChild(nextBtn);
 }
