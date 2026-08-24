@@ -2396,3 +2396,52 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
   box-sizing: border-box !important;
   display: block !important;
 }
+
+/* Пагинация лидерборда */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin: 30px 0;
+  user-select: none;
+}
+
+.pagination button {
+  background: rgba(15, 15, 15, 0.9) !important;
+  color: #fff !important;
+  border: 1px solid #333 !important;
+  min-width: 44px !important;
+  height: 40px !important;
+  padding: 0 10px !important;
+  font-size: 1rem !important;
+  font-family: 'Wallpoet', sans-serif !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease !important;
+}
+
+/* Ховер при наведении */
+.pagination button:hover:not(:disabled) {
+  background-color: #c10e0e!important;
+  color: #ffffff !important;
+}
+
+/* Активная страница */
+.pagination button.active {
+  background: var(--nfs-yellow) !important;
+  color: #000000 !important;
+  font-weight: 900 !important;
+}
+
+/* Неактивные стрелки (< и >) */
+.pagination button:disabled {
+  background: #080808 !important;
+  color: #333 !important;
+  border-color: #1a1a1a !important;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.4;
+}
