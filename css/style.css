@@ -110,7 +110,7 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 }
 
 .racer-link:hover {
-  color: #ff0000;
+  color: #ffffff;
   text-decoration: underline;
 }
 
@@ -431,10 +431,12 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   width: 100%;
   background: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, rgba(10, 10, 10, 0.95) 50%, rgba(20, 20, 20, 0.9) 100%);
   backdrop-filter: blur(4px);
-  padding: 15px 0;
+  padding: 6px 0;
   border-top: 2px solid var(--nfs-yellow);
-  text-align: center;
-  font-size: 0.9rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.0rem;
   z-index: 1000;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -1339,7 +1341,7 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 }
 
 .topic-title:hover {
-  color: #ea0000;
+  color: #ffffff;
   text-decoration: underline;
 }
 
