@@ -4,6 +4,24 @@ import { _supabase } from './config.js';
 window.currentActiveTicketId = null;
 
 /**
+ * Розрахунок відносного часу створення сповіщення
+ */
+function getRelativeTime(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+/**
  * Оновлення лічильника непрочитаних повідомлень
  */
 window.updateGlobalMsgBadge = async function(supabaseClient, myId) {
@@ -52,17 +70,28 @@ window.toggleNotifyPopup = function() {
 };
 
 /**
- * Оновлення сповіщень про заявки у друзі
+ * Оновлення сповіщень (заявки в друзі + відповіді на форумі)
  */
 window.updateFriendNotifications = async function() {
-  const profile = window.myProfile || (window.currentUserId ? { id: window.currentUserId } : null);
-  if (!profile || typeof _supabase === 'undefined') return;
+  if (typeof _supabase === 'undefined') return;
 
-  const { data: requests } = await _supabase
-    .from('friend_requests')
+  let currentId = window.myProfile?.id || window.currentUserId;
+  if (!currentId) {
+    const { data: { user } } = await _supabase.auth.getUser();
+    if (user) {
+      currentId = user.id;
+      window.currentUserId = user.id;
+    }
+  }
+
+  if (!currentId) return;
+
+  const { data: notifications, error } = await _supabase
+    .from('notifications')
     .select('*')
-    .eq('receiver_id', profile.id)
-    .eq('status', 'pending');
+    .eq('receiver_id', currentId)
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false });
 
   const countEl = document.getElementById('notifyCount');
   const listEl = document.getElementById('notifyList');
@@ -70,30 +99,63 @@ window.updateFriendNotifications = async function() {
 
   const currentLang = localStorage.getItem('safehouse_lang') || 'en';
 
-  if (requests && requests.length > 0) {
-    countEl.innerText = requests.length;
+  if (!error && notifications && notifications.length > 0) {
+    countEl.innerText = notifications.length;
     countEl.style.display = 'flex';
     listEl.innerHTML = '';
-    requests.forEach(req => {
-      const textWants = (typeof translations !== 'undefined' && translations[currentLang]?.['wants_friends'])
-        ? translations[currentLang]['wants_friends']
-        : 'wants to be friends';
 
-      listEl.innerHTML += `
-        <div class="notify-item" style="padding:10px; border-bottom:1px solid #222; color:#fff; font-size:0.8rem;">
-          <b>${req.sender_name}</b> ${textWants}
-          <div class="notify-btns" style="display:flex; gap:5px; margin-top:5px;">
-            <button class="btn-acc" onclick="respondFriend('${req.id}', 'accepted')" style="flex:1; background:#f1c40f; border:none; cursor:pointer; font-weight:bold; font-size:10px;">OK</button>
-            <button class="btn-rej" onclick="respondFriend('${req.id}', 'rejected')" style="flex:1; background:#333; color:#fff; border:none; cursor:pointer; font-size:10px;">NO</button>
-          </div>
-        </div>`;
+    notifications.forEach(item => {
+      const timeAgoStr = getRelativeTime(item.created_at);
+
+      if (item.type === 'forum_reply') {
+        listEl.innerHTML += `
+          <div class="notify-item" onclick="handleForumNotificationClick('${item.id}', '${item.topic_id}')" style="padding:10px; border-bottom:1px solid #222; color:#fff; font-size:0.8rem; cursor:pointer; background:#141414; transition:background 0.2s;" onmouseover="this.style.background='#1f1f1f'" onmouseout="this.style.background='#141414'">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span style="color:#f1c40f; font-weight:bold;">@${item.sender_name}</span>
+              <span style="font-size:9px; color:#777;">${timeAgoStr}</span>
+            </div>
+            <div style="color:#ccc; font-size:11px;">
+              replied to you in topic
+            </div>
+          </div>`;
+      } else {
+        const textWants = (typeof translations !== 'undefined' && translations[currentLang]?.['wants_friends'])
+          ? translations[currentLang]['wants_friends']
+          : 'wants to be friends';
+
+        listEl.innerHTML += `
+          <div class="notify-item" style="padding:10px; border-bottom:1px solid #222; color:#fff; font-size:0.8rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span><b>${item.sender_name}</b> ${textWants}</span>
+              <span style="font-size:9px; color:#777;">${timeAgoStr}</span>
+            </div>
+            <div class="notify-btns" style="display:flex; gap:5px; margin-top:5px;">
+              <button class="btn-acc" onclick="respondFriend('${item.id}', 'accepted')" style="flex:1; background:#f1c40f; border:none; cursor:pointer; font-weight:bold; font-size:10px; padding:4px;">OK</button>
+              <button class="btn-rej" onclick="respondFriend('${item.id}', 'rejected')" style="flex:1; background:#333; color:#fff; border:none; cursor:pointer; font-size:10px; padding:4px;">NO</button>
+            </div>
+          </div>`;
+      }
     });
   } else {
     countEl.style.display = 'none';
     const textNoReq = (typeof translations !== 'undefined' && translations[currentLang]?.['no_requests'])
       ? translations[currentLang]['no_requests']
-      : 'There are no requests';
+      : 'There are no notifications';
     listEl.innerHTML = `<div style="padding:10px; font-size:10px; color:#444; text-align:center;">${textNoReq}</div>`;
+  }
+};
+
+/**
+ * Перехід за сповіщенням форуму
+ */
+window.handleForumNotificationClick = async function(notificationId, topicId) {
+  if (typeof _supabase !== 'undefined' && notificationId) {
+    await _supabase.from('notifications').delete().eq('id', notificationId);
+  }
+  if (topicId && topicId !== 'undefined' && topicId !== 'null') {
+    window.location.href = `topic.html?id=${topicId}`;
+  } else {
+    await window.updateFriendNotifications();
   }
 };
 
@@ -104,15 +166,34 @@ window.respondFriend = async function(reqId, status) {
   if (typeof _supabase === 'undefined') return;
   try {
     if (status === 'accepted') {
-      await _supabase.from('friend_requests').update({ status: 'accepted' }).eq('id', reqId);
+      await _supabase.from('notifications').update({ status: 'accepted' }).eq('id', reqId);
     } else {
-      await _supabase.from('friend_requests').delete().eq('id', reqId);
+      await _supabase.from('notifications').delete().eq('id', reqId);
     }
     await window.updateFriendNotifications();
   } catch (err) {
     console.error(err);
   }
 };
+
+/**
+ * Підключення Realtime для сповіщень
+ */
+function setupNotificationsRealtime(userId) {
+  if (!userId || typeof _supabase === 'undefined') return;
+
+  _supabase
+    .channel(`notifications-realtime-${userId}`)
+    .on('postgres_changes', {
+      event: '*',
+      schema: 'public',
+      table: 'notifications',
+      filter: `receiver_id=eq.${userId}`
+    }, () => {
+      window.updateFriendNotifications();
+    })
+    .subscribe();
+}
 
 /**
  * Логіка роботи модалки підтримки
@@ -369,13 +450,10 @@ window.checkDailyBonus = async function(me) {
 
   const today = new Date().toISOString().split('T')[0];
 
-  // Якщо сьогодні бонус ще не отримували
   if (me.last_active_date !== today) {
     const bonus = me.is_vip ? 20 : 10;
     const currentRating = me.rating || 1000;
     const newRating = currentRating + bonus;
-
-    // Розрахунок: 1000 = 1 level, кожні +200 rating = +1 level
     const newLevel = 1 + Math.floor((newRating - 1000) / 200);
 
     const { error } = await _supabase
@@ -388,12 +466,10 @@ window.checkDailyBonus = async function(me) {
       .eq('id', me.id);
 
     if (!error) {
-      // Оновлюємо локальний об'єкт
       me.rating = newRating;
       me.level = newLevel;
       me.last_active_date = today;
 
-      // Сповіщення користувача
       if (typeof Swal !== 'undefined') {
         Swal.fire({
           title: 'DAILY BONUS!',
@@ -466,15 +542,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.myProfile = profile;
       window.currentUserId = profile.id;
 
-      // 1. Автоматична перевірка і нарахування щоденного бонусу
       await window.checkDailyBonus(profile);
-
-      // 2. Оновлення всіх бейджів та сповіщень
       await window.updateGlobalMsgBadge(_supabase, profile.id);
       await window.updateFriendNotifications();
       await window.checkAdminReplies();
+
+      // Підключаємо Realtime слухач для сповіщень
+      setupNotificationsRealtime(profile.id);
     }
   } catch (err) {
-    console.error('Auto-init daily bonus error:', err);
+    console.error('Auto-init error:', err);
   }
 });

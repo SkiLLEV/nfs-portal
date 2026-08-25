@@ -281,7 +281,7 @@ async function refreshSteamFriendsList(supabaseClient, myProfile) {
   const body = document.getElementById('steamFriendsBody');
   if (!body) return;
 
-  const { data: friendships } = await supabaseClient.from('friend_requests')
+  const { data: friendships } = await supabaseClient.from('notifications')
     .select('*')
     .eq('status', 'accepted')
     .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`);
