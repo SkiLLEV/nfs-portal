@@ -353,7 +353,7 @@ async function checkFriendshipStatus(targetUserId) {
   }
 
   const {data: request} = await _supabase
-    .from('friend_requests')
+    .from('notifications')
     .select('*')
     .or(`and(sender_id.eq.${window.myProfile.id},receiver_id.eq.${targetUserId}),and(sender_id.eq.${targetUserId},receiver_id.eq.${window.myProfile.id})`)
     .maybeSingle();
@@ -390,7 +390,7 @@ async function checkFriendshipStatus(targetUserId) {
 }
 
 async function sendFriendRequest(targetId) {
-  await _supabase.from('friend_requests').insert([{
+  await _supabase.from('notifications').insert([{
     sender_id: window.myProfile.id,
     receiver_id: targetId,
     sender_name: window.myProfile.username
@@ -399,12 +399,12 @@ async function sendFriendRequest(targetId) {
 }
 
 async function acceptFriendRequest(requestId) {
-  await _supabase.from('friend_requests').update({status: 'accepted'}).eq('id', requestId);
+  await _supabase.from('notifications').update({status: 'accepted'}).eq('id', requestId);
   location.reload();
 }
 
 async function removeFriend(requestId) {
-  await _supabase.from('friend_requests').delete().eq('id', requestId);
+  await _supabase.from('notifications').delete().eq('id', requestId);
   location.reload();
 }
 

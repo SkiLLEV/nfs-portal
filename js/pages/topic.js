@@ -14,12 +14,18 @@ window.onload = async () => {
   if (user) {
     currentUserId = user.id;
     window.currentUserId = user.id;
-    const {data: prof} = await _supabase.from('profiles').select('username, status').eq('id', user.id).single();
+    const {data: prof} = await _supabase.from('profiles').select('id, username, status').eq('id', user.id).single();
     if (prof) {
       myName = prof.username;
       window.myProfile = prof;
       if (typeof initGlobalStatus === 'function') {
         initGlobalStatus(_supabase, prof);
+      }
+      if (typeof updateFriendNotifications === 'function') {
+        updateFriendNotifications();
+      }
+      if (typeof updateGlobalMsgBadge === 'function') {
+        updateGlobalMsgBadge(_supabase, prof.id);
       }
     }
   } else {
@@ -38,8 +44,9 @@ function getOnlineDotHTML(username) {
 function formatCommentText(text, currentUserName) {
   if (!text) return "";
   return text.replace(/\[reply:(.+?)\]/g, (match, username) => {
-    const color = (username === currentUserName) ? '#00ff66' : '#666';
-    return `<span style="color: ${color}; font-weight: bold; font-family: 'Arial', sans-serif !important;">@${username}</span>`;
+    const cleanNick = username.trim();
+    const color = (cleanNick.toLowerCase() === currentUserName.toLowerCase()) ? '#00ff66' : '#666';
+    return `<span style="color: ${color}; font-weight: bold; font-family: 'Arial', sans-serif !important;">@${cleanNick}</span>`;
   });
 }
 
@@ -131,16 +138,56 @@ async function loadComments() {
 
 window.postComment = async () => {
   const input = document.getElementById('commentText');
-  const text = input.value.trim();
-  if (!text) return;
+  const text = input ? input.value.trim() : '';
+  if (!text || !currentUserId) return;
 
-  const {error} = await _supabase.from('forum_comments').insert([
-    {topic_id: topicId, content: text, author_name: myName}
+  // 1. Додаємо коментар до таблиці forum_comments
+  const { error: commentErr } = await _supabase.from('forum_comments').insert([
+    { topic_id: topicId, content: text, author_name: myName }
   ]);
 
-  if (!error) {
-    input.value = '';
-    loadComments();
+  if (commentErr) {
+    console.error('Error inserting comment:', commentErr);
+    return;
+  }
+
+  input.value = '';
+  await loadComments();
+
+  // 2. Сповіщення надсилається ТІЛЬКИ якщо була адресована відповідь [reply:Username]
+  const replyMatch = text.match(/\[reply:\s*([^\]]+)\]/i);
+  if (replyMatch) {
+    const targetUsername = replyMatch[1].trim();
+
+    // Перевірка: не надсилати сповіщення самому собі
+    if (targetUsername.toLowerCase() !== myName.toLowerCase()) {
+      const { data: targetUser, error: userErr } = await _supabase
+        .from('profiles')
+        .select('id, username')
+        .ilike('username', targetUsername)
+        .maybeSingle();
+
+      if (userErr) {
+        console.error('Error fetching target profile:', userErr);
+      }
+
+      if (targetUser && targetUser.id !== currentUserId) {
+        const { error: notifErr } = await _supabase.from('notifications').insert([{
+          sender_id: currentUserId,
+          sender_name: myName,
+          receiver_id: targetUser.id,
+          type: 'forum_reply',
+          topic_id: topicId,
+          status: 'pending'
+        }]);
+
+        if (notifErr) {
+          console.error('Notification error (reply):', notifErr);
+        } else {
+          console.log(`Notification sent to @${targetUser.username}`);
+        }
+      }
+    }
   }
 };
 
@@ -200,6 +247,6 @@ window.updateFriendsStatusOnly = function () {
 window.insertReplyTag = function (authorName) {
   const textarea = document.getElementById('commentText');
   if (!textarea) return;
-  textarea.value = `[reply:${authorName}] ${textarea.value}`;
+  textarea.value = `[reply:${authorName.trim()}] ${textarea.value}`;
   textarea.focus();
 };
