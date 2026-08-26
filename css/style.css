@@ -564,24 +564,39 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 }
 
 .badge {
-  font-size: 0.9rem;
-  padding: 2px 6px;
-  border-radius: 3px;
+  font-size: 0.8rem;
+  padding: 5px 8px;
+  border-radius: 0 !important;
   margin-right: 8px;
-  font-weight: bold;
-  display: inline-block;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  vertical-align: middle;
+
+  /* Срез углов */
+  clip-path: polygon(
+    6px 0, 100% 0,
+    100% calc(100% - 6px), calc(100% - 6px) 100%,
+    0 100%, 0 6px
+  ) !important;
 }
 
 .badge-admin {
-  background: #ff4d4d;
-  color: white;
-  border: 2px solid #da0000;
+  background: var(--admin-red, #e74c3c);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.4);
 }
 
 .badge-vip {
   background: var(--nfs-yellow);
-  color: black;
-  border: 2px solid #000;
+  color: #000000;
+  border: none;
+  box-shadow: 0 0 10px rgba(241, 196, 15, 0.4);
 }
 
 /* ==========================================================================
@@ -1686,6 +1701,7 @@ body.error-404-page .police-code {
 .radar-search-wrapper,
 .chat-window input,
 .comment,
+#statusSelect,
 #replyBox textarea,
 .create-topic-box input,
 .create-topic-box textarea,
