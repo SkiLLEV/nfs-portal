@@ -2060,7 +2060,7 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
 
   .bottom-bar {
     font-size: 0.75rem !important;
-    padding: 12px 0 !important;
+    padding: 6px 0 !important;
   }
 
   .modal {
