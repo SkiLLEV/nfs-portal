@@ -394,24 +394,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   display: none !important;
 }
 
-@keyframes hudBorderDraw {
-  0% {
-    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-  }
-  100% {
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-  }
-}
-
-@keyframes hudCornersPop {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
 #msgBadge {
   background: var(--nfs-yellow);
   color: #000;
