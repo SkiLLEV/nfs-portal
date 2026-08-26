@@ -198,7 +198,7 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 }
 
 .chats-page .top-navbar {
-  height: 90px;
+  height: 70px;
 }
 
 .logo {
@@ -332,7 +332,7 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 }
 
 .main-sidebar {
-  padding-top: 20px;
+  padding-top: 0px;
 }
 
 /* Отдельные элементы меню */
@@ -1035,7 +1035,7 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 .app-container {
   display: flex;
   height: calc(100vh - 90px);
-  margin-top: 90px;
+  margin-top: 70px;
   margin-left: 250px;
 }
 
