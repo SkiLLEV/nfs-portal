@@ -141,45 +141,22 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 }
 
 @keyframes reNoiseAnimation {
-  0% {
-    transform: translate(0, 0);
-  }
-  10% {
-    transform: translate(-1%, -1%);
-  }
-  20% {
-    transform: translate(-2%, 1%);
-  }
-  30% {
-    transform: translate(1%, -2%);
-  }
-  40% {
-    transform: translate(-1%, 3%);
-  }
-  50% {
-    transform: translate(-2%, 1%);
-  }
-  60% {
-    transform: translate(1%, 2%);
-  }
-  70% {
-    transform: translate(2%, -2%);
-  }
-  80% {
-    transform: translate(-1%, -1%);
-  }
-  90% {
-    transform: translate(2%, 1%);
-  }
-  100% {
-    transform: translate(1%, -1%);
-  }
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -1%); }
+  20% { transform: translate(-2%, 1%); }
+  30% { transform: translate(1%, -2%); }
+  40% { transform: translate(-1%, 3%); }
+  50% { transform: translate(-2%, 1%); }
+  60% { transform: translate(1%, 2%); }
+  70% { transform: translate(2%, -2%); }
+  80% { transform: translate(-1%, -1%); }
+  90% { transform: translate(2%, 1%); }
+  100% { transform: translate(1%, -1%); }
 }
 
 /* ==========================================================================
    4. Общие компоненты: Шапка, Сайдбар, Футер и Модалки
    ========================================================================== */
-/* Шапка */
 .top-navbar {
   height: 70px;
   position: fixed;
@@ -348,7 +325,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   box-sizing: border-box !important;
   transition: color 0.25s ease, background-color 0.25s ease !important;
 
-  /* Базовый срез углов */
   clip-path: polygon(
     8px 0, 100% 0,
     100% calc(100% - 8px), calc(100% - 8px) 100%,
@@ -362,7 +338,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   background: rgba(241, 196, 15, 0.15) !important;
 }
 
-/* Настраиваем псевдоэлемент для последовательной прорисовки граней */
 .nav-item::after {
   content: "" !important;
   position: absolute !important;
@@ -370,17 +345,14 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   pointer-events: none !important;
   z-index: 2 !important;
 
-  /* 4 грани рамки как отдельные линии */
   background: linear-gradient(to right, var(--nfs-yellow, #f1c40f) 100%, transparent 0) top left / 0% 1px no-repeat,
   linear-gradient(to bottom, var(--nfs-yellow, #f1c40f) 100%, transparent 0) top right / 1px 0% no-repeat,
   linear-gradient(to left, var(--nfs-yellow, #f1c40f) 100%, transparent 0) bottom right / 0% 1px no-repeat,
   linear-gradient(to top, var(--nfs-yellow, #f1c40f) 100%, transparent 0) bottom left / 1px 0% no-repeat;
 
-  /* Плавное синхронное появление граней без ступенчатых пауз */
   transition: background-size 0.25s ease-in-out !important;
 }
 
-/* При наведении вытягиваем линии сразу на 100% */
 .nav-item:hover::after,
 .nav-item.active::after {
   background-size: 100% 1px,
@@ -462,7 +434,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   border-radius: 12px;
 }
 
-/* РЕГИСТРАЦИЯ И ВХОД */
 .modal input[type="text"],
 .modal input[type="email"],
 .modal input[type="password"],
@@ -485,7 +456,7 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   outline: none !important;
 }
 
-/* Кастомизация SweetAlert2 */
+/* SweetAlert2 */
 .swal2-popup {
   background: #0d0d0d !important;
   color: #ffffff !important;
@@ -559,7 +530,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   line-height: 1;
   vertical-align: middle;
 
-  /* Срез углов */
   clip-path: polygon(
     6px 0, 100% 0,
     100% calc(100% - 6px), calc(100% - 6px) 100%,
@@ -588,7 +558,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
 /* --- СТРАНИЦА: MAIN --- */
 .main-content {
   margin-left: 250px;
-  margin-right: 280px;
   margin-top: 70px;
   padding: 50px;
   min-height: 100vh;
@@ -617,149 +586,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   letter-spacing: 0.8px !important;
   color: #e0e0e0 !important;
   font-weight: normal !important;
-}
-
-/* Радар на главной */
-.radar-box {
-  background: rgba(5, 5, 5, 0.95);
-  border: 1px solid #222;
-  padding: 20px;
-  margin-top: 30px;
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6);
-}
-
-.radar-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #1a1a1a;
-  animation: pulse-border 2s infinite;
-}
-
-@keyframes pulse-border {
-  0% {
-    border-left: 3px solid #333;
-  }
-  50% {
-    border-left: 3px solid var(--nfs-yellow);
-  }
-  100% {
-    border-left: 3px solid #333;
-  }
-}
-
-/* Виджет календаря справа */
-.right-calendar-widget {
-  position: fixed;
-  top: 100px;
-  right: 40px;
-  z-index: 1001;
-  width: 220px;
-  background: rgba(0, 0, 0, 0.9);
-  padding: 15px;
-  border: 1px solid #222;
-}
-
-.calendar-title {
-  font-size: 0.8rem;
-  color: var(--nfs-yellow);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: bold;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 1px solid #222;
-  padding-bottom: 6px;
-}
-
-.u-calendar {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.75rem;
-  text-align: center;
-}
-
-.u-calendar th {
-  color: var(--nfs-yellow);
-  padding: 4px 0;
-  text-transform: uppercase;
-  font-size: 0.65rem;
-}
-
-.u-calendar td {
-  padding: 5px 0;
-  color: #e0e0e0;
-}
-
-.u-calendar td.u-today {
-  background: var(--nfs-yellow, #f1c40f) !important;
-  color: #000000 !important;
-  font-weight: 900 !important;
-  border-radius: 3px !important;
-  box-shadow: 0 0 12px rgba(241, 196, 15, 0.9), 0 0 4px rgba(251, 226, 110, 0.8) !important;
-}
-
-/* Блок поиска гонщика в радаре */
-.find-friend-box {
-  margin-top: 25px;
-  padding-top: 15px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.15);
-}
-
-.find-friend-title {
-  font-size: 0.85rem;
-  color: #888888;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-  font-weight: bold;
-  line-height: 1.3;
-}
-
-.radar-search-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.radar-search-wrapper .search-icon-inside {
-  position: absolute;
-  left: 12px;
-  width: 16px;
-  height: 16px;
-  color: #666666;
-  pointer-events: none;
-  transition: color 0.2s ease;
-}
-
-.friend-input {
-  width: 100%;
-  padding: 8px 12px 8px 36px;
-  background-color: rgba(0, 0, 0, 0.6);
-  border: 1px solid #333333;
-  color: #ffffff;
-  font-size: 0.85rem;
-  letter-spacing: 1px;
-  outline: none;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-  font-family: sans-serif;
-}
-
-.friend-input:focus {
-  border-color: var(--nfs-yellow, #f1c40f);
-  box-shadow: 0 0 10px rgba(241, 196, 15, 0.25);
-}
-
-.radar-search-wrapper:focus-within .search-icon-inside {
-  color: var(--nfs-yellow, #f1c40f);
-}
-
-.friend-input::placeholder {
-  color: #555555;
 }
 
 /* --- СТРАНИЦА: PROFILE --- */
@@ -1628,23 +1454,11 @@ body.error-404-page .glitch {
 }
 
 @keyframes glitch {
-  0% {
-    transform: skew(0deg);
-  }
-  20% {
-    transform: skew(-2deg);
-    text-shadow: 2px 0 red;
-  }
-  40% {
-    transform: skew(2deg);
-    text-shadow: -2px 0 blue;
-  }
-  60% {
-    transform: skew(0deg);
-  }
-  100% {
-    transform: skew(0deg);
-  }
+  0% { transform: skew(0deg); }
+  20% { transform: skew(-2deg); text-shadow: 2px 0 red; }
+  40% { transform: skew(2deg); text-shadow: -2px 0 blue; }
+  60% { transform: skew(0deg); }
+  100% { transform: skew(0deg); }
 }
 
 body.error-404-page h2 {
@@ -1676,11 +1490,8 @@ body.error-404-page .police-code {
 /* ==========================================================================
    8. ASYMMETRIC SCI-FI HUD FRAME FOR CARDS & CONTAINERS
    ========================================================================== */
-
 .auth-box,
 .auth-box input,
-.radar-box,
-.radar-search-wrapper,
 .chat-window input,
 .comment,
 #statusSelect,
@@ -1706,8 +1517,6 @@ body.error-404-page .police-code {
 .auth-box input::after,
 .auth-box::after,
 .content-box::after,
-.radar-box::after,
-.radar-search-wrapper::after,
 .chat-window input::after,
 .comment::after,
 .create-topic-box input::after,
@@ -1732,8 +1541,6 @@ body.error-404-page .police-code {
 .auth-box input::before,
 .auth-box::before,
 .content-box::before,
-.radar-box::before,
-.radar-search-wrapper::before,
 .chat-window input::before,
 .comment::before,
 .create-topic-box input::before,
@@ -1764,7 +1571,6 @@ body.error-404-page .police-code {
 /* ==========================================================================
    9. КНОПКИ: ЕДИНЫЕ СТИЛИ И БЕЛАЯ РАМКА ПРИ НАВЕДЕНИИ
    ========================================================================== */
-
 button,
 .btn,
 .btn-nfs,
@@ -1776,8 +1582,6 @@ button,
 .btn-primary,
 .send-btn,
 .btn-back,
-.radar-box button,
-.radar-list button,
 #replyBox .btn {
   position: relative;
   overflow: visible !important;
@@ -1796,7 +1600,6 @@ button,
   ) !important;
 }
 
-/* Цвета и размеры по умолчанию */
 .btn-login, .btn-nfs, .btn-primary, .send-btn, .btn-back, #replyBox .btn {
   background: var(--nfs-yellow);
   padding: 10px 20px !important;
@@ -1829,7 +1632,7 @@ button,
   display: inline-block;
 }
 
-.btn-race, .radar-box button, .radar-list button {
+.btn-race {
   background: var(--nfs-yellow) !important;
   color: #000000 !important;
   border: none !important;
@@ -1878,7 +1681,6 @@ button,
   border: 2px solid #333333 !important;
 }
 
-/* Ховеры */
 button::before,
 .btn::before {
   display: none !important;
@@ -1886,8 +1688,6 @@ button::before,
 
 button:hover,
 .btn:hover,
-.radar-box button:hover,
-.radar-list button:hover,
 #replyBox .btn:hover,
 .chat-input-area button:hover,
 .chat-window button:hover {
@@ -1901,11 +1701,8 @@ button:hover,
   color: #ffffff !important;
 }
 
-/* Появление белой рамки при наведении для всех кнопок, КРОМЕ .btn-tuning и .steam-friends-toggle-btn */
 button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
 .btn:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
-.radar-box button:hover::after,
-.radar-list button:hover::after,
 #replyBox .btn:hover::after,
 .chat-input-area button:hover::after,
 .chat-window button:hover::after {
@@ -1924,7 +1721,6 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
   ) !important;
 }
 
-/* Отключаем двойную рамку для указанных кнопок */
 .btn-tuning:hover::after,
 .steam-friends-toggle-btn:hover::after {
   display: none !important;
@@ -1959,10 +1755,9 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
     text-overflow: ellipsis;
   }
 
-  /* --- ДВУХРЯДНЫЙ САЙДБАР БЕЗ СКРОЛЛА --- */
   .sidebar, .main-sidebar {
     width: 100% !important;
-    height: auto !important; /* Высота подстраивается под 2 ряда */
+    height: auto !important;
     position: fixed !important;
     top: 65px !important;
     left: 0 !important;
@@ -1975,7 +1770,6 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
     box-shadow: 0 4px 10px rgba(0,0,0,0.5) !important;
   }
 
-  /* Скрываем полосы прокрутки */
   .sidebar::-webkit-scrollbar,
   .main-sidebar::-webkit-scrollbar {
     display: none !important;
@@ -1987,18 +1781,17 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
   .sidebar nav, .main-sidebar nav {
     display: flex !important;
     flex-direction: row !important;
-    flex-wrap: wrap !important; /* Разрешаем перенос элементов на вторую строку */
+    flex-wrap: wrap !important;
     justify-content: space-around !important;
     padding: 0 !important;
     width: 100% !important;
     height: auto !important;
   }
 
-  /* Элементы навигации в 2 ряда */
   .nav-item {
-    flex: 1 1 45% !important; /* Автоматическая сетка по 2 компонента на строчку */
+    flex: 1 1 45% !important;
     min-width: 120px !important;
-    height: 36px !important; /* Компактная фиксированная высота строк */
+    height: 36px !important;
     padding: 0 8px !important;
     font-size: 0.75rem !important;
     text-align: center !important;
@@ -2008,10 +1801,9 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    clip-path: none !important; /* Отменяем срезанные углы на мобилке */
+    clip-path: none !important;
   }
 
-  /* Отключаем десктопную рамку-анимацию на мобилках */
   .nav-item::after,
   .nav-item::before,
   .nav-item:hover::after,
@@ -2026,7 +1818,6 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
     background: rgba(241, 196, 15, 0.15) !important;
   }
 
-  /* Отступ для основного контента под шапку и двухрядный сайдбар */
   .container, .main-content {
     margin-left: 0 !important;
     margin-right: 0 !important;
@@ -2050,10 +1841,6 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
     margin-bottom: 20px;
     display: block;
     text-align: center;
-  }
-
-  .right-calendar-widget {
-    display: none !important;
   }
 
   .bottom-bar {
@@ -2106,12 +1893,10 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
     gap: 15px !important;
   }
 
-  /* Выравниваем шапку на странице чатов для мобилок */
   .chats-page .top-navbar {
     height: 65px !important;
   }
 
-  /* Чат на мобильных устройствах */
   .app-container {
     margin-left: 0 !important;
     margin-top: 160px !important;
@@ -2187,7 +1972,6 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
     font-size: 0.9rem !important;
   }
 
-  /* 1. Форум (опускаем ниже, так как сайдбар занимает 3 ряда) */
   body.forum-page .container {
     margin-top: 200px !important;
     padding-top: 15px !important;
@@ -2197,7 +1981,6 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
     width: 100% !important;
   }
 
-  /* 2. Лидерборд */
   body.leaderboard-page .container {
     margin-top: 180px !important;
     padding-top: 25px !important;
@@ -2207,7 +1990,6 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
     width: 100% !important;
   }
 
-  /* 3. Страница конкретного топика */
   body.topic-page .container {
     margin-top: 10px !important;
     padding-top: 0 !important;
@@ -2381,13 +2163,11 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
   padding: 12px !important;
 }
 
-/* Отключаем кривые рамки-псевдоэлементы */
 [id*="support"] input::before,
 [id*="support"] input::after {
   display: none !important;
 }
 
-/* Растягиваем инпут темы на 100% ширины */
 .modal input,
 [id*="support"] input,
 [class*="support"] input {
@@ -2423,20 +2203,17 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
   transition: all 0.2s ease !important;
 }
 
-/* Ховер при наведении */
 .pagination button:hover:not(:disabled) {
   background-color: #c10e0e!important;
   color: #ffffff !important;
 }
 
-/* Активная страница */
 .pagination button.active {
   background: var(--nfs-yellow) !important;
   color: #000000 !important;
   font-weight: 900 !important;
 }
 
-/* Неактивные стрелки (< и >) */
 .pagination button:disabled {
   background: #080808 !important;
   color: #333 !important;
