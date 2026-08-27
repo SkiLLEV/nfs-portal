@@ -10,6 +10,7 @@ let specialUsers = {};
 let typingChannel = null;
 let localTypingTimeouts = {};
 let selectedFile = null;
+let isSending = false;
 
 window.onload = async () => {
   const { data: { user } } = await _supabase.auth.getUser();
@@ -94,23 +95,26 @@ window.handleFileSelected = function(event) {
   }
 };
 
-// Загрузка в Supabase Storage
+// Загрузка в Supabase Storage с безопасным именем файла
 async function uploadChatAttachment(file) {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-  const filePath = `${myProfile.id}/${fileName}`;
+  const fileExt = file.name.split('.').pop() || 'bin';
+  const cleanFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt.toLowerCase()}`;
+  const filePath = `${myProfile.id}/${cleanFileName}`;
 
   const { error } = await _supabase.storage
     .from('chat-attachments')
-    .upload(filePath, file);
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: false
+    });
 
   if (error) throw error;
 
-  const { data: { publicUrl } } = _supabase.storage
+  const { data } = _supabase.storage
     .from('chat-attachments')
     .getPublicUrl(filePath);
 
-  return publicUrl;
+  return data.publicUrl;
 }
 
 async function loadRecentDMs() {
@@ -295,8 +299,12 @@ function initTypingTracker() {
 }
 
 window.doSendMessage = async () => {
+  if (isSending) return;
+
   const input = document.getElementById('chatInput');
-  const text = input.value.trim();
+  const sendBtn = document.querySelector('.send-btn');
+  const attachBtn = document.getElementById('attachBtn');
+  const text = input ? input.value.trim() : '';
 
   if (!text && !selectedFile) return;
 
@@ -305,53 +313,73 @@ window.doSendMessage = async () => {
       title: 'OOOPS!',
       text: 'Access blocked (Muted).',
       icon: 'error',
-      background: '#0a0a0a', color: '#fff'
+      background: '#0a0a0a',
+      color: '#fff'
     });
     return;
   }
 
-  let fileUrl = null;
-
-  if (selectedFile) {
-    try {
-      fileUrl = await uploadChatAttachment(selectedFile);
-    } catch (err) {
-      console.error('Upload error:', err);
-      Swal.fire({ title: 'ERROR', text: 'Failed to upload file.', icon: 'error' });
-      return;
-    }
+  isSending = true;
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.innerText = 'UPLOADING...';
+    sendBtn.style.opacity = '0.6';
   }
 
-  let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
-  let payload = activeChatType === 'public'
-    ? { sender_name: myProfile.username, text: text, file_url: fileUrl, room_id: 'global' }
-    : {
-      sender_id: myProfile.id,
-      receiver_id: activeChatId,
-      sender_name: myProfile.username,
-      receiver_name: targetUserName,
-      text: text,
-      file_url: fileUrl
-    };
+  let fileUrl = null;
 
-  const { data, error } = await _supabase.from(table).insert([payload]).select();
-
-  if (!error && data) {
-    renderSingleMessage(data[0]);
-    input.value = '';
-
-    // Сброс выбранного файла
-    selectedFile = null;
-    const fileInput = document.getElementById('chatFileInput');
-    if (fileInput) fileInput.value = '';
-    const attachBtn = document.getElementById('attachBtn');
-    if (attachBtn) {
-      attachBtn.innerText = '📎';
-      attachBtn.style.background = '';
-      attachBtn.style.color = '';
+  try {
+    if (selectedFile) {
+      fileUrl = await uploadChatAttachment(selectedFile);
     }
 
-    if (activeChatType === 'private') loadRecentDMs();
+    const table = activeChatType === 'public' ? 'messages' : 'direct_messages';
+    const payload = activeChatType === 'public'
+      ? { sender_name: myProfile.username, text: text, file_url: fileUrl, room_id: 'global' }
+      : {
+        sender_id: myProfile.id,
+        receiver_id: activeChatId,
+        sender_name: myProfile.username,
+        receiver_name: targetUserName,
+        text: text,
+        file_url: fileUrl
+      };
+
+    const { data, error } = await _supabase.from(table).insert([payload]).select();
+
+    if (error) throw error;
+
+    if (data && data.length > 0) {
+      renderSingleMessage(data[0]);
+      if (input) input.value = '';
+
+      selectedFile = null;
+      const fileInput = document.getElementById('chatFileInput');
+      if (fileInput) fileInput.value = '';
+      if (attachBtn) {
+        attachBtn.innerText = '📎';
+        attachBtn.style.background = '';
+        attachBtn.style.color = '';
+      }
+
+      if (activeChatType === 'private') loadRecentDMs();
+    }
+  } catch (err) {
+    console.error('Send error:', err);
+    Swal.fire({
+      title: 'ERROR',
+      text: 'Failed to send message/file. Check connection.',
+      icon: 'error',
+      background: '#0a0a0a',
+      color: '#fff'
+    });
+  } finally {
+    isSending = false;
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.innerText = 'ENTER';
+      sendBtn.style.opacity = '1';
+    }
   }
 };
 
