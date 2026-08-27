@@ -42,7 +42,7 @@ window.initGlobalStatus = async function(supabaseClient, profile) {
     let inRaceCount = 0;
     Object.values(window.onlineUsers).forEach(presenceArray => {
       const pData = presenceArray[0];
-      if (pData && (pData.status === 'LOOKING FOR GAME' || pData.status === 'IN-GAME')) {
+      if (pData && pData.status === 'IN-GAME') {
         inRaceCount++;
       }
     });
@@ -186,15 +186,12 @@ window.initGlobalStatus = async function(supabaseClient, profile) {
   if (profile) {
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
-        const savedStatus = localStorage.getItem('driver_status') || 'ONLINE';
-        if (savedStatus !== 'LOOKING FOR GAME') {
-          const now = new Date().toISOString();
-          supabaseClient
-            .from('profiles')
-            .update({ status: 'OFFLINE', last_seen: now })
-            .eq('id', profile.id)
-            .then();
-        }
+        const now = new Date().toISOString();
+        supabaseClient
+          .from('profiles')
+          .update({ status: 'OFFLINE', last_seen: now })
+          .eq('id', profile.id)
+          .then();
       }
     });
   }
@@ -319,13 +316,12 @@ async function refreshSteamFriendsList(supabaseClient, myProfile) {
       const liveStatus = pData.status || 'ONLINE';
       const avatarSrc = friend.avatar_url || 'https://via.placeholder.com/34';
 
-      if (liveStatus === 'IN-GAME' || liveStatus === 'LOOKING FOR GAME' || pData.location === 'chats.html') {
+      if (liveStatus === 'IN-GAME' || pData.location === 'chats.html') {
         playingCount++;
         dotColorClass = 'steam-text-ingame';
         borderClass = 'steam-border-ingame';
 
         let statusText = 'IN-GAME';
-        if (liveStatus === 'LOOKING FOR GAME') statusText = 'LOOKING FOR GAME';
         if (pData.location === 'chats.html') statusText = 'IN CHAT';
 
         playingHTML += `
