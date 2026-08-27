@@ -109,8 +109,8 @@ function renderLeaderboard() {
       statusClass = 'online';
       const pData = presence[0];
 
-      if (pData.status === 'IN-GAME' || pData.status === 'LOOKING FOR GAME') {
-        statusText = pData.status === 'LOOKING FOR GAME' ? 'LFG' : pData.status;
+      if (pData.status === 'IN-GAME') {
+        statusText = 'IN-GAME';
         borderColor = 'var(--nfs-yellow)';
       } else {
         statusText = 'ONLINE';

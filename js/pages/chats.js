@@ -52,7 +52,7 @@ function getStatusColor(username) {
   if (typeof onlineUsers === 'undefined' || !onlineUsers || !onlineUsers[username]) return '#555555';
   const presence = onlineUsers[username];
   if (!presence || !presence[0]) return '#555555';
-  return presence[0].status === 'LOOKING FOR GAME' ? '#f1c40f' : '#2ecc71';
+  return '#2ecc71';
 }
 
 async function fetchSpecialRoles() {
