@@ -9,6 +9,7 @@ let targetUserName = '';
 let specialUsers = {};
 let typingChannel = null;
 let localTypingTimeouts = {};
+let selectedFile = null;
 
 window.onload = async () => {
   const { data: { user } } = await _supabase.auth.getUser();
@@ -67,6 +68,51 @@ async function fetchSpecialRoles() {
   });
 }
 
+// Выбор файла с проверкой лимита 50 МБ
+window.handleFileSelected = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const maxBytes = 50 * 1024 * 1024; // 50 MB
+  if (file.size > maxBytes) {
+    Swal.fire({
+      title: 'FILE TOO LARGE',
+      text: 'File size exceeds the 50 MB limit.',
+      icon: 'error',
+      customClass: { popup: 'nfs-crt-modal' }
+    });
+    event.target.value = '';
+    return;
+  }
+
+  selectedFile = file;
+  const attachBtn = document.getElementById('attachBtn');
+  if (attachBtn) {
+    attachBtn.innerText = '✅';
+    attachBtn.style.background = 'var(--nfs-yellow)';
+    attachBtn.style.color = '#000';
+  }
+};
+
+// Загрузка в Supabase Storage
+async function uploadChatAttachment(file) {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+  const filePath = `${myProfile.id}/${fileName}`;
+
+  const { error } = await _supabase.storage
+    .from('chat-attachments')
+    .upload(filePath, file);
+
+  if (error) throw error;
+
+  const { data: { publicUrl } } = _supabase.storage
+    .from('chat-attachments')
+    .getPublicUrl(filePath);
+
+  return publicUrl;
+}
+
 async function loadRecentDMs() {
   if (!myProfile) return;
   const container = document.getElementById('dmListContainer');
@@ -89,7 +135,7 @@ async function loadRecentDMs() {
         if (otherId && otherId !== myProfile.id) {
           if (!contacts.has(otherId)) {
             const uData = specialUsers[otherName] || { avatar: null };
-            contacts.set(otherId, { name: otherName, avatar: uData.avatar, lastMsg: m.text, unreadCount: 0 });
+            contacts.set(otherId, { name: otherName, avatar: uData.avatar, lastMsg: m.text || '📎 Attachment', unreadCount: 0 });
           }
           if (m.receiver_id === myProfile.id && m.is_read === false) {
             if (activeChatType !== 'private' || String(activeChatId) !== String(m.sender_id)) {
@@ -183,6 +229,15 @@ function renderSingleMessage(msg) {
   let adminTools = (myProfile.is_admin) ? `<span class="del-btn" onclick="deleteMessage('${msg.id}', '${activeChatType}')">[X]</span>` : "";
   const avatarHTML = userData.avatar ? `<img src="${userData.avatar}" class="mini-avatar">` : `<div class="mini-avatar">${sender[0].toUpperCase()}</div>`;
 
+  let mediaHTML = '';
+  if (msg.file_url) {
+    if (msg.file_url.match(/\.(mp4|webm|mov)$/i)) {
+      mediaHTML = `<video src="${msg.file_url}" controls style="max-width: 100%; max-height: 280px; border-radius: 4px; margin-top: 8px; display: block;"></video>`;
+    } else {
+      mediaHTML = `<img src="${msg.file_url}" style="max-width: 100%; max-height: 280px; border-radius: 4px; margin-top: 8px; cursor: zoom-in; display: block; border: 1px solid #333;" onclick="viewFullImage('${msg.file_url}')">`;
+    }
+  }
+
   const msgDiv = document.createElement('div');
   msgDiv.className = `msg ${isMine ? 'outgoing' : 'incoming'}`;
   msgDiv.id = `msg-${msg.id}`;
@@ -195,10 +250,21 @@ function renderSingleMessage(msg) {
       <span class="racer-link ${userData.admin ? 'admin-glow' : ''}" onclick="window.location.href='profile.html?u=${sender}'">${sender}</span>
       ${userData.admin ? '<span class="badge-admin">ADM</span>' : ''} • ${time} ${adminTools}
     </div>
-    <div class="msg-text">${msg.text}</div>`;
+    ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
+    ${mediaHTML}`;
   box.appendChild(msgDiv);
   box.scrollTop = box.scrollHeight;
 }
+
+window.viewFullImage = (url) => {
+  Swal.fire({
+    imageUrl: url,
+    showConfirmButton: false,
+    showCloseButton: true,
+    width: 'auto',
+    customClass: { popup: 'nfs-crt-modal' }
+  });
+};
 
 function initTypingTracker() {
   if (!myProfile) return;
@@ -231,7 +297,8 @@ function initTypingTracker() {
 window.doSendMessage = async () => {
   const input = document.getElementById('chatInput');
   const text = input.value.trim();
-  if (!text) return;
+
+  if (!text && !selectedFile) return;
 
   if (myProfile?.muted_until && new Date(myProfile.muted_until) > new Date()) {
     Swal.fire({
@@ -243,15 +310,28 @@ window.doSendMessage = async () => {
     return;
   }
 
+  let fileUrl = null;
+
+  if (selectedFile) {
+    try {
+      fileUrl = await uploadChatAttachment(selectedFile);
+    } catch (err) {
+      console.error('Upload error:', err);
+      Swal.fire({ title: 'ERROR', text: 'Failed to upload file.', icon: 'error' });
+      return;
+    }
+  }
+
   let table = activeChatType === 'public' ? 'messages' : 'direct_messages';
   let payload = activeChatType === 'public'
-    ? { sender_name: myProfile.username, text: text, room_id: 'global' }
+    ? { sender_name: myProfile.username, text: text, file_url: fileUrl, room_id: 'global' }
     : {
       sender_id: myProfile.id,
       receiver_id: activeChatId,
       sender_name: myProfile.username,
       receiver_name: targetUserName,
-      text: text
+      text: text,
+      file_url: fileUrl
     };
 
   const { data, error } = await _supabase.from(table).insert([payload]).select();
@@ -259,6 +339,18 @@ window.doSendMessage = async () => {
   if (!error && data) {
     renderSingleMessage(data[0]);
     input.value = '';
+
+    // Сброс выбранного файла
+    selectedFile = null;
+    const fileInput = document.getElementById('chatFileInput');
+    if (fileInput) fileInput.value = '';
+    const attachBtn = document.getElementById('attachBtn');
+    if (attachBtn) {
+      attachBtn.innerText = '📎';
+      attachBtn.style.background = '';
+      attachBtn.style.color = '';
+    }
+
     if (activeChatType === 'private') loadRecentDMs();
   }
 };
