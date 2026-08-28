@@ -171,7 +171,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
   repeating-linear-gradient(-45deg, #0a0a0a, #0a0a0a 40px, rgba(241, 196, 15, 0.4) 40px, rgba(241, 196, 15, 0.4) 80px);
   border-bottom: 2px solid #f1c40f;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.7);
 }
 
 .chats-page .top-navbar {
