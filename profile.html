@@ -80,7 +80,10 @@
   <div class="profile-card">
 
     <div class="avatar-area">
-      <div id="avatarFrame" class="avatar-container" onclick="openAvatarPicker()"
+      <!-- Скрытый инпут для загрузки аватарки -->
+      <input type="file" id="avatarFileInput" accept="image/*" style="display: none;" onchange="handleAvatarFileSelected(event)">
+
+      <div id="avatarFrame" class="avatar-container" onclick="handleAvatarClick()"
            style="cursor: pointer; position: relative; z-index: 10;">
         <div class="avatar-big" id="avatarBox">
           <span class="avatar-letter">?</span>
@@ -143,8 +146,11 @@
 
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div class="gallery-title" id="garageTitle">RACER'S GARAGE</div>
+
+    <input type="file" id="carFileInput" accept="image/*" style="display: none;" onchange="handleCarFileSelected(event)">
+
     <button id="addCarBtn" class="btn-tuning nfs-font hidden" style="width: auto !important; padding: 10px 20px;"
-            onclick="addNewCarPhoto()">+ ADD A CAR
+            onclick="document.getElementById('carFileInput').click()">+ ADD A CAR
     </button>
   </div>
   <div class="gallery" id="garageContainer"></div>
