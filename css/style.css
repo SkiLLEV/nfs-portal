@@ -456,64 +456,206 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   outline: none !important;
 }
 
-/* SweetAlert2 */
+/* ==========================================================================
+   SWEETALERT2 / NFS CYBERPUNK HUD GLITCH MODAL (COMPACT & BORDERLESS)
+   ========================================================================== */
+
+/* Анимация красно-голубого глитча (умеренная скорость с паузой) */
+@keyframes cyberRgbGlitch {
+  0%, 100% {
+    text-shadow: 1.5px 0 #ff0055, -1.5px 0 #00ffff;
+    transform: translate(0, 0);
+  }
+  15% {
+    text-shadow: -2px 0 #ff0055, 2px 0 #00ffff;
+    transform: translate(-1px, 0.5px);
+  }
+  30% {
+    text-shadow: 2px -0.5px #ff0055, -2px 0.5px #00ffff;
+    transform: translate(1px, -0.5px);
+  }
+  45% {
+    text-shadow: -1px 0.5px #ff0055, 1px -0.5px #00ffff;
+    transform: translate(0, 0);
+  }
+  60%, 85% {
+    /* Спокойная фаза без сильных рывков */
+    text-shadow: 1px 0 #ff0055, -1px 0 #00ffff;
+    transform: translate(0, 0);
+  }
+}
+
+/* Плавное переливание иконки */
+@keyframes cyberIconGlow {
+  0%, 100% {
+    filter: drop-shadow(2px 0 0 #ff0055) drop-shadow(-2px 0 0 #00ffff);
+    transform: scale(0.48);
+  }
+  50% {
+    filter: drop-shadow(-2px 0 0 #ff0055) drop-shadow(2px 0 0 #00ffff);
+    transform: scale(0.48) translate(-0.5px, 0);
+  }
+}
+
+/* Фон вокруг окна */
+.swal2-container {
+  backdrop-filter: blur(6px) !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  z-index: 99999 !important;
+}
+
+/* 1. Основное окно без рамки */
 .swal2-popup {
-  background: #0d0d0d !important;
+  position: relative !important;
+  background: rgba(8, 8, 8, 0.97) !important;
   color: #ffffff !important;
-  border: 2px solid var(--nfs-yellow) !important;
-  max-width: 90vw !important;
-  max-height: 85vh !important;
+  border-radius: 0 !important;
+  border: none !important;
+  padding: 14px 28px !important; /* Сплюснули по вертикали */
+  box-sizing: border-box !important;
+  max-width: 460px !important;
+  min-height: auto !important;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.95) !important;
+
+  clip-path: polygon(
+    12px 0, 100% 0,
+    100% calc(100% - 12px), calc(100% - 12px) 100%,
+    0 100%, 0 12px
+  ) !important;
 }
 
-.swal2-image {
-  max-height: 50vh !important;
-  object-fit: contain !important;
+/* Полностью отключаем внутренний желтый контур */
+.swal2-popup::after {
+  display: none !important;
 }
 
-.swal2-title, .swal2-html-container, .swal2-confirm, .swal2-cancel {
+/* 2. Заголовок с умеренным красно-голубым переливом */
+.swal2-title {
   font-family: 'Wallpoet', sans-serif !important;
+  font-size: 1.35rem !important;
+  font-style: italic !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 2px !important;
   color: #ffffff !important;
+  margin: 2px 0 !important;
+  padding: 0 !important;
+  animation: cyberRgbGlitch 1.8s ease-in-out infinite !important;
 }
 
-.swal2-popup input,
-.swal2-popup textarea {
-  background: #181818 !important;
-  color: #ffffff !important;
-  border: 1px solid #333333 !important;
+/* 3. Текст описания */
+.swal2-html-container {
+  font-family: 'Wallpoet', sans-serif !important;
+  font-size: 0.9rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  color: #e0e0e0 !important;
+  line-height: 1.3 !important;
+  margin: 6px 0 12px 0 !important;
+  padding: 0 !important;
+  animation: cyberRgbGlitch 2.4s ease-in-out infinite !important;
 }
 
-.swal2-popup .swal2-confirm,
-.swal2-popup .swal2-confirm:focus {
-  transition: background-color 0.15s ease, color 0.15s ease !important;
-  background-color: var(--nfs-yellow) !important;
+/* 4. Компактные иконки без круглых рамок */
+.swal2-icon {
+  border: none !important;
+  background: transparent !important;
+  transform: scale(0.48) !important;
+  margin: -6px auto -8px auto !important;
+  animation: cyberIconGlow 2.0s ease-in-out infinite alternate !important;
+}
+
+/* Отключаем белые фоновые маски SweetAlert2 */
+.swal2-icon .swal2-success-circular-line-left,
+.swal2-icon .swal2-success-circular-line-right,
+.swal2-icon .swal2-success-fix,
+.swal2-icon .swal2-success-ring {
+  display: none !important;
+}
+
+/* Галочка успеха (Неоново-зеленый / Cyan) */
+.swal2-icon.swal2-success [class^='swal2-success-line'] {
+  background-color: #00ffaa !important;
+  box-shadow: 0 0 10px #00ffaa, 0 0 20px #00ffff !important;
+}
+
+/* Крестик ошибки (Неоново-красный) */
+.swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+  background-color: #ff0055 !important;
+  box-shadow: 0 0 10px #ff0055, 0 0 20px #ff0000 !important;
+}
+
+/* Иконка предупреждения (Желто-оранжевая) */
+.swal2-icon.swal2-warning {
+  color: var(--nfs-yellow) !important;
+  font-size: 2.2rem !important;
+  text-shadow: 2px 0 #ff0055, -2px 0 #00ffff !important;
+}
+
+/* 5. Кнопки (Срезанные края HUD) */
+.swal2-actions {
+  margin: 6px 0 4px 0 !important;
+  gap: 10px !important;
+  z-index: 20 !important;
+}
+
+.swal2-popup .swal2-confirm {
+  background: var(--nfs-yellow) !important;
   color: #000000 !important;
-  box-shadow: none !important;
-  outline: none !important;
+  font-family: 'Wallpoet', sans-serif !important;
+  font-size: 0.8rem !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  padding: 8px 20px !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: 0 0 12px rgba(241, 196, 15, 0.5) !important;
+  transition: all 0.2s ease !important;
+
+  clip-path: polygon(
+    8px 0, 100% 0,
+    100% calc(100% - 8px), calc(100% - 8px) 100%,
+    0 100%, 0 8px
+  ) !important;
 }
 
-.swal2-popup .swal2-confirm:hover,
-.swal2-popup .swal2-confirm:active {
+.swal2-popup .swal2-confirm:hover {
   background-color: #c10e0e !important;
   color: #ffffff !important;
-  box-shadow: none !important;
-  outline: none !important;
+  box-shadow: 0 0 16px rgba(255, 0, 85, 0.8) !important;
 }
 
-.swal2-popup .swal2-cancel,
-.swal2-popup .swal2-cancel:focus {
-  transition: background-color 0.15s ease, color 0.15s ease !important;
-  background-color: #333333 !important;
+.swal2-popup .swal2-cancel {
+  background: #181818 !important;
+  color: #888888 !important;
+  border: 1px solid #333333 !important;
+  font-family: 'Wallpoet', sans-serif !important;
+  font-size: 0.8rem !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  padding: 8px 18px !important;
+  border-radius: 0 !important;
+  transition: all 0.2s ease !important;
+
+  clip-path: polygon(
+    8px 0, 100% 0,
+    100% calc(100% - 8px), calc(100% - 8px) 100%,
+    0 100%, 0 8px
+  ) !important;
+}
+
+.swal2-popup .swal2-cancel:hover {
   color: #ffffff !important;
-  box-shadow: none !important;
-  outline: none !important;
+  border-color: #777777 !important;
+  background: #252525 !important;
 }
 
-.swal2-popup .swal2-cancel:hover,
-.swal2-popup .swal2-cancel:active {
-  background-color: #222222 !important;
-  color: #ff4444 !important;
-  box-shadow: none !important;
-  outline: none !important;
+/* Изображение в модалке */
+.swal2-image {
+  border: 1px solid var(--nfs-yellow) !important;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.9) !important;
+  margin-top: 10px !important;
 }
 
 .badge {
