@@ -211,7 +211,7 @@ function renderFullProfile(data, isMine) {
 
     if (msgBtn) {
       msgBtn.classList.remove('hidden');
-      msgBtn.onclick = () => goToChat(data.username);
+      msgBtn.onclick = () => window.goToChat(data.username);
     }
     if (friendBtn) friendBtn.classList.remove('hidden');
   }
@@ -238,7 +238,7 @@ window.viewFullImage = (url) => {
   });
 };
 
-// Клик по аватарке (выбор файла, только если профиль принадлежит пользователю)
+// Клик по аватарке (выбор файла)
 window.handleAvatarClick = () => {
   const isMine = window.myProfile && window.profileData && (window.myProfile.id === window.profileData.id);
   if (isMine) {
@@ -246,6 +246,7 @@ window.handleAvatarClick = () => {
   }
 };
 
+// Загрузка аватарки в Supabase Storage
 window.handleAvatarFileSelected = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
@@ -279,7 +280,6 @@ window.handleAvatarFileSelected = async (event) => {
     const cleanFileName = `avatar_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt.toLowerCase()}`;
     const filePath = `${window.currentUserId}/${cleanFileName}`;
 
-    // Загружаем в chat-attachments (где уже настроены все права INSERT)
     const { error: uploadError } = await _supabase.storage
       .from('chat-attachments')
       .upload(filePath, file, { cacheControl: '3600', upsert: false });
@@ -290,7 +290,6 @@ window.handleAvatarFileSelected = async (event) => {
       .from('chat-attachments')
       .getPublicUrl(filePath);
 
-    // Обновляем ссылку в таблице profiles
     const { error: dbError } = await _supabase
       .from('profiles')
       .update({ avatar_url: publicUrl })
@@ -309,7 +308,7 @@ window.handleAvatarFileSelected = async (event) => {
 
     setTimeout(() => location.reload(), 1000);
   } catch (err) {
-    console.error('Avatar upload detailed error:', err);
+    console.error('Avatar upload error:', err);
     Swal.fire({
       title: 'ERROR',
       text: err.message || 'Failed to update avatar.',
@@ -568,7 +567,7 @@ function setupProfileRealtimeListener() {
     .subscribe();
 }
 
-function goToChat(username) {
+window.goToChat = function(username) {
   if (!username) return;
   window.location.href = `chats.html?to=${username}`;
-}
+};
