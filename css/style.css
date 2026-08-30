@@ -459,28 +459,20 @@ body.chats-page, body.topic-page, body.leaderboard-page {
    SWEETALERT2 / NFS CYBERPUNK HUD GLITCH MODAL (COMPACT & BORDERLESS)
    ========================================================================== */
 
-/* Анимация красно-голубого глитча (умеренная скорость с паузой) */
+/* Аккуратный, сдержанный глитч вплотную к буквам */
 @keyframes cyberRgbGlitch {
   0%, 100% {
-    text-shadow: 1.5px 0 #ff0055, -1.5px 0 #00ffff;
-    transform: translate(0, 0);
+    text-shadow: 0.6px 0 #ff0055, -0.6px 0 #00ffff;
   }
-  15% {
-    text-shadow: -2px 0 #ff0055, 2px 0 #00ffff;
-    transform: translate(-1px, 0.5px);
+  20% {
+    text-shadow: -0.8px 0 #ff0055, 0.8px 0 #00ffff;
   }
-  30% {
-    text-shadow: 2px -0.5px #ff0055, -2px 0.5px #00ffff;
-    transform: translate(1px, -0.5px);
-  }
-  45% {
-    text-shadow: -1px 0.5px #ff0055, 1px -0.5px #00ffff;
-    transform: translate(0, 0);
+  40% {
+    text-shadow: 0.8px 0 #ff0055, -0.8px 0 #00ffff;
   }
   60%, 85% {
-    /* Спокойная фаза без сильных рывков */
-    text-shadow: 1px 0 #ff0055, -1px 0 #00ffff;
-    transform: translate(0, 0);
+    /* Спокойная фаза с едва заметной хроматической аберрацией */
+    text-shadow: 0.4px 0 #ff0055, -0.4px 0 #00ffff;
   }
 }
 
