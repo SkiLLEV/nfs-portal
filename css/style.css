@@ -214,10 +214,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   align-items: center;
 }
 
-#notifyBell:hover {
-  transform: scale(1.1);
-}
-
 #notifyCount {
   position: absolute;
   top: -5px;
