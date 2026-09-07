@@ -181,7 +181,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   font-size: 1.6rem;
   font-weight: 900;
   letter-spacing: 2px;
-  text-shadow: 2px 2px 5px #000;
   font-style: italic;
   text-transform: uppercase;
 }
@@ -213,10 +212,6 @@ body.chats-page, body.topic-page, body.leaderboard-page {
   transition: 0.2s;
   display: flex;
   align-items: center;
-}
-
-#notifyBell:hover {
-  transform: scale(1.1);
 }
 
 #notifyCount {
@@ -1887,7 +1882,7 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
   }
 
   .logo {
-    font-size: 1.2rem;
+    display: none;
   }
 
   .top-navbar div[style*="font-size: 1.8rem"],
@@ -1921,6 +1916,7 @@ button:not(.btn-tuning):not(.steam-friends-toggle-btn):hover::after,
   .main-sidebar::-webkit-scrollbar {
     display: none !important;
   }
+
   .sidebar, .main-sidebar {
     scrollbar-width: none !important;
   }
