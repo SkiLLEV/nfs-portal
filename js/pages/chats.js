@@ -1,4 +1,4 @@
-import { _supabase } from '../config.js';
+import {_supabase} from '../config.js';
 import '../widgets.js';
 import '../global.js';
 
@@ -13,13 +13,13 @@ let selectedFile = null;
 let isSending = false;
 
 window.onload = async () => {
-  const { data: { user } } = await _supabase.auth.getUser();
+  const {data: {user}} = await _supabase.auth.getUser();
   if (!user) {
     window.location.href = 'auth.html';
     return;
   }
 
-  const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
+  const {data: profile} = await _supabase.from('profiles').select('*').eq('id', user.id).single();
   if (profile) {
     myProfile = profile;
     window.myProfile = profile;
@@ -58,7 +58,7 @@ function getStatusColor(username) {
 }
 
 async function fetchSpecialRoles() {
-  const { data } = await _supabase.from('profiles').select('id, username, is_admin, is_vip, avatar_url, status');
+  const {data} = await _supabase.from('profiles').select('id, username, is_admin, is_vip, avatar_url, status');
   if (data) data.forEach(u => specialUsers[u.username] = {
     id: u.id,
     admin: u.is_admin,
@@ -69,8 +69,8 @@ async function fetchSpecialRoles() {
   });
 }
 
-// Выбор файла с проверкой лимита 50 МБ
-window.handleFileSelected = function(event) {
+// File selection with 50 MB limit validation
+window.handleFileSelected = function (event) {
   const file = event.target.files[0];
   if (!file) return;
 
@@ -80,7 +80,7 @@ window.handleFileSelected = function(event) {
       title: 'FILE TOO LARGE',
       text: 'File size exceeds the 50 MB limit.',
       icon: 'error',
-      customClass: { popup: 'nfs-crt-modal' }
+      customClass: {popup: 'nfs-crt-modal'}
     });
     event.target.value = '';
     return;
@@ -95,13 +95,13 @@ window.handleFileSelected = function(event) {
   }
 };
 
-// Загрузка в Supabase Storage с безопасным именем файла
+// Upload to Supabase Storage with a sanitized file name
 async function uploadChatAttachment(file) {
   const fileExt = file.name.split('.').pop() || 'bin';
   const cleanFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt.toLowerCase()}`;
   const filePath = `${myProfile.id}/${cleanFileName}`;
 
-  const { error } = await _supabase.storage
+  const {error} = await _supabase.storage
     .from('chat-attachments')
     .upload(filePath, file, {
       cacheControl: '3600',
@@ -110,7 +110,7 @@ async function uploadChatAttachment(file) {
 
   if (error) throw error;
 
-  const { data } = _supabase.storage
+  const {data} = _supabase.storage
     .from('chat-attachments')
     .getPublicUrl(filePath);
 
@@ -123,10 +123,10 @@ async function loadRecentDMs() {
   if (!container) return;
 
   try {
-    const { data, error } = await _supabase.from('direct_messages')
+    const {data, error} = await _supabase.from('direct_messages')
       .select('*')
       .or(`sender_id.eq.${myProfile.id},receiver_id.eq.${myProfile.id}`)
-      .order('created_at', { ascending: false });
+      .order('created_at', {ascending: false});
 
     if (error) throw error;
 
@@ -138,8 +138,13 @@ async function loadRecentDMs() {
 
         if (otherId && otherId !== myProfile.id) {
           if (!contacts.has(otherId)) {
-            const uData = specialUsers[otherName] || { avatar: null };
-            contacts.set(otherId, { name: otherName, avatar: uData.avatar, lastMsg: m.text || '📎 Attachment', unreadCount: 0 });
+            const uData = specialUsers[otherName] || {avatar: null};
+            contacts.set(otherId, {
+              name: otherName,
+              avatar: uData.avatar,
+              lastMsg: m.text || '📎 Attachment',
+              unreadCount: 0
+            });
           }
           if (m.receiver_id === myProfile.id && m.is_read === false) {
             if (activeChatType !== 'private' || String(activeChatId) !== String(m.sender_id)) {
@@ -150,7 +155,7 @@ async function loadRecentDMs() {
       });
     }
 
-    container.innerHTML = contacts.size > 0 ? '' : '<p style="padding: 20px; font-size: 0.8rem; color: #444;">Нет активных диалогов</p>';
+    container.innerHTML = contacts.size > 0 ? '' : '<p style="padding: 20px; font-size: 0.8rem; color: #444;">No active dialogs</p>';
 
     contacts.forEach((val, id) => {
       const borderColor = getStatusColor(val.name);
@@ -190,7 +195,7 @@ window.switchChat = async (id, name, type) => {
 
   if (type === 'private') {
     document.getElementById(`chat-${id}`)?.classList.add('active');
-    await _supabase.from('direct_messages').update({ is_read: true }).eq('sender_id', id).eq('receiver_id', myProfile.id);
+    await _supabase.from('direct_messages').update({is_read: true}).eq('sender_id', id).eq('receiver_id', myProfile.id);
   } else {
     document.getElementById('publicChatBtn')?.classList.add('active');
   }
@@ -216,22 +221,36 @@ async function loadMessages() {
     ? _supabase.from('messages').select('*').eq('room_id', 'global')
     : _supabase.from('direct_messages').select('*').or(`and(sender_id.eq.${myProfile.id},receiver_id.eq.${activeChatId}),and(sender_id.eq.${activeChatId},receiver_id.eq.${myProfile.id})`);
 
-  const { data } = await query.order('created_at', { ascending: true });
+  const {data} = await query.order('created_at', {ascending: true});
   if (data) data.forEach(m => renderSingleMessage(m));
 }
 
 function renderSingleMessage(msg) {
   const box = document.getElementById('msgBox');
-  if (!box || document.getElementById(`msg-${msg.id}`)) return;
+  if (!box) return;
+
+  const existingMsg = document.getElementById(`msg-${msg.id}`);
+  if (existingMsg) {
+    const textNode = existingMsg.querySelector('.msg-text');
+    if (textNode) textNode.innerText = msg.text || '';
+    return;
+  }
 
   const sender = msg.sender_name;
-  const isMine = (msg.sender_id === myProfile.id) || (sender === myProfile.username);
-  const userData = specialUsers[sender] || { admin: false, avatar: null };
-  const time = new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const isMine = (msg.sender_id && msg.sender_id === myProfile.id) || (sender === myProfile.username);
+  const userData = specialUsers[sender] || {admin: false, avatar: null};
+  const time = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+  const color = getStatusColor(sender);
 
-  let color = getStatusColor(sender);
-  let adminTools = (myProfile.is_admin) ? `<span class="del-btn" onclick="deleteMessage('${msg.id}', '${activeChatType}')">[X]</span>` : "";
-  const avatarHTML = userData.avatar ? `<img src="${userData.avatar}" class="mini-avatar">` : `<div class="mini-avatar">${sender[0].toUpperCase()}</div>`;
+  let actionTools = '';
+  if (isMine || myProfile?.is_admin) {
+    actionTools = `
+      <span class="edit-btn" style="cursor:pointer; margin-left:6px; opacity:0.7;" onclick="editMessage('${msg.id}', '${activeChatType}')">[✎]</span>
+      <span class="del-btn" style="cursor:pointer; margin-left:4px; opacity:0.7; color:#ff4757;" onclick="deleteMessage('${msg.id}', '${activeChatType}')">[X]</span>
+    `;
+  }
+
+  const avatarHTML = userData.avatar ? `<img src="${userData.avatar}" class="mini-avatar">` : `<div class="mini-avatar">${sender ? sender[0].toUpperCase() : 'U'}</div>`;
 
   let mediaHTML = '';
   if (msg.file_url) {
@@ -252,7 +271,7 @@ function renderSingleMessage(msg) {
         <span class="status-square" style="background: ${color};"></span>
       </div>
       <span class="racer-link ${userData.admin ? 'admin-glow' : ''}" onclick="window.location.href='profile.html?u=${sender}'">${sender}</span>
-      ${userData.admin ? '<span class="badge-admin">ADM</span>' : ''} • ${time} ${adminTools}
+      ${userData.admin ? '<span class="badge-admin">ADM</span>' : ''} • ${time} ${actionTools}
     </div>
     ${msg.text ? `<div class="msg-text">${msg.text}</div>` : ''}
     ${mediaHTML}`;
@@ -266,7 +285,7 @@ window.viewFullImage = (url) => {
     showConfirmButton: false,
     showCloseButton: true,
     width: 'auto',
-    customClass: { popup: 'nfs-crt-modal' }
+    customClass: {popup: 'nfs-crt-modal'}
   });
 };
 
@@ -276,7 +295,7 @@ function initTypingTracker() {
   typingChannel = _supabase.channel(`typing:${channelKey}`);
 
   typingChannel
-    .on('broadcast', { event: 'typing' }, (payload) => {
+    .on('broadcast', {event: 'typing'}, (payload) => {
       const userName = payload.payload.user;
       if (userName === myProfile.username) return;
 
@@ -293,7 +312,7 @@ function initTypingTracker() {
   const chatInput = document.getElementById('chatInput');
   if (chatInput) {
     chatInput.oninput = () => {
-      typingChannel.send({ type: 'broadcast', event: 'typing', payload: { user: myProfile.username } });
+      typingChannel.send({type: 'broadcast', event: 'typing', payload: {user: myProfile.username}});
     };
   }
 }
@@ -335,7 +354,7 @@ window.doSendMessage = async () => {
 
     const table = activeChatType === 'public' ? 'messages' : 'direct_messages';
     const payload = activeChatType === 'public'
-      ? { sender_name: myProfile.username, text: text, file_url: fileUrl, room_id: 'global' }
+      ? {sender_name: myProfile.username, text: text, file_url: fileUrl, room_id: 'global'}
       : {
         sender_id: myProfile.id,
         receiver_id: activeChatId,
@@ -345,7 +364,7 @@ window.doSendMessage = async () => {
         file_url: fileUrl
       };
 
-    const { data, error } = await _supabase.from(table).insert([payload]).select();
+    const {data, error} = await _supabase.from(table).insert([payload]).select();
 
     if (error) throw error;
 
@@ -384,32 +403,129 @@ window.doSendMessage = async () => {
 };
 
 window.deleteMessage = async (id, type) => {
+  const result = await Swal.fire({
+    title: 'DELETE MESSAGE?',
+    text: 'This action cannot be undone.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ff4757',
+    cancelButtonColor: '#333',
+    confirmButtonText: 'Yes, delete',
+    cancelButtonText: 'Cancel',
+    customClass: {popup: 'nfs-crt-modal'}
+  });
+
+  if (!result.isConfirmed) return;
+
   const table = (type === 'public') ? 'messages' : 'direct_messages';
-  await _supabase.from(table).delete().eq('id', id);
+  const {error} = await _supabase.from(table).delete().eq('id', id);
+
+  if (error) {
+    Swal.fire({
+      title: 'ERROR',
+      text: error.message,
+      icon: 'error',
+      customClass: {popup: 'nfs-crt-modal'}
+    });
+    return;
+  }
+
   document.getElementById(`msg-${id}`)?.remove();
+  if (type === 'private') await loadRecentDMs();
+};
+
+window.editMessage = async (id, type) => {
+  const msgEl = document.getElementById(`msg-${id}`);
+  const textNode = msgEl ? msgEl.querySelector('.msg-text') : null;
+  const currentText = textNode ? textNode.innerText : '';
+
+  const {value: newText} = await Swal.fire({
+    title: 'EDIT MESSAGE',
+    input: 'textarea',
+    inputValue: currentText,
+    showCancelButton: true,
+    confirmButtonText: 'SAVE',
+    cancelButtonText: 'CANCEL',
+    customClass: {popup: 'nfs-crt-modal'},
+    inputValidator: (value) => {
+      if (!value || !value.trim()) {
+        return 'Message text cannot be empty!';
+      }
+    }
+  });
+
+  if (!newText || newText.trim() === currentText) return;
+
+  const table = (type === 'public') ? 'messages' : 'direct_messages';
+  const {error} = await _supabase.from(table).update({text: newText.trim()}).eq('id', id);
+
+  if (error) {
+    Swal.fire({
+      title: 'ERROR',
+      text: error.message,
+      icon: 'error',
+      customClass: {popup: 'nfs-crt-modal'}
+    });
+    return;
+  }
+
+  if (textNode) textNode.innerText = newText.trim();
+  if (type === 'private') await loadRecentDMs();
 };
 
 function subscribeToChanges() {
-  _supabase.channel('msgs').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
-    if (activeChatType === 'public') renderSingleMessage(p.new);
-  }).subscribe();
+  _supabase.channel('msgs')
+    .on('postgres_changes', {event: 'INSERT', schema: 'public', table: 'messages'}, p => {
+      if (activeChatType === 'public') renderSingleMessage(p.new);
+    })
+    .on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'messages'}, p => {
+      if (activeChatType === 'public') {
+        const textNode = document.querySelector(`#msg-${p.new.id} .msg-text`);
+        if (textNode) textNode.innerText = p.new.text || '';
+      }
+    })
+    .on('postgres_changes', {event: 'DELETE', schema: 'public', table: 'messages'}, p => {
+      document.getElementById(`msg-${p.old.id}`)?.remove();
+    })
+    .subscribe();
 
-  _supabase.channel('dms').on('postgres_changes', {
-    event: 'INSERT',
-    schema: 'public',
-    table: 'direct_messages'
-  }, async (p) => {
-    if (myProfile && (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id)) {
-      if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
-        renderSingleMessage(p.new);
-        if (p.new.sender_id === activeChatId) {
-          await _supabase.from('direct_messages').update({ is_read: true }).eq('id', p.new.id);
+  _supabase.channel('dms')
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'direct_messages'
+    }, async (p) => {
+      if (myProfile && (p.new.receiver_id === myProfile.id || p.new.sender_id === myProfile.id)) {
+        if (activeChatType === 'private' && (p.new.sender_id === activeChatId || p.new.sender_id === myProfile.id)) {
+          renderSingleMessage(p.new);
+          if (p.new.sender_id === activeChatId) {
+            await _supabase.from('direct_messages').update({is_read: true}).eq('id', p.new.id);
+          }
         }
+        await loadRecentDMs();
+        if (typeof updateGlobalMsgBadge === 'function') updateGlobalMsgBadge(_supabase, myProfile.id);
+      }
+    })
+    .on('postgres_changes', {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'direct_messages'
+    }, async (p) => {
+      if (activeChatType === 'private') {
+        const textNode = document.querySelector(`#msg-${p.new.id} .msg-text`);
+        if (textNode) textNode.innerText = p.new.text || '';
       }
       await loadRecentDMs();
-      if (typeof updateGlobalMsgBadge === 'function') updateGlobalMsgBadge(_supabase, myProfile.id);
-    }
-  }).subscribe();
+    })
+    .on('postgres_changes', {
+      event: 'DELETE',
+      schema: 'public',
+      table: 'direct_messages'
+    }, async (p) => {
+      document.getElementById(`msg-${p.old.id}`)?.remove();
+      await loadRecentDMs();
+    })
+    .subscribe();
 }
 
 async function openChatFromURL(targetName) {
@@ -419,7 +535,7 @@ async function openChatFromURL(targetName) {
   if (racer) {
     window.switchChat(racer.id, racer.username, 'private');
   } else {
-    const { data } = await _supabase.from('profiles').select('id, username').eq('username', targetName).maybeSingle();
+    const {data} = await _supabase.from('profiles').select('id, username').eq('username', targetName).maybeSingle();
     if (data) window.switchChat(data.id, data.username, 'private');
   }
 }
