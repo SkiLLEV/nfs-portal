@@ -20,7 +20,7 @@ window.onload = async () => {
   if (me) {
     window.myProfile = me;
 
-    await checkDailyBonus(me);
+    if (typeof checkDailyBonus === 'function') await checkDailyBonus(me);
 
     const savedStatus = localStorage.getItem('driver_status') || me.status || 'ONLINE';
     window.myProfile.status = savedStatus;
@@ -34,7 +34,7 @@ window.onload = async () => {
     if (typeof initGlobalStatus === 'function') initGlobalStatus(_supabase, me);
     if (typeof updateGlobalMsgBadge === 'function') updateGlobalMsgBadge(_supabase, me.id);
 
-    checkAdminReplies();
+    if (typeof checkAdminReplies === 'function') checkAdminReplies();
 
     _supabase.channel('support-realtime')
       .on('postgres_changes', {
@@ -43,7 +43,7 @@ window.onload = async () => {
         table: 'support_tickets',
         filter: `user_id=eq.${me.id}`
       }, (payload) => {
-        checkAdminReplies();
+        if (typeof checkAdminReplies === 'function') checkAdminReplies();
         if (payload.new.status === 'resolved' && !payload.new.is_read) {
           if (typeof playNotificationSound === 'function') playNotificationSound();
         }
@@ -135,6 +135,24 @@ async function updateRacerRank(targetUserId) {
   }
 }
 
+function getMuteRemainingText(mutedUntilDate) {
+  const diffMs = new Date(mutedUntilDate) - new Date();
+  if (diffMs <= 0) return null;
+
+  const totalMinutes = Math.ceil(diffMs / (1000 * 60));
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const remainingMinutes = totalMinutes % 60;
+
+  if (days > 0) {
+    return `${days} д. ${hours} ч.`;
+  }
+  if (hours > 0) {
+    return `${hours} ч. ${remainingMinutes} мин.`;
+  }
+  return `${remainingMinutes} мин.`;
+}
+
 function renderFullProfile(data, isMine) {
   const nameEl = document.getElementById('profName');
   const badgeEl = document.getElementById('badgeContainer');
@@ -150,23 +168,56 @@ function renderFullProfile(data, isMine) {
     else frameEl.classList.add('frame-default');
   }
 
+  const isMuted = data.muted_until && new Date(data.muted_until) > new Date();
+
+  const oldMuteBanner = document.getElementById('muteInfoSubtext');
+  if (oldMuteBanner) oldMuteBanner.remove();
+
   if (nameEl) {
     nameEl.innerText = data.username;
+    nameEl.classList.remove('admin-glow', 'vip-glow');
+
     if (data.is_admin) {
       nameEl.classList.add('admin-glow');
-      if (badgeEl) badgeEl.innerHTML = `<span class="badge badge-admin">ADM</span>`;
     } else if (data.is_vip) {
       nameEl.classList.add('vip-glow');
-      if (badgeEl) badgeEl.innerHTML = `<span class="badge badge-vip">VIP</span>`;
-    } else {
-      if (badgeEl) badgeEl.innerHTML = '';
+    }
+
+    if (isMuted) {
+      const remainingTimeStr = getMuteRemainingText(data.muted_until);
+      const muteBanner = document.createElement('div');
+      muteBanner.id = 'muteInfoSubtext';
+      muteBanner.style.cssText = `
+        font-size: 0.85rem;
+        color: #ff4d4d;
+        font-weight: bold;
+        letter-spacing: 1px;
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: 'Arial', sans-serif;
+      `;
+      muteBanner.innerHTML = `⚠️ MUTED (осталось: <span style="color: #fff;">${remainingTimeStr}</span>)`;
+      nameEl.parentNode.insertBefore(muteBanner, nameEl.nextSibling);
+    }
+
+    if (badgeEl) {
+      let badgesHTML = '';
+      if (data.is_admin) badgesHTML += `<span class="badge badge-admin">ADM</span> `;
+      if (data.is_vip) badgesHTML += `<span class="badge badge-vip">VIP</span> `;
+      badgeEl.innerHTML = badgesHTML;
     }
   }
 
   const adminMuteBtn = document.getElementById('adminMuteBtn');
   if (adminMuteBtn) {
-    if (window.myProfile && window.myProfile.is_admin && !isMine) adminMuteBtn.classList.remove('hidden');
-    else adminMuteBtn.classList.add('hidden');
+    if (window.myProfile && window.myProfile.is_admin && !isMine) {
+      adminMuteBtn.classList.remove('hidden');
+      adminMuteBtn.innerText = isMuted ? 'UNMUTE / EXTEND' : 'MUTE USER';
+    } else {
+      adminMuteBtn.classList.add('hidden');
+    }
   }
 
   const bioEl = document.getElementById('profBio');
@@ -238,7 +289,6 @@ window.viewFullImage = (url) => {
   });
 };
 
-// Клик по аватарке (выбор файла)
 window.handleAvatarClick = () => {
   const isMine = window.myProfile && window.profileData && (window.myProfile.id === window.profileData.id);
   if (isMine) {
@@ -246,12 +296,11 @@ window.handleAvatarClick = () => {
   }
 };
 
-// Загрузка аватарки в Supabase Storage
 window.handleAvatarFileSelected = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  const maxBytes = 15 * 1024 * 1024; // 15 MB
+  const maxBytes = 15 * 1024 * 1024;
   if (file.size > maxBytes) {
     Swal.fire({
       title: 'FILE TOO LARGE',
@@ -320,12 +369,11 @@ window.handleAvatarFileSelected = async (event) => {
   }
 };
 
-// Обработка и прямая загрузка фото машины в гараж
 window.handleCarFileSelected = async (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
-  const maxBytes = 50 * 1024 * 1024; // 50 MB
+  const maxBytes = 50 * 1024 * 1024;
   if (file.size > maxBytes) {
     Swal.fire({
       title: 'FILE TOO LARGE',
@@ -527,13 +575,55 @@ async function removeFriend(requestId) {
 
 window.openMuteModal = async () => {
   if (!window.myProfile || !window.myProfile.is_admin || !window.profileData) return;
+
+  const isCurrentlyMuted = window.profileData.muted_until && new Date(window.profileData.muted_until) > new Date();
+
+  if (isCurrentlyMuted) {
+    const { isConfirmed, isDenied } = await Swal.fire({
+      title: 'MODERATION ACTION',
+      text: `User is muted until: ${new Date(window.profileData.muted_until).toLocaleString()}`,
+      icon: 'warning',
+      showCancelButton: true,
+      showDenyButton: true,
+      confirmButtonText: 'CHANGE DURATION',
+      denyButtonText: 'UNMUTE USER',
+      cancelButtonText: 'CANCEL',
+      customClass: { popup: 'nfs-crt-modal' }
+    });
+
+    if (isDenied) {
+      const { error } = await _supabase.from('profiles').update({ muted_until: null }).eq('id', window.profileData.id);
+      if (!error) {
+        window.profileData.muted_until = null;
+        renderFullProfile(window.profileData, window.profileData.id === window.currentUserId);
+        Swal.fire({
+          title: 'UNMUTED',
+          text: 'User restriction removed.',
+          icon: 'success',
+          timer: 1200,
+          showConfirmButton: false,
+          customClass: { popup: 'nfs-crt-modal' }
+        });
+      }
+      return;
+    }
+
+    if (!isConfirmed) return;
+  }
+
   const { value: minutes } = await Swal.fire({
-    title: 'ВЫДАТЬ МУТ',
+    title: 'MUTE RACER',
     input: 'select',
-    inputOptions: { '15': '15 минут', '60': '1 час', '1440': '24 часа', '10080': '7 дней' },
-    inputPlaceholder: 'Выберите срок наказания',
+    inputOptions: {
+      '15': '15 Minutes',
+      '60': '1 Hour',
+      '1440': '24 Hours',
+      '10080': '7 Days'
+    },
+    inputPlaceholder: 'Select penalty duration',
     showCancelButton: true,
-    confirmButtonText: 'ЗАМУТИТЬ',
+    confirmButtonText: 'APPLY MUTE',
+    cancelButtonText: 'CANCEL',
     customClass: { popup: 'nfs-crt-modal' }
   });
 
@@ -542,7 +632,15 @@ window.openMuteModal = async () => {
     const { error } = await _supabase.from('profiles').update({ muted_until: mutedUntil }).eq('id', window.profileData.id);
     if (!error) {
       window.profileData.muted_until = mutedUntil;
-      setTimeout(() => location.reload(), 1200);
+      renderFullProfile(window.profileData, window.profileData.id === window.currentUserId);
+      Swal.fire({
+        title: 'RESTRICTED',
+        text: 'User has been muted successfully.',
+        icon: 'success',
+        timer: 1200,
+        showConfirmButton: false,
+        customClass: { popup: 'nfs-crt-modal' }
+      });
     }
   }
 };
@@ -562,6 +660,7 @@ function setupProfileRealtimeListener() {
       if (window.myProfile && payload.new.id === window.myProfile.id) {
         window.profileData.status = currentLocal;
       }
+      renderFullProfile(window.profileData, window.profileData.id === window.currentUserId);
       window.updateLiveStatusUI();
     })
     .subscribe();
