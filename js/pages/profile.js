@@ -145,12 +145,12 @@ function getMuteRemainingText(mutedUntilDate) {
   const remainingMinutes = totalMinutes % 60;
 
   if (days > 0) {
-    return `${days} д. ${hours} ч.`;
+    return `${days} d. ${hours} h.`;
   }
   if (hours > 0) {
-    return `${hours} ч. ${remainingMinutes} мин.`;
+    return `${hours} h. ${remainingMinutes} min.`;
   }
-  return `${remainingMinutes} мин.`;
+  return `${remainingMinutes} min.`;
 }
 
 function renderFullProfile(data, isMine) {
@@ -198,7 +198,7 @@ function renderFullProfile(data, isMine) {
         gap: 6px;
         font-family: 'Arial', sans-serif;
       `;
-      muteBanner.innerHTML = `⚠️ MUTED (осталось: <span style="color: #fff;">${remainingTimeStr}</span>)`;
+      muteBanner.innerHTML = `⚠️ MUTED (left: <span style="color: #fff;">${remainingTimeStr}</span>)`;
       nameEl.parentNode.insertBefore(muteBanner, nameEl.nextSibling);
     }
 
